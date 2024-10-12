@@ -1,0 +1,10 @@
+# virtualenv
+.venv/
+venv/
+ENV/
+
+# dotenv
+.env
+
+# Python bytecode cache
+__pycache__/
