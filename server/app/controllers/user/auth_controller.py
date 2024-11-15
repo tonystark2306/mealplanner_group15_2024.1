@@ -2,7 +2,7 @@ from flask import request, jsonify
 from validate_email_address import validate_email
 
 from . import user_api
-from ...email import send_email
+# from ...email import send_email
 from ...services.user_service import (
     validate_login, 
     generate_access_token, 
@@ -67,7 +67,8 @@ def login():
             "resultCode": "00004"
         }), 400
     
-    except Exception:
+    except Exception as e:
+        print(e)
         return jsonify({
             "resultMessage": {
                 "en": "An internal server error has occurred, please try again.",
