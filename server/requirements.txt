@@ -1,0 +1,10 @@
+flask
+flask_sqlalchemy
+alembic
+psycopg2
+celery
+config
+python-dotenv
+validate_email_address
+jwt
+PyJWT

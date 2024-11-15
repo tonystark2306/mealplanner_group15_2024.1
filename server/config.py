@@ -9,7 +9,10 @@ load_dotenv(dotenv_path=env_path)
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "secret_key")
-    CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+    
+    # Celery Configuration
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
     POSTGRESQL_USERNAME = os.environ.get("POSTGRESQL_USERNAME")
     POSTGRESQL_PASSWORD = os.environ.get("POSTGRESQL_PASSWORD")
