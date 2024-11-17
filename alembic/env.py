@@ -17,6 +17,7 @@ from server.app.models.food import Food
 from server.app.models.meal_plan import MealPlan
 from server.app.models.recipe import Recipe  # Add this line
 from server.app.models.shopping import ShoppingList, ShoppingTask  # Add this line 
+from server.app.models.refresh_token import RefreshToken  # Add this line
 # from server.app.models.product import Product
 
 config = context.config
