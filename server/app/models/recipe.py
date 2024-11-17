@@ -1,8 +1,6 @@
 from sqlalchemy import String, Text, DateTime, ForeignKey, Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
-
-from server.app.models.food import Food
 from .base import Base
 from uuid import uuid4
 # Move recipe_foods table here

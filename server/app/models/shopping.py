@@ -9,7 +9,7 @@ class ShoppingList(Base):
     __tablename__ = 'shopping_lists'
     
     id: Mapped[int] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
-    group_id: Mapped[int] = mapped_column(Integer, ForeignKey('groups.id'), nullable=False)
+    group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     assigned_username: Mapped[str] = mapped_column(String(100), nullable=True)
     notes: Mapped[str] = mapped_column(Text, nullable=True)
@@ -30,8 +30,8 @@ class ShoppingTask(Base):
     __tablename__ = 'shopping_tasks'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    list_id: Mapped[int] = mapped_column(Integer, ForeignKey('shopping_lists.id'), nullable=False)
-    food_id: Mapped[int] = mapped_column(Integer, ForeignKey('foods.id'), nullable=False)
+    list_id: Mapped[int] = mapped_column(String(36), ForeignKey('shopping_lists.id'), nullable=False)
+    food_id: Mapped[str] = mapped_column(String(36), ForeignKey('foods.id'), nullable=False)
     quantity: Mapped[str] = mapped_column(String(50), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
