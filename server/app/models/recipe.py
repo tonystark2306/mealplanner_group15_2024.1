@@ -24,7 +24,7 @@ class Recipe(Base):
     foods = relationship('Food', secondary=recipe_foods, backref='recipes')
 
     def __init__(self, dish_name, content_html, description, foods=None):
-        self.dish_name = dish_name  # Sai tên biến - nên là dish_name thay vì title
+        self.dish_name = dish_name
         self.content_html = content_html
         self.description = description
         if foods:

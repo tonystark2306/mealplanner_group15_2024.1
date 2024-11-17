@@ -15,9 +15,17 @@ class Group(Base):
     # Add relationship to leader
     leader = relationship('User', foreign_keys=[leader_id])
 
-    def __init__(self, group_name, leader_id):
+    def __init__(self, user_id, group_name):  # Changed from leader_id to user_id
+        self.leader_id = user_id  # Changed to match the parameter
         self.group_name = group_name
-        self.leader_id = leader_id
+
+    def to_json(self):  # Add to_json method
+        return {
+            'id': self.id,
+            'group_name': self.group_name,
+            'leader_id': self.leader_id,
+            'created_at': str(self.created_at)
+        }
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}

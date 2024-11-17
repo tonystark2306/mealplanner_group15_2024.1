@@ -21,20 +21,31 @@ class User(UserMixin, Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self, email, password_hash, name, language='en', timezone=None, is_verified=False, device_id=None):
+    def __init__(self, email, password_hash, name, language='en', timezone=None, device_id=None, is_verified=False):
         self.email = email
         self.password_hash = password_hash
         self.name = name
         self.language = language
         self.timezone = timezone
         self.is_verified = is_verified
-        self.device_id = device_id
+        self.deviceId = device_id
     
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
     
     def get_id(self):
         return str(self.id)
+    
+    def to_json(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "name": self.name,
+            "language": self.language,
+            "timezone": self.timezone,
+            "is_verified": self.is_verified,
+            "deviceId": self.deviceId
+        }
     
     @property
     def is_active(self):
