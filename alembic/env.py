@@ -13,8 +13,10 @@ from server.app.models.role import Role, UserRole  # Add this line
 from server.app.models.group import Group, GroupMember  # Add this line
 from server.app.models.unit import Unit  # Add this line
 from server.app.models.category import Category  # Add this line
-from server.app.models.food import Food  # Add this line
-from server.app.models.meal_plan import MealPlan  # Add this line
+from server.app.models.food import Food
+from server.app.models.meal_plan import MealPlan
+from server.app.models.recipe import Recipe  # Add this line
+from server.app.models.shopping import ShoppingList, ShoppingTask  # Add this line 
 # from server.app.models.product import Product
 
 config = context.config

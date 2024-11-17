@@ -2,7 +2,9 @@ from flask import Flask
 from celery import Celery
 from config import Config
 from flask_mail import Mail
+from flask_login import LoginManager
 from .models.base import db
+from .models.user import User
 
 mail = Mail()
 celery = Celery(__name__)  # Initialize without broker
@@ -20,6 +22,14 @@ def create_app(config_class=Config):
         result_backend=app.config.get('CELERY_RESULT_BACKEND')
     )
     celery.conf.update(app.config)
+    
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
+    
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(user_id)
     
     class ContextTask(celery.Task):
         def __call__(self, *args, **kwargs):
