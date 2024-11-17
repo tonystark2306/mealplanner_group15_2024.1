@@ -1,12 +1,12 @@
-
 from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
+from uuid import uuid4
 
 class Role(Base):
     __tablename__ = 'roles'
     
-    role_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     role_name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
 
     def __init__(self, role_name):
@@ -18,8 +18,8 @@ class Role(Base):
 class UserRole(Base):
     __tablename__ = 'user_roles'
     
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), primary_key=True)
-    role_id: Mapped[int] = mapped_column(Integer, ForeignKey('roles.role_id'), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), primary_key=True)
+    role_id: Mapped[str] = mapped_column(String(36), ForeignKey('roles.id'), primary_key=True)
 
     # Define relationships
     user = relationship('User', backref='user_roles')

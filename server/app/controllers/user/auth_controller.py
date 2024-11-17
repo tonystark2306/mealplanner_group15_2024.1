@@ -11,6 +11,7 @@ from ...services.user_service import (
     save_new_user,
     generate_confirm_token
 )
+from ...models.login_attempt import LoginAttempt
 
 
 @user_api.route("/login", methods=["POST"])
@@ -36,6 +37,13 @@ def login():
         user = validate_login(email, password)
         
         if not user:
+            # Log failed attempt
+            LoginAttempt.log_login_attempt(
+                user_id=None,
+                ip_address=request.remote_addr,
+                status='failed',
+                user_agent=request.user_agent.string
+            )
             return jsonify({
                 "resultMessage": {
                     "en": "You have entered an invalid email or password.",
@@ -44,6 +52,15 @@ def login():
                 "resultCode": "00045"
             }), 400
             
+        # Log successful login
+        LoginAttempt.log_login_attempt(
+            user_id=user.id,
+            ip_address=request.remote_addr,
+            status='success',
+            user_agent=request.user_agent.string,
+            is_remembered=False  # You can add remember_me option later if needed
+        )
+        
         access_token = generate_access_token(user.id)
         refresh_token = generate_refresh_token(user.id)
 

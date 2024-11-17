@@ -4,8 +4,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 from .base import Base
+from flask_login import UserMixin
 
-class User(Base):
+class User(UserMixin, Base):
     
     __tablename__ = 'users'
     
@@ -31,3 +32,10 @@ class User(Base):
     
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+    
+    def get_id(self):
+        return str(self.id)
+    
+    @property
+    def is_active(self):
+        return self.active  # Assume you have an 'active' column

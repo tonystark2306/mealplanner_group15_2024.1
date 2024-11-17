@@ -1,3 +1,4 @@
+from uuid import uuid4
 from sqlalchemy import String, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
@@ -6,7 +7,7 @@ from .base import Base
 class Group(Base):
     __tablename__ = 'groups'
     
-    group_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     group_name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     leader_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -25,7 +26,7 @@ class GroupMember(Base):
     __tablename__ = 'group_members'
     
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), primary_key=True)
-    group_id: Mapped[int] = mapped_column(Integer, ForeignKey('groups.group_id'), primary_key=True)
+    group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), primary_key=True)
     joined_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     # Define relationships

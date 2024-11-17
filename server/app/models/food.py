@@ -1,26 +1,32 @@
-
-from sqlalchemy import String, Integer, DateTime, ForeignKey
+from uuid import uuid4
+from sqlalchemy import String, DateTime, ForeignKey, Column, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from .base import Base
 
+food_categories = Table(
+    'food_categories',
+    Base.metadata,
+    Column('food_id', String(36), ForeignKey('foods.id'), primary_key=True),
+    Column('category_id', String(36), ForeignKey('categories.id'), primary_key=True)
+)
+
 class Food(Base):
     __tablename__ = 'foods'
     
-    food_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
-    category_id: Mapped[int] = mapped_column(Integer, ForeignKey('categories.category_id'), nullable=False)
-    unit_id: Mapped[int] = mapped_column(Integer, ForeignKey('units.unit_id'), nullable=False)
+    unit_id: Mapped[str] = mapped_column(String(36), ForeignKey('units.id'), nullable=False)
     image_url: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
-    # Define relationships
-    category = relationship('Category', backref='foods')
+    # Update relationships - remove recipes relationship
+    categories = relationship('Category', secondary=food_categories, back_populates='foods')
     unit = relationship('Unit', backref='foods')
 
-    def __init__(self, name, category_id, unit_id, image_url=None):
+    def __init__(self, name, categories, unit_id, image_url=None):
         self.name = name
-        self.category_id = category_id
+        self.categories = categories
         self.unit_id = unit_id
         self.image_url = image_url
 
