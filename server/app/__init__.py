@@ -2,9 +2,8 @@ from flask import Flask
 from celery import Celery
 from config import Config
 from flask_mail import Mail
-from flask_login import LoginManager
 from .models.base import db
-from .models.user import User
+from flask_jwt_extended import JWTManager
 
 mail = Mail()
 celery = Celery(__name__)  # Initialize without broker
@@ -12,6 +11,7 @@ celery = Celery(__name__)  # Initialize without broker
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+    app.config['JWT_SECRET_KEY'] = Config.SECRET_KEY
     
     db.init_app(app)
     mail.init_app(app)
@@ -22,14 +22,8 @@ def create_app(config_class=Config):
         result_backend=app.config.get('CELERY_RESULT_BACKEND')
     )
     celery.conf.update(app.config)
-    
-    login_manager = LoginManager()
-    login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
-    
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(user_id)
+    jwt = JWTManager(app)
+
     
     class ContextTask(celery.Task):
         def __call__(self, *args, **kwargs):

@@ -1,12 +1,10 @@
 from flask import request, jsonify
 from validate_email_address import validate_email
-
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jti
 from . import user_api
 # from ...email import send_email
 from ...services.user_service import (
     validate_login, 
-    generate_access_token, 
-    generate_refresh_token,
     is_email_registered,
     save_new_user,
     generate_confirm_token
@@ -37,13 +35,6 @@ def login():
         user = validate_login(email, password)
         
         if not user:
-            # Log failed attempt
-            LoginAttempt.log_login_attempt(
-                user_id=None,
-                ip_address=request.remote_addr,
-                status='failed',
-                user_agent=request.user_agent.string
-            )
             return jsonify({
                 "resultMessage": {
                     "en": "You have entered an invalid email or password.",
@@ -52,17 +43,17 @@ def login():
                 "resultCode": "00045"
             }), 400
             
-        # Log successful login
-        LoginAttempt.log_login_attempt(
-            user_id=user.id,
-            ip_address=request.remote_addr,
-            status='success',
-            user_agent=request.user_agent.string,
-            is_remembered=False  # You can add remember_me option later if needed
-        )
+
         
-        access_token = generate_access_token(user.id)
-        refresh_token = generate_refresh_token(user.id)
+        access_token = create_access_token(
+            identity=user.id,
+            fresh=True,
+            additional_claims={"type": "access"}
+        )
+        refresh_token = create_refresh_token(
+            identity=user.id,
+            additional_claims={"type": "refresh"}
+        )
 
         return jsonify({
             "resultMessage": {
@@ -70,9 +61,10 @@ def login():
                 "vn": "Bạn đã đăng nhập thành công."
             },
             "resultCode": "00047",
-            "user": "thông tin user", # Chưa hoàn thiện -> sẽ cập nhật thêm thông tin user
+            "user": user.to_json(), # Return actual user info
             "access_token": access_token,
-            "refresh_token": refresh_token
+            "refresh_token": refresh_token,
+            "token_type": "Bearer"
         }), 200
         
     except ValueError:
@@ -134,13 +126,17 @@ def register():
         
     new_user = save_new_user(data["email"], data["password"], data["name"], data["language"], data["timezone"], data["deviceId"])
     confirm_token = generate_confirm_token(new_user.id)
-    # send_email(
-    #     data["email"], 
-    #     "Confirm Your Account",
-    #     "confirm", 
-    #     user=new_user, 
-    #     token=confirm_token
-    # )
+    # try:
+    #     send_email(
+    #         data["email"], 
+    #         "Confirm Your Account",
+    #         "confirm", 
+    #         user=new_user, 
+    #         token=confirm_token
+    #     )
+    # except Exception as e:
+    #     print(e)
+    #     pass
     
     return jsonify({
         "resultMessage": {
@@ -151,3 +147,5 @@ def register():
         "user": "thông  tin user", # Chưa hoàn thiện -> sẽ cập nhật thêm thông tin user
         "confirmToken": confirm_token
     }), 201
+
+
