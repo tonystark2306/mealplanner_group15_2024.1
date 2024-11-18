@@ -2,12 +2,13 @@ from datetime import datetime as dt, timezone, timedelta
 import jwt
 
 from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
-
 from app import db
 from ..models.user import User
-from config import secret_key
+from ..repository.user_repository import UserRepository
 
+
+
+user_repo = UserRepository()
 
 def validate_login(email, password):
     user = db.session.execute(
@@ -42,10 +43,7 @@ def validate_login(email, password):
 
 
 def is_email_registered(email):
-    result = db.session.execute(
-        db.select(User).where(User.email == email)
-    )
-    user = result.scalar_one_or_none()
+    user= user_repo.get_user_by_email(email)
     
     if user:
         print(user.email)
@@ -54,11 +52,10 @@ def is_email_registered(email):
 
 
 def save_new_user(email, password, name, language, timezone, deviceId):
-    password_hash=generate_password_hash(password)
-    new_user = User(email, password_hash, name, language, timezone, deviceId)
-    db.session.add(new_user)
-    db.session.commit()
+    new_user = user_repo.save_new_user(email, password, name, language, timezone, deviceId)
     return new_user
+    
+
 
 
 def generate_confirm_token(user_id):
