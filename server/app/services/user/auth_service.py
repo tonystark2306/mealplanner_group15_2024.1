@@ -61,3 +61,56 @@ def generate_refresh_token(user_id, expires_in=2592000):
     except Exception as e:
         logging.error(f"Error generating access token: {str(e)}")
         raise
+    
+
+def is_email_registered(email):
+    """Checks if an email is already registered."""
+    user = user_repository.get_user_by_email(email)
+    if user:
+        return True
+    return False
+
+
+def save_new_user(email, password, name, language, timezone, device_id):
+    """Save a new user to the database."""
+    try:
+        new_user = user_repository.save_user_to_db(email, password, name, language, timezone, device_id)
+        return new_user
+    
+    except Exception as e:
+        logging.error(f"Error saving new user: {str(e)}")
+        raise
+    
+
+def generate_verification_code(email):
+    """Generate a new verification code for the user."""
+    try:
+        verification_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
+        user = user_repository.get_user_by_email(email)
+        token_repository.save_verification_code(user.id, verification_code)
+        return verification_code
+    
+    except Exception as e:
+        logging.error(f"Error generating verification code: {str(e)}")
+        raise
+
+
+def generate_confirm_token(email, expires_in=1800):
+    """Generates a confirmation token for the user."""
+    try:
+        user_id = user_repository.get_user_by_email(email).id
+        payload = {
+            "user_id": user_id,
+            "exp":  datetime.now(tz=timezone.utc) + timedelta(seconds=expires_in)
+        }
+        new_confirm_token = jwt.encode(payload, secret_key, algorithm="HS256")
+        token_repository.save_confirm_token(user_id, new_confirm_token)
+        return new_confirm_token
+    
+    except jwt.PyJWTError as e:
+        logging.error(f"JWT Error: {str(e)}")
+        raise
+
+    except Exception as e:
+        logging.error(f"Error generating confirm token: {str(e)}")
+        raise

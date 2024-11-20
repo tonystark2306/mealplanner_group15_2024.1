@@ -9,3 +9,11 @@ class TokenInterface(ABC):
     @abstractmethod
     def save_new_refresh_token(self, user_id, new_refresh_token):
         pass
+    
+    @abstractmethod
+    def save_verification_code(self, user_id, code):
+        pass
+    
+    @abstractmethod
+    def save_confirm_token(self, user_id, token):
+        pass

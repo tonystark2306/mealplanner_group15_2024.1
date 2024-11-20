@@ -21,9 +21,9 @@ class User(UserMixin, db.Model):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self, email, password_hash, name, language='en', timezone=None, device_id=None, is_verified=False):
+    def __init__(self, email, password, name, language='en', timezone=None, device_id=None, is_verified=False):
         self.email = email
-        self.password_hash = password_hash
+        self.password_hash = generate_password_hash(password)
         self.name = name
         self.language = language
         self.timezone = timezone

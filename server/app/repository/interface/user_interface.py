@@ -9,3 +9,7 @@ class UserInterface(ABC):
     @abstractmethod
     def get_user_by_email(self, email) -> UserModel:
         pass
+    
+    @abstractmethod
+    def save_user_to_db(self, email, password, name, language, timezone, device_id) -> UserModel:
+        pass
