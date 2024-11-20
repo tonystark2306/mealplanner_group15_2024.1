@@ -62,6 +62,33 @@ def generate_refresh_token(user_id, expires_in=2592000):
         logging.error(f"Error generating access token: {str(e)}")
         raise
     
+    
+def verify_refresh_token(token):
+    """Verify if the provided refresh token is valid and not expired."""
+    try:
+        payload = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = payload.get("user_id")
+        if not user_id:
+            logging.warning("Token missing required field: user_id.")
+            return None
+
+        existing_token = token_repository.get_token_by_user_id(user_id)
+        if not existing_token or existing_token.refresh_token != token:
+            return None
+        
+        return user_id
+
+    except jwt.ExpiredSignatureError:
+        logging.warning("Refresh token expired.")
+        return None
+    except jwt.InvalidTokenError:
+        logging.warning("Invalid refresh token.")
+        return None
+    except Exception as e:
+        logging.error(f"Error verifying refresh token: {str(e)}")
+        raise
+
+    
 
 def is_email_registered(email):
     """Checks if an email is already registered."""

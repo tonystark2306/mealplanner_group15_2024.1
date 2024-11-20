@@ -10,6 +10,12 @@ from .. import db
 class TokenRepository(TokenInterface):
     def __init__(self):
         pass
+    
+    
+    def get_token_by_user_id(self, user_id):
+        return db.session.execute(
+            db.select(TokenModel).where(TokenModel.user_id == user_id)
+        ).scalar()
         
         
     def save_new_refresh_token(self, user_id, new_refresh_token):

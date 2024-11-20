@@ -11,7 +11,8 @@ from ...services.user.auth_service import (
     is_email_registered,
     save_new_user,
     generate_verification_code,
-    generate_confirm_token
+    generate_confirm_token,
+    verify_refresh_token
 )
 from ...email import send_email
 
@@ -67,6 +68,68 @@ def login():
             "user": user.to_json(),
             "access_token": access_token,
             "refresh_token": refresh_token
+        }), 200
+        
+    except ValueError:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid JSON data.",
+                "vn": "Dữ liệu JSON không hợp lệ."
+            },
+            "resultCode": "00004"
+        }), 400
+        
+    except Exception as e:
+        logging.error(f"Internal server error: {str(e)}")
+        return jsonify({
+            "resultMessage": {
+                "en": "An internal server error has occurred, please try again.",
+                "vn": "Đã xảy ra lỗi máy chủ nội bộ, vui lòng thử lại."
+            },
+            "resultCode": "00008"
+        }), 500
+        
+        
+@user_api.route("/refresh-token", methods=["POST"])
+def refresh_token():
+    try:
+        data = request.get_json()
+        if data is None:
+            raise ValueError("Dữ liệu JSON không hợp lệ.")
+        
+        refresh_token = data.get("refresh_token")
+        
+        if refresh_token is None:
+            return jsonify({
+                "resultMessage": {
+                    "en": "Please provide all required fields!",
+                    "vn": "Vui lòng cung cấp tất cả các trường bắt buộc!"
+                },
+                "resultCode": "00025"
+            }), 400
+        
+        user_id = verify_refresh_token(refresh_token)
+        
+        if user_id is None:
+            return jsonify({
+                "resultMessage": {
+                    "en": "Invalid token. Token may have expired.",
+                    "vn": "Token không hợp lệ. Token có thể đã hết hạn."
+                },
+                "resultCode": "00012"
+            }), 400
+            
+        new_access_token = generate_access_token(user_id)
+        new_refresh_token = generate_refresh_token(user_id)
+
+        return jsonify({
+            "resultMessage": {
+                "en": "Token refreshed successfully.",
+                "vn": "Token đã được làm mới thành công."
+            },
+            "resultCode": "00065",
+            "access_token": new_access_token,
+            "refresh_token": new_refresh_token
         }), 200
         
     except ValueError:

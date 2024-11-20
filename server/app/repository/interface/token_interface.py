@@ -7,6 +7,10 @@ class TokenInterface(ABC):
         pass
     
     @abstractmethod
+    def get_token_by_user_id(self, user_id):
+        pass
+    
+    @abstractmethod
     def save_new_refresh_token(self, user_id, new_refresh_token):
         pass
     
