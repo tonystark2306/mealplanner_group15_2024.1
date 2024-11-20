@@ -21,3 +21,7 @@ class TokenInterface(ABC):
     @abstractmethod
     def save_confirm_token(self, user_id, token):
         pass
+    
+    @abstractmethod
+    def delete_refresh_token(self, user_id):
+        pass

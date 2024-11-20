@@ -191,3 +191,15 @@ def verify_user_email(email):
     except Exception as e:
         logging.error(f"Error verifying user email: {str(e)}")
         raise
+    
+    
+def invalidate_token(user_id):
+    """Invalidate a user's refresh token."""
+    try:
+        if token_repository.delete_refresh_token(user_id):
+            return True
+        return False
+    
+    except Exception as e:
+        logging.error(f"Error invalidating token: {str(e)}")
+        raise

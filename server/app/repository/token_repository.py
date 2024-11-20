@@ -81,3 +81,19 @@ class TokenRepository(TokenInterface):
             db.session.rollback() 
             logging.error(f"Error saving confirm token: {str(e)}")
             raise
+        
+        
+    def delete_refresh_token(self, user_id):
+        try:
+            token = self.get_token_by_user_id(user_id)
+            if not token:
+                return False
+            
+            token.refresh_token = None
+            db.session.commit()
+            return True
+        
+        except Exception as e:
+            db.session.rollback() 
+            logging.error(f"Error deleting refresh token: {str(e)}")
+            raise

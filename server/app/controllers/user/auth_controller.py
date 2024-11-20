@@ -15,9 +15,11 @@ from ...services.user.auth_service import (
     verify_refresh_token,
     is_verified,
     verify_verification_code,
-    verify_user_email
+    verify_user_email,
+    invalidate_token
 )
 from ...email import send_email
+from ...utils.decorator import JWT_required
 
 
 @user_api.route("/login", methods=["POST"])
@@ -155,6 +157,32 @@ def refresh_token():
         }), 500
         
         
+@user_api.route("/logout", methods=["POST"])
+@JWT_required
+def logout(user_id):
+    try:
+        if invalidate_token(user_id):
+            return "", 204
+        
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid token.",
+                "vn": "Token không hợp lệ. Token có thể đã hết hạn."
+            },
+            "resultCode": "00012"
+        }), 401
+
+    except Exception as e:
+        logging.error(f"Internal server error: {str(e)}")
+        return jsonify({
+            "resultMessage": {
+                "en": "An internal server error has occurred, please try again.",
+                "vn": "Đã xảy ra lỗi máy chủ nội bộ, vui lòng thử lại."
+            },
+            "resultCode": "00008"
+        }), 500
+        
+        
 @user_api.route("/register", methods=["POST"])
 def register():
     try:
@@ -183,7 +211,8 @@ def register():
                 "resultCode": "00026"
             }), 400
         
-        if is_email_registered(data["email"]):
+        existed_user = check_email_registered(data["email"])
+        if existed_user:
             return jsonify({
                 "resultMessage": {
                     "en": "An account with this email address already exists.",
