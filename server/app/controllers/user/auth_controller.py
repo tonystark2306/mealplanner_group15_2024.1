@@ -13,7 +13,9 @@ from ...services.user.auth_service import (
     generate_verification_code,
     generate_confirm_token,
     verify_refresh_token,
-    is_verified
+    is_verified,
+    verify_verification_code,
+    verify_user_email
 )
 from ...email import send_email
 
@@ -296,6 +298,67 @@ def send_verification_code():
             "confirmToken": confirm_token
         }), 200
         
+    except ValueError:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid JSON data.",
+                "vn": "Dữ liệu JSON không hợp lệ."
+            },
+            "resultCode": "00004"
+        }), 400
+        
+    except Exception as e:
+        logging.error(f"Internal server error: {str(e)}")
+        return jsonify({
+            "resultMessage": {
+                "en": "An internal server error has occurred, please try again.",
+                "vn": "Đã xảy ra lỗi máy chủ nội bộ, vui lòng thử lại."
+            },
+            "resultCode": "00008"
+        }), 500
+        
+        
+@user_api.route("/verify-email", methods=["POST"])
+def verify_email():
+    try:
+        data = request.get_json()
+        if data is None:
+            raise ValueError("Dữ liệu JSON không hợp lệ.")
+        
+        confirm_token = data.get("confirm_token")
+        verification_code = data.get("verification_code")
+
+        if not confirm_token or not verification_code:
+            return jsonify({
+                "resultMessage": {
+                    "en": "Please provide all required fields!",
+                    "vn": "Vui lòng cung cấp tất cả các trường bắt buộc!"
+                },
+                "resultCode": "00025"
+            }), 400
+        
+        user = verify_verification_code(confirm_token, verification_code)
+        if user and verify_user_email(user.email):
+            access_token = generate_access_token(user.id)
+            refresh_token = generate_refresh_token(user.id)
+            return jsonify({
+                "resultMessage": {
+                    "en": "Your email address has been verified successfully.",
+                    "vn": "Địa chỉ email của bạn đã được xác minh thành công."
+                },
+                "resultCode": "00058",
+                "access_token": access_token,
+                "refresh_token": refresh_token
+            }), 200
+        else:
+            return jsonify({
+                "resultMessage": {
+                    "en": "The code you entered does not match the code we sent to your email. Please check again.",
+                    "vn": "Mã bạn nhập không khớp với mã chúng tôi đã gửi đến email của bạn. Vui lòng kiểm tra lại."
+                },
+                "resultCode": "00054"
+            }), 400
+            
     except ValueError:
         return jsonify({
             "resultMessage": {

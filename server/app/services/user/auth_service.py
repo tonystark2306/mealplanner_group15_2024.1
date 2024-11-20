@@ -147,3 +147,47 @@ def is_verified(email):
         return True
     
     return False
+
+
+def verify_verification_code(confirm_token, verification_code):
+    """Verifies the confirmation token and verification code."""
+    try:
+        payload = jwt.decode(confirm_token, secret_key, algorithms=["HS256"])
+        user_id = payload.get("user_id")
+        if not user_id:
+            logging.warning("Token missing required field: user_id.")
+            return None
+
+        token = token_repository.get_token_by_user_id(user_id)
+        
+        if (
+            token is None or token.confirm_token != confirm_token or
+            token.verification_code != verification_code or
+            token.verification_code_expires_at < datetime.now(tz=timezone.utc)
+        ):
+            return None
+        
+        return user_repository.get_user_by_id(user_id)
+    
+    except jwt.ExpiredSignatureError:
+        logging.warning("Confirm token expired.")
+        return None
+    except jwt.InvalidTokenError:
+        logging.warning("Invalid confirm token.")
+        return None
+    except Exception as e:
+        logging.error(f"Error verifying verification code: {str(e)}")
+        raise
+    
+    
+def verify_user_email(email):
+    """Verifies a user's email."""
+    try:
+        is_verified = user_repository.update_verification_status(email)
+        if not is_verified:
+            return False
+        return True
+    
+    except Exception as e:
+        logging.error(f"Error verifying user email: {str(e)}")
+        raise

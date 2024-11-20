@@ -14,15 +14,10 @@ class Token(db.Model):
     # Token fields
     refresh_token: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
     confirm_token: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
-    reset_token: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
     
     # Verification token fields
     verification_code: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
     verification_code_expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    
-    # Password reset token fields
-    reset_code: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
-    reset_code_expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
     user = relationship('User', foreign_keys=[user_id])
 

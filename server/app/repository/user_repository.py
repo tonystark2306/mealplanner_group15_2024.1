@@ -8,6 +8,12 @@ from .. import db
 class UserRepository(UserInterface):
     def __init__(self):
         pass
+    
+    
+    def get_user_by_id(self, id) -> UserModel:
+        return db.session.execute(
+            db.select(UserModel).where(UserModel.id == id)
+        ).scalar()
 
 
     def get_user_by_email(self, email) -> UserModel:
@@ -33,4 +39,20 @@ class UserRepository(UserInterface):
         except Exception as e: 
             db.session.rollback()
             logging.error(f"Error saving user to the database: {str(e)}")
+            raise
+        
+        
+    def update_verification_status(self, email) -> bool:
+        try:
+            user = self.get_user_by_email(email)
+            if not user:
+                return False
+            
+            user.is_verified = True
+            db.session.commit()
+            return True
+        
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error updating verification status: {str(e)}")
             raise
