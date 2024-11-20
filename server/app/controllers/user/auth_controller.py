@@ -5,18 +5,9 @@ from validate_email_address import validate_email
 
 from . import user_api
 from ...services.user.auth_service import (
-    validate_login,
-    generate_access_token,
-    generate_refresh_token,
-    check_email_registered,
-    save_new_user,
-    generate_verification_code,
-    generate_confirm_token,
-    verify_refresh_token,
-    is_verified,
-    verify_verification_code,
-    verify_user_email,
-    invalidate_token
+    validate_login, generate_access_token, generate_refresh_token, check_email_registered,
+    save_new_user, generate_verification_code, generate_confirm_token, invalidate_token,
+    verify_refresh_token, verify_verification_code, verify_user_email, is_verified
 )
 from ...email import send_email
 from ...utils.decorator import JWT_required

@@ -89,7 +89,6 @@ def verify_refresh_token(token):
         raise
 
     
-
 def check_email_registered(email):
     """Checks if an email is already registered."""
     return user_repository.get_user_by_email(email)
@@ -117,36 +116,6 @@ def generate_verification_code(email):
     except Exception as e:
         logging.error(f"Error generating verification code: {str(e)}")
         raise
-
-
-def generate_confirm_token(email, expires_in=1800):
-    """Generates a confirmation token for the user."""
-    try:
-        user_id = user_repository.get_user_by_email(email).id
-        payload = {
-            "user_id": user_id,
-            "exp":  datetime.now(tz=timezone.utc) + timedelta(seconds=expires_in)
-        }
-        new_confirm_token = jwt.encode(payload, secret_key, algorithm="HS256")
-        token_repository.save_confirm_token(user_id, new_confirm_token)
-        return new_confirm_token
-    
-    except jwt.PyJWTError as e:
-        logging.error(f"JWT Error: {str(e)}")
-        raise
-
-    except Exception as e:
-        logging.error(f"Error generating confirm token: {str(e)}")
-        raise
-    
-    
-def is_verified(email):
-    """Check if a user has been verified."""
-    user = user_repository.get_user_by_email(email)
-    if user and user.is_verified:
-        return True
-    
-    return False
 
 
 def verify_verification_code(confirm_token, verification_code):
@@ -178,6 +147,36 @@ def verify_verification_code(confirm_token, verification_code):
     except Exception as e:
         logging.error(f"Error verifying verification code: {str(e)}")
         raise
+    
+    
+def generate_confirm_token(email, expires_in=1800):
+    """Generates a confirmation token for the user."""
+    try:
+        user_id = user_repository.get_user_by_email(email).id
+        payload = {
+            "user_id": user_id,
+            "exp":  datetime.now(tz=timezone.utc) + timedelta(seconds=expires_in)
+        }
+        new_confirm_token = jwt.encode(payload, secret_key, algorithm="HS256")
+        token_repository.save_confirm_token(user_id, new_confirm_token)
+        return new_confirm_token
+    
+    except jwt.PyJWTError as e:
+        logging.error(f"JWT Error: {str(e)}")
+        raise
+
+    except Exception as e:
+        logging.error(f"Error generating confirm token: {str(e)}")
+        raise
+    
+    
+def is_verified(email):
+    """Check if a user has been verified."""
+    user = user_repository.get_user_by_email(email)
+    if user and user.is_verified:
+        return True
+    
+    return False
     
     
 def verify_user_email(email):
