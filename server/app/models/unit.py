@@ -1,10 +1,10 @@
 from sqlalchemy import String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
-from .base import Base
+from app import db
 from uuid import uuid4
 
-class Unit(Base):
+class Unit(db.Model):
     __tablename__ = 'units'
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))

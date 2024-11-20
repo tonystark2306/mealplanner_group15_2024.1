@@ -1,9 +1,9 @@
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from .base import Base
+from app import db
 from uuid import uuid4
 
-class Role(Base):
+class Role(db.Model):
     __tablename__ = 'roles'
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
@@ -15,7 +15,7 @@ class Role(Base):
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
-class UserRole(Base):
+class UserRole(db.Model):
     __tablename__ = 'user_roles'
     
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), primary_key=True)

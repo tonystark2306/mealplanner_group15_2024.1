@@ -2,9 +2,9 @@ from uuid import uuid4
 from sqlalchemy import String, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
-from .base import Base
+from app import db
 
-class LoginAttempt(Base):
+class LoginAttempt(db.Model):
     __tablename__ = 'login_attempts'
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))

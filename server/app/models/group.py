@@ -2,9 +2,9 @@ from uuid import uuid4
 from sqlalchemy import Double, String, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
-from .base import Base
+from app import db
 
-class Group(Base):
+class Group(db.Model):
     __tablename__ = 'groups'
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
@@ -30,7 +30,7 @@ class Group(Base):
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
-class GroupMember(Base):
+class GroupMember(db.Model):
     __tablename__ = 'group_members'
     
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), primary_key=True)
@@ -47,7 +47,7 @@ class GroupMember(Base):
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
     
-class FridgeItem(Base):
+class FridgeItem(db.Model):
     __tablename__ = 'fridge_items'
     
     group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), primary_key=True)
