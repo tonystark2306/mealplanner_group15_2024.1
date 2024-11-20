@@ -8,11 +8,12 @@ from ...services.user.auth_service import (
     validate_login,
     generate_access_token,
     generate_refresh_token,
-    is_email_registered,
+    check_email_registered,
     save_new_user,
     generate_verification_code,
     generate_confirm_token,
-    verify_refresh_token
+    verify_refresh_token,
+    is_verified
 )
 from ...email import send_email
 
@@ -209,6 +210,91 @@ def register():
             "user": new_user.to_json(),
             "confirmToken": confirm_token
         }), 201
+        
+    except ValueError:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid JSON data.",
+                "vn": "Dữ liệu JSON không hợp lệ."
+            },
+            "resultCode": "00004"
+        }), 400
+        
+    except Exception as e:
+        logging.error(f"Internal server error: {str(e)}")
+        return jsonify({
+            "resultMessage": {
+                "en": "An internal server error has occurred, please try again.",
+                "vn": "Đã xảy ra lỗi máy chủ nội bộ, vui lòng thử lại."
+            },
+            "resultCode": "00008"
+        }), 500
+        
+        
+@user_api.route("/send-verification-code", methods=["POST"])
+def send_verification_code():
+    try:
+        data = request.get_json()
+        if data is None:
+            raise ValueError("Dữ liệu JSON không hợp lệ.")
+        
+        email = data.get("email")
+
+        if not email:
+            return jsonify({
+                "resultMessage": {
+                    "en": "Please provide all required fields!",
+                    "vn": "Vui lòng cung cấp tất cả các trường bắt buộc!"
+                },
+                "resultCode": "00025"
+            }), 400
+            
+        if not validate_email(email):
+            return jsonify({
+                "resultMessage": {
+                    "en": "Please provide a valid email address!",
+                    "vn": "Vui lòng cung cấp một địa chỉ email hợp lệ!"
+                },
+                "resultCode": "00026"
+            }), 400
+
+        registered_user = check_email_registered(email)
+        if not registered_user:
+            return jsonify({
+                "resultMessage": {
+                    "en": "Your email has not been activated, please register first.",
+                    "vn": "Email của bạn chưa được kích hoạt, vui lòng đăng ký trước."
+                },
+                "resultCode": "00043"
+            }), 400
+            
+        if is_verified(email):
+            return jsonify({
+                "resultMessage": {
+                    "en": "Your email has already been verified.",
+                    "vn": "Email của bạn đã được xác minh."
+                },
+                "resultCode": "00046"
+            }), 400
+
+        verification_code = generate_verification_code(email)
+        confirm_token = generate_confirm_token(email)
+        send_email(
+            to=data["email"], 
+            subject="Your Verification Code from Meal Planner",
+            template="confirm",
+            user=registered_user,
+            code=verification_code
+        )
+
+        return jsonify({
+            "resultMessage": {
+                "en": "Code has been sent to your email successfully.",
+                "vn": "Mã đã được gửi đến email của bạn thành công."
+            },
+            "resultCode": "00048",
+            "confirmToken": confirm_token
+        }), 200
         
     except ValueError:
         return jsonify({

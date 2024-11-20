@@ -90,12 +90,9 @@ def verify_refresh_token(token):
 
     
 
-def is_email_registered(email):
+def check_email_registered(email):
     """Checks if an email is already registered."""
-    user = user_repository.get_user_by_email(email)
-    if user:
-        return True
-    return False
+    return user_repository.get_user_by_email(email)
 
 
 def save_new_user(email, password, name, language, timezone, device_id):
@@ -141,3 +138,12 @@ def generate_confirm_token(email, expires_in=1800):
     except Exception as e:
         logging.error(f"Error generating confirm token: {str(e)}")
         raise
+    
+    
+def is_verified(email):
+    """Check if a user has been verified."""
+    user = user_repository.get_user_by_email(email)
+    if user and user.is_verified:
+        return True
+    
+    return False
