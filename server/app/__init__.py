@@ -25,7 +25,8 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
-    
+    #import tất cả các model vào đây
+    from app.models import user, group, token, category, food, recipe, meal_plan, role, login_attempt, shopping, unit
     celery.conf.update(app.config)
     
     from .controllers.user import user_api
