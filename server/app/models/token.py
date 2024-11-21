@@ -19,10 +19,20 @@ class Token(Base):
     verification_code: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
     verification_code_expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
-    user = db.relationship('User', back_populates='tokens')
+    user = relationship('User', foreign_keys=[user_id])
 
-    def __init__(self, user_id: str):
+    def __init__(self, 
+                 user_id: Optional[str] = None, 
+                 refresh_token: Optional[str] = None, 
+                 confirm_token: Optional[str] = None, 
+                 verification_code: Optional[str] = None, 
+                 verification_code_expires_at: Optional[datetime] = None,
+                 **kwargs):
         self.user_id = user_id
+        self.refresh_token = refresh_token
+        self.confirm_token = confirm_token
+        self.verification_code = verification_code
+        self.verification_code_expires_at = verification_code_expires_at
 
     def set_refresh_token(self, token: str):
         self.refresh_token = token
