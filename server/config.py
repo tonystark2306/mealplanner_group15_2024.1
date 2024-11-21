@@ -3,21 +3,18 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 
-env_path = Path("server") / ".env"
+env_path = Path(".") / ".env"
 load_dotenv(dotenv_path=env_path)
 
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "secret_key")
-    
-    # Celery Configuration
-    CELERY_BROKER_URL = 'redis://localhost:6379/0'
-    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
 
     POSTGRESQL_USERNAME = os.environ.get("POSTGRESQL_USERNAME")
     POSTGRESQL_PASSWORD = os.environ.get("POSTGRESQL_PASSWORD")
-    POSTGRESQL_HOST = os.environ.get("POSTGRESQL_HOST", "localhost")
-    POSTGRESQL_PORT = os.environ.get("POSTGRESQL_PORT", "5432")
+    POSTGRESQL_HOST = os.environ.get("POSTGRESQL_HOST")
+    POSTGRESQL_PORT = os.environ.get("POSTGRESQL_PORT")
     POSTGRESQL_DBNAME = os.environ.get("POSTGRESQL_DBNAME")
     SQLALCHEMY_DATABASE_URI = (
         os.environ.get("DATABASE_URL") or
@@ -31,7 +28,7 @@ class Config:
     MAIL_USE_SSL = False
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
-    MAIL_DEFAULT_SENDER = ""
+    MAIL_DEFAULT_SENDER = "minhnguyenhai26032003@gmail.com"
     MAIL_SUBJECT_PREFIX = "[Meal Planner]"
     
 

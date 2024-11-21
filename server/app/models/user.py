@@ -3,10 +3,10 @@ from sqlalchemy import String, Integer, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.security import generate_password_hash
 from datetime import datetime
-from .base import Base
+from app import db
 from flask_login import UserMixin
 
-class User(UserMixin, Base):
+class User(UserMixin, db.Model):
     
     __tablename__ = 'users'
     
@@ -21,9 +21,9 @@ class User(UserMixin, Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self, email, password_hash, name, language='en', timezone=None, device_id=None, is_verified=False):
+    def __init__(self, email, password, name, language='en', timezone=None, device_id=None, is_verified=False):
         self.email = email
-        self.password_hash = password_hash
+        self.password_hash = generate_password_hash(password)
         self.name = name
         self.language = language
         self.timezone = timezone
