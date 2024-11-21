@@ -9,20 +9,23 @@ class Group(Base):
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     group_name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    group_avatar: Mapped[str] = mapped_column(String(255), nullable=True)
     admin_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     # Add relationship to admin
     admin = relationship('User', foreign_keys=[admin_id])
 
-    def __init__(self, user_id, group_name):
+    def __init__(self, user_id, group_name, avatar_url):
         self.admin_id = user_id
         self.group_name = group_name
+        self.group_avatar = avatar_url
 
     def to_json(self):
         return {
             'id': self.id,
             'group_name': self.group_name,
+            'group_avatar': self.group_avatar,
             'admin_id': self.admin_id,
             'created_at': str(self.created_at)
         }
