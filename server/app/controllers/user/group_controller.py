@@ -9,7 +9,7 @@
 
 #import
 from flask import request, jsonify
-from server.app.services.user.group_service import create_group
+from ...services.user.group_service import create_group
 from . import user_api
 from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
 
