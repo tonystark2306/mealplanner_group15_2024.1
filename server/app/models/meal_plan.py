@@ -2,22 +2,24 @@ from uuid import uuid4
 from sqlalchemy import String, DateTime, ForeignKey, Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
-from app import db
+from app import Base
 
 # New association tables
 meal_plan_recipes = Table(
     'meal_plan_recipes',
+    Base.metadata,
     Column('plan_id', String(36), ForeignKey('meal_plans.id'), primary_key=True),
     Column('recipe_id', String(36), ForeignKey('recipes.id'), primary_key=True)
 )
 
 meal_plan_foods = Table(
     'meal_plan_foods',
+    Base.metadata,
     Column('plan_id', String(36), ForeignKey('meal_plans.id'), primary_key=True),
     Column('food_id', String(36), ForeignKey('foods.id'), primary_key=True)
 )
 
-class MealPlan(db.Model):
+class MealPlan(Base):
     __tablename__ = 'meal_plans'
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))

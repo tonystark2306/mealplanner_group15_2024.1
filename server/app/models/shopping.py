@@ -3,9 +3,9 @@ from sqlalchemy import String, Text, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from uuid import uuid4
-from app import db
+from app import Base
 
-class ShoppingList(db.Model):
+class ShoppingList(Base):
     __tablename__ = 'shopping_lists'
     
     id: Mapped[int] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
@@ -26,7 +26,7 @@ class ShoppingList(db.Model):
         self.notes = notes
         self.due_date = due_date
 
-class ShoppingTask(db.Model):
+class ShoppingTask(Base):
     __tablename__ = 'shopping_tasks'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)

@@ -3,9 +3,9 @@ from uuid import uuid4
 from sqlalchemy import String, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
-from app import db
+from app import Base, db
 
-class Token(db.Model):
+class Token(Base):
     __tablename__ = 'tokens'
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
@@ -19,7 +19,7 @@ class Token(db.Model):
     verification_code: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
     verification_code_expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
-    user = relationship('User', foreign_keys=[user_id])
+    user = db.relationship('User', back_populates='tokens')
 
     def __init__(self, user_id: str):
         self.user_id = user_id

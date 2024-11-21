@@ -3,10 +3,10 @@ from sqlalchemy import String, Integer, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.security import generate_password_hash
 from datetime import datetime
-from app import db
+from app import db, Base
 from flask_login import UserMixin
 
-class User(UserMixin, db.Model):
+class User(UserMixin, Base):
     
     __tablename__ = 'users'
     

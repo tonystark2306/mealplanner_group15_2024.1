@@ -1,16 +1,17 @@
 from sqlalchemy import String, Text, DateTime, ForeignKey, Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
-from app import db
+from app import Base
 from uuid import uuid4
 # Move recipe_foods table here
 recipe_foods = Table(
     'recipe_foods',
+    Base.metadata,
     Column('recipe_id', String(36), ForeignKey('recipes.id'), primary_key=True),
     Column('food_id', String(36), ForeignKey('foods.id'), primary_key=True)
 )
 
-class Recipe(db.Model):
+class Recipe(Base):
     __tablename__ = 'recipes'
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
