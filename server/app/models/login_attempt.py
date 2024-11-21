@@ -3,6 +3,7 @@ from sqlalchemy import String, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from .base import Base
+from app import db
 
 class LoginAttempt(Base):
     __tablename__ = 'login_attempts'
@@ -30,10 +31,14 @@ class LoginAttempt(Base):
 
     @classmethod
     def log_login_attempt(cls, user_id, ip_address, status, user_agent=None, is_remembered=False):
-        return cls(
+        #ghi vào db
+        log_attempt = LoginAttempt(
             user_id=user_id,
             ip_address=ip_address,
             status=status,
             user_agent=user_agent,
             is_remembered=is_remembered
         )
+        db.session.add(log_attempt)
+        db.session.commit()
+        return cls().save(log_attempt)
