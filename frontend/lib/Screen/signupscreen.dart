@@ -14,6 +14,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
   bool _isPasswordHidden = true;
+  bool _isHovering = false;
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +157,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          primary: const Color(0xFF1D976C),
+                          backgroundColor: const Color(0xFF1D976C),
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -194,17 +195,40 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             textStyle: const TextStyle(color: Colors.white70),
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            // Chuyển đến màn hình đăng nhập
+                        MouseRegion(
+                          onEnter: (_) {
+                            setState(() {
+                              _isHovering = true;
+                            });
                           },
-                          child: Text(
-                            "Login",
-                            style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          onExit: (_) {
+                            setState(() {
+                              _isHovering = false;
+                            });
+                          },
+                          child: GestureDetector(
+                            onTap: () {
+                              // Chuyển đến màn hình đăng nhập
+                              Navigator.pushNamed(context, '/login');
+                            },
+                            child: Column(
+                              children: [
+                                Text(
+                                  "Login",
+                                  style: GoogleFonts.poppins(
+                                    textStyle: TextStyle(
+                                      color: _isHovering ? Colors.white : Colors.white70,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  height: 2,
+                                  width: _isHovering ? 50 : 0,
+                                  color: Colors.white,
+                                ),
+                              ],
                             ),
                           ),
                         ),
