@@ -11,18 +11,19 @@ class ShoppingList(Base):
     id: Mapped[int] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    assigned_username: Mapped[str] = mapped_column(String(100), nullable=True)
+    assigned_to: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=True)
     notes: Mapped[str] = mapped_column(Text, nullable=True)
-    due_date: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    due_time: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     group = relationship('Group', backref='shopping_lists')
     tasks = relationship('ShoppingTask', backref='shopping_list', lazy=True)
+    user = relationship('User', backref='shopping_lists', lazy=True)
 
-    def __init__(self, name, group_id,  assigned_username=None, notes=None, due_date=None):
+    def __init__(self, name, group_id,  user_id=None, notes=None, due_date=None):
         self.name = name
         self.group_id = group_id
-        self.assigned_username = assigned_username
+        self.assigned_to = user_id
         self.notes = notes
         self.due_date = due_date
 
@@ -33,6 +34,7 @@ class ShoppingTask(Base):
     list_id: Mapped[str] = mapped_column(String(36), ForeignKey('shopping_lists.id'), nullable=False)
     food_id: Mapped[str] = mapped_column(String(36), ForeignKey('foods.id'), nullable=False)
     quantity: Mapped[str] = mapped_column(String(50), nullable=False)
+    status: Mapped[str] = mapped_column(String(10), nullable=False, default='pending')
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     food = relationship('Food', backref='tasks')

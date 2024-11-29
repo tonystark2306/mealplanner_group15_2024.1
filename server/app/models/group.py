@@ -39,6 +39,7 @@ class GroupMember(Base):
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), primary_key=True)
     group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), primary_key=True)
     joined_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    status: Mapped[str] = mapped_column(String(10), nullable=False, default='active')
 
     user = relationship('User', backref='group_members')
     group = relationship('Group', backref='group_members')
@@ -46,27 +47,6 @@ class GroupMember(Base):
     def __init__(self, user_id, group_id):
         self.user_id = user_id
         self.group_id = group_id
-
-    def as_dict(self):
-        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
-    
-class FridgeItem(Base):
-    __tablename__ = 'fridge_items'
-    
-    group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), primary_key=True)
-    food_id:Mapped[str] = mapped_column(String(36), ForeignKey('foods.id'), primary_key=True)
-    quantity: Mapped[int] = mapped_column(Double, nullable=False)
-    expiration_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-
-    group = relationship('Group', backref='fridge_items')
-    food = relationship('Food', backref='fridge_items')
-
-    def __init__(self, group_id, food_id, quantity, expiration_date):
-        self.group_id = group_id
-        self.food_id = food_id
-        self.quantity = quantity
-        self.expiration_date = expiration_date
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
