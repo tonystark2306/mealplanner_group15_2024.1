@@ -7,7 +7,7 @@ from . import user_api
 from ...services.user.auth_service import (
     validate_login, generate_access_token, generate_refresh_token, check_email_registered,
     save_new_user, generate_verification_code, generate_confirm_token, invalidate_token,
-    verify_refresh_token, verify_verification_code, verify_user_email, is_verified
+    verify_refresh_token, verify_verification_code, verify_user_email, is_verified, validate_password
 )
 from ...email import send_email
 from ...utils.decorator import JWT_required
@@ -210,6 +210,15 @@ def register():
                     "vn": "Một tài khoản với địa chỉ email này đã tồn tại."
                 },
                 "resultCode": "00032"
+            }), 400
+            
+        if not validate_password(data["password"]):
+            return jsonify({
+                "resultMessage": {
+                    "en": "Your password should be between 6 and 20 characters long.",
+                    "vn": "Vui lòng cung cấp một mật khẩu dài hơn 6 và ngắn hơn 20 ký tự."
+                },
+                "resultCode": "00066"
             }), 400
             
         new_user = save_new_user(data["email"], data["password"], data["name"], data["language"], data["timezone"], data["deviceId"])

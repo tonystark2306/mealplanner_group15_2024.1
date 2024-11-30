@@ -1,5 +1,5 @@
 import logging
-
+from werkzeug.security import generate_password_hash
 from .interface.user_interface import UserInterface
 from ..models.user import User as UserModel
 from .. import db
@@ -55,4 +55,15 @@ class UserRepository(UserInterface):
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error updating verification status: {str(e)}")
+            raise
+        
+        
+    def update_password(self, user, new_password) -> bool:
+        try:
+            user.password = generate_password_hash(new_password)
+            db.session.commit()
+        
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error updating user password: {str(e)}")
             raise

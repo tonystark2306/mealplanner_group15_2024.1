@@ -87,6 +87,13 @@ def verify_refresh_token(token):
     except Exception as e:
         logging.error(f"Error verifying refresh token: {str(e)}")
         raise
+    
+    
+def validate_password(self, password):
+    if len(password) <= 6 or len(password) >= 20:
+        return False
+        
+    return True
 
     
 def check_email_registered(email):
