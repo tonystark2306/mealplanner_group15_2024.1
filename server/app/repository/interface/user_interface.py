@@ -23,5 +23,9 @@ class UserInterface(ABC):
         pass
     
     @abstractmethod
-    def update_password(self, user, new_password) -> bool:
+    def update_password(self, user, new_password):
+        pass
+    
+    @abstractmethod
+    def delete_user(self, user):
         pass

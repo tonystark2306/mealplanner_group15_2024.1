@@ -58,7 +58,7 @@ class UserRepository(UserInterface):
             raise
         
         
-    def update_password(self, user, new_password) -> bool:
+    def update_password(self, user, new_password):
         try:
             user.password = generate_password_hash(new_password)
             db.session.commit()
@@ -66,4 +66,15 @@ class UserRepository(UserInterface):
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error updating user password: {str(e)}")
+            raise
+        
+        
+    def delete_user(self, user):
+        try:
+            db.session.delete(user)
+            db.session.commit()
+        
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error deleting user: {str(e)}")
             raise
