@@ -1,12 +1,10 @@
 import logging
 
 from flask import request, jsonify
-from validate_email_address import validate_email
 
 from . import user_api
 from ...services.user.edit_service import EditService
 from ...services.user.auth_service import validate_password
-from ...email import send_email
 from ...utils.decorator import JWT_required
 
 
