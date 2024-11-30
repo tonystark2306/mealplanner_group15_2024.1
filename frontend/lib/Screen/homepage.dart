@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,10 +11,10 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          'Đi Chợ Tiện Lợi', 
+          'Đi Chợ Tiện Lợi',
           style: TextStyle(
-            color: Colors.green[700], 
-            fontWeight: FontWeight.bold
+            color: Colors.green[700],
+            fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
@@ -36,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Widget Tủ Lạnh
             _buildSectionCard(
               title: 'Tủ Lạnh Của Bạn',
               icon: Icons.kitchen,
@@ -45,13 +39,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Tổng số mặt hàng:', 
+                      Text(
+                        'Tổng số mặt hàng:',
                         style: TextStyle(color: Colors.green[700]),
                       ),
-                      Text('15/50', 
+                      Text(
+                        '15/50',
                         style: TextStyle(
-                          color: Colors.green[700], 
-                          fontWeight: FontWeight.bold
+                          color: Colors.green[700],
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -60,7 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   LinearProgressIndicator(
                     value: 0.3,
                     backgroundColor: Colors.green[100],
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green[700]!),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Colors.green[700]!),
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -74,10 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
-
-            // Widget Kế Hoạch Bữa Ăn
             _buildSectionCard(
               title: 'Kế Hoạch Bữa Ăn Hôm Nay',
               icon: Icons.restaurant_menu,
@@ -89,53 +83,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
-
-            // Danh sách nhanh
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildQuickActionButton(
-                  icon: Icons.shopping_cart, 
+                  icon: Icons.shopping_cart,
                   label: 'Danh Sách Mua Sắm',
                   onPressed: () {},
                 ),
                 _buildQuickActionButton(
-                  icon: Icons.add_circle_outline, 
+                  icon: Icons.add_circle_outline,
                   label: 'Thêm Mặt Hàng',
                   onPressed: () {},
                 ),
               ],
-            )
+            ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.green[700],
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang Chủ'),
-          BottomNavigationBarItem(icon: Icon(Icons.kitchen), label: 'Tủ Lạnh'),
-          BottomNavigationBarItem(icon: Icon(Icons.restaurant_menu), label: 'Bữa Ăn'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Cài Đặt'),
-        ],
       ),
     );
   }
 
-  // Widget tạo section card
   Widget _buildSectionCard({
-    required String title, 
-    required IconData icon, 
-    required Widget child
+    required String title,
+    required IconData icon,
+    required Widget child,
   }) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15)
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -146,11 +123,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icon(icon, color: Colors.green[700]),
                 const SizedBox(width: 10),
                 Text(
-                  title, 
+                  title,
                   style: TextStyle(
-                    fontSize: 18, 
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.green[700]
+                    color: Colors.green[700],
                   ),
                 ),
               ],
@@ -163,7 +140,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget status chip
   Widget _buildStatusChip(String label, Color color) {
     return Chip(
       label: Text(label, style: const TextStyle(color: Colors.white)),
@@ -171,7 +147,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget item kế hoạch bữa ăn
   Widget _buildMealPlanItem(String meal, String dish) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -185,29 +160,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget nút hành động nhanh
   Widget _buildQuickActionButton({
-    required IconData icon, 
-    required String label, 
-    required VoidCallback onPressed
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
   }) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.green[50],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10)
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
       child: Column(
         children: [
           Icon(icon, color: Colors.green[700]),
           const SizedBox(height: 5),
           Text(
-            label, 
+            label,
             style: TextStyle(color: Colors.green[700], fontSize: 12),
-          )
+          ),
         ],
       ),
     );
