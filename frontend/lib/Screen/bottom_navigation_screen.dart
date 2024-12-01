@@ -37,19 +37,19 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Trang Chủ',
+            label: 'Trang chủ',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.kitchen),
-            label: 'Tủ Lạnh',
+            label: 'Tủ lạnh',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.restaurant_menu),
-            label: 'Bữa Ăn',
+            label: 'Bữa ăn',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Cài Đặt',
+            label: 'Cài đặt',
           ),
         ],
       ),

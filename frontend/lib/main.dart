@@ -6,6 +6,7 @@ import 'Screen/refrigrator/refrigerator_management_screen.dart';
 import 'Screen/auth/login.dart';
 import 'Screen/auth/signupscreen.dart';
 import 'Screen/homepage.dart';
+import 'Screen/shopping_list/shopping_list_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
           '/home': (context) => HomeScreen(),
           '/refrigerator': (context) => RefrigeratorManagementScreen(),
           '/bottomnav': (context) => BottomNavigationScreen(),
-
+          '/shopping-list': (context) => const ShoppingListScreen(),
         },
       ),
     );

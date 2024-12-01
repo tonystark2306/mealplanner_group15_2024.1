@@ -3,19 +3,19 @@ import 'package:flutter/material.dart';
 class HomeScreen extends StatelessWidget {
   HomeScreen({Key? key}) : super(key: key);
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // Tạo key cho Scaffold
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey, // Gắn key vào Scaffold
+      key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        centerTitle: true, // Căn giữa tiêu đề
+        centerTitle: true,
         title: Text(
-          'Đi Chợ Tiện Lợi',
+          'Đi chợ tiện lợi',
           style: TextStyle(
             color: Colors.green[700],
             fontWeight: FontWeight.bold,
@@ -24,7 +24,7 @@ class HomeScreen extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.green[700]),
           onPressed: () {
-            _scaffoldKey.currentState?.openDrawer(); // Mở Drawer bằng key
+            _scaffoldKey.currentState?.openDrawer();
           },
         ),
         actions: [
@@ -36,14 +36,14 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      drawer: _buildDrawer(), // Thêm Drawer chứa các danh mục
+      drawer: _buildDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionCard(
-              title: 'Tủ Lạnh Của Bạn',
+              title: 'Tủ lạnh của bạn',
               icon: Icons.kitchen,
               child: Column(
                 children: [
@@ -84,31 +84,46 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             _buildSectionCard(
-              title: 'Kế Hoạch Bữa Ăn Hôm Nay',
+              title: 'Kế hoạch bữa ăn hôm nay',
               icon: Icons.restaurant_menu,
               child: Column(
                 children: [
-                  _buildMealPlanItem('Bữa Sáng', 'Bánh mì trứng'),
-                  _buildMealPlanItem('Bữa Trưa', 'Cơm chiên'),
-                  _buildMealPlanItem('Bữa Tối', 'Canh cá'),
+                  _buildMealPlanItem('Bữa sáng', 'Bánh mì trứng'),
+                  _buildMealPlanItem('Bữa trưa', 'Cơm chiên'),
+                  _buildMealPlanItem('Bữa tối', 'Canh cá'),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildQuickActionButton(
-                  icon: Icons.shopping_cart,
-                  label: 'Danh Sách Mua Sắm',
-                  onPressed: () {},
+            _buildSectionCard(
+              title: 'Danh sách cần mua',
+              icon: Icons.shopping_cart,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/shopping-list');
+                },
+                child: Column(
+                  children: [
+                    
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '• Rau cải - 2 bó\n• Thịt gà - 1kg\n• Táo - 3 quả',
+                            style: const TextStyle(color: Colors.black54),
+                          ),
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.green,
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                _buildQuickActionButton(
-                  icon: Icons.add_circle_outline,
-                  label: 'Thêm Mặt Hàng',
-                  onPressed: () {},
-                ),
-              ],
+              ),
             ),
           ],
         ),
@@ -148,7 +163,6 @@ class HomeScreen extends StatelessWidget {
       leading: Icon(icon, color: Colors.green[700]),
       title: Text(text, style: TextStyle(color: Colors.green[700])),
       onTap: () {
-        // Đóng Drawer
         _scaffoldKey.currentState?.closeDrawer();
       },
     );
@@ -204,31 +218,6 @@ class HomeScreen extends StatelessWidget {
         children: [
           Text(meal, style: TextStyle(color: Colors.green[700])),
           Text(dish, style: const TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.green[50],
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: Colors.green[700]),
-          const SizedBox(height: 5),
-          Text(
-            label,
-            style: TextStyle(color: Colors.green[700], fontSize: 12),
-          ),
         ],
       ),
     );

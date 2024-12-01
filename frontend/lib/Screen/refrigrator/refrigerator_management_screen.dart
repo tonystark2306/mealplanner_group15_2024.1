@@ -13,7 +13,7 @@ class RefrigeratorManagementScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          'Quản Lý Tủ Lạnh',
+          'Quản lý tủ lạnh',
           style: TextStyle(
             color: Colors.green[700],
             fontWeight: FontWeight.bold
@@ -48,7 +48,7 @@ class RefrigeratorManagementScreen extends StatelessWidget {
                             Icon(Icons.kitchen, color: Colors.green[700]),
                             const SizedBox(width: 8),
                             Text(
-                              'Danh Sách Thực Phẩm',
+                              'Danh sách thực phẩm',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,

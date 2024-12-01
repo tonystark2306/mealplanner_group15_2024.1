@@ -101,7 +101,19 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 25),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/forgot-password');
+                    },
+                    child: Text(
+                      "Quên mật khẩu?",
+                      style: TextStyle(color: Colors.green[700]),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
                 ElevatedButton(
                   onPressed: _isLoading ? null : handleLogin,
                   style: ElevatedButton.styleFrom(
