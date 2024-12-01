@@ -31,5 +31,8 @@ class Config:
     MAIL_DEFAULT_SENDER = "minhnguyenhai26032003@gmail.com"
     MAIL_SUBJECT_PREFIX = "[Meal Planner]"
     
+    FIREBASE_CREDENTIALS_PATH = os.environ.get("FIREBASE_CREDENTIALS_PATH", "secrets/serviceAccount.json")
+    FIREBASE_STORAGE_BUCKET = os.environ.get("FIREBASE_STORAGE_BUCKET")
+    
 
 secret_key = Config.SECRET_KEY

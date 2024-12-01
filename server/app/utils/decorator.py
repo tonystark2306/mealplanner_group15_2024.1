@@ -1,7 +1,13 @@
 from functools import wraps
+from inspect import signature
+import logging
 import jwt
+
 from flask import request, jsonify
+
 from config import secret_key
+from .. import db
+from ..models.user import User
 
 
 def JWT_required(f):
@@ -57,7 +63,36 @@ def JWT_required(f):
                 },
                 "resultCode": "00012"
             }), 401
+            
+        try:
+            user = db.session.execute(
+                db.select(User).where(User.id == user_id)
+            ).scalar()
+        except Exception as e:
+            logging.error(f"Internal server error: {str(e)}")
+            return jsonify({
+                "resultMessage": {
+                    "en": "An internal server error has occurred, please try again.",
+                    "vn": "Đã xảy ra lỗi máy chủ nội bộ, vui lòng thử lại."
+                },
+                "resultCode": "00008"
+            }), 500
+            
+        if not user:
+            return jsonify({
+                "resultMessage": {
+                    "en": "Invalid token.",
+                    "vn": "Token không hợp lệ. Token có thể đã hết hạn."
+                },
+                "resultCode": "00012"
+            }), 401
+            
+        func_signature = signature(f)
+        if "user_id" in func_signature.parameters:
+            return f(user_id, *args, **kwargs)
+        elif "user" in func_signature.parameters:
+            return f(user, *args, **kwargs)
         
-        return f(user_id, *args, **kwargs)
+        return f(*args, **kwargs)
 
     return decorated_function

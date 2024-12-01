@@ -21,3 +21,15 @@ class UserInterface(ABC):
     @abstractmethod
     def update_verification_status(self, email) -> bool:
         pass
+    
+    @abstractmethod
+    def update_password(self, user, new_password):
+        pass
+    
+    @abstractmethod
+    def update_user(self, user, data):
+        pass
+    
+    @abstractmethod
+    def delete_user(self, user):
+        pass
