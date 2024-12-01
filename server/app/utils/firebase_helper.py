@@ -1,9 +1,7 @@
+from flask import current_app as app
 import firebase_admin
 from firebase_admin import credentials, storage
-import os
 
-config_path = os.path.join(os.path.dirname(__file__), '..', 'serviceAccount.json')
-bucket_name = 'meal-plan-app-acf97.firebasestorage.app'
 
 class FirebaseHelper:
     _instance = None
@@ -13,15 +11,17 @@ class FirebaseHelper:
             cls._instance = super(FirebaseHelper, cls).__new__(cls)
             try:
                 if not firebase_admin._apps:
-                    cred = credentials.Certificate(config_path)
+                    cred = credentials.Certificate(app.config["FIREBASE_CREDENTIALS_PATH"])
                     firebase_admin.initialize_app(cred, {
-                        'storageBucket': bucket_name
+                        "storageBucket": app.config["FIREBASE_STORAGE_BUCKET"]
                     })
                 cls._instance.bucket = storage.bucket()
             except Exception as e:
                 print(f"Firebase initialization error: {str(e)}")
                 raise
+            
         return cls._instance
+
 
     def upload_image(self, file, filename):
         """Upload image to Firebase Storage

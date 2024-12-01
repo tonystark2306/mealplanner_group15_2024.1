@@ -27,5 +27,9 @@ class UserInterface(ABC):
         pass
     
     @abstractmethod
+    def update_user(self, user, data):
+        pass
+    
+    @abstractmethod
     def delete_user(self, user):
         pass

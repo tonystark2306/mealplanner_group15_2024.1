@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 from sqlalchemy import String, Integer, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.security import generate_password_hash
@@ -16,10 +17,11 @@ class User(UserMixin, Base):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     language: Mapped[str] = mapped_column(String(10), default='en')
     timezone: Mapped[str] = mapped_column(String(50))
-    is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     deviceId: Mapped[str] = mapped_column(String(255), nullable=False)
+    avatar_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     def __init__(self, email, password, name, language='en', timezone=None, device_id=None, is_verified=False):
         self.email = email
@@ -43,8 +45,9 @@ class User(UserMixin, Base):
             "name": self.name,
             "language": self.language,
             "timezone": self.timezone,
-            "is_verified": self.is_verified,
-            "deviceId": self.deviceId
+            "deviceId": self.deviceId,
+            "avatar_url": self.avatar_url,
+            "is_verified": self.is_verified
         }
     
     @property

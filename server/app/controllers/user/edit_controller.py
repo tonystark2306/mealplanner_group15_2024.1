@@ -83,3 +83,52 @@ def change_password(user):
             },
             "resultCode": "00008"
         }), 500
+        
+        
+@user_api.route("/", methods=["PUT"])
+@JWT_required
+def edit_user(user):
+    try:
+        data = request.form
+        avatar_file = request.files.get("image")
+        if not data and not avatar_file:
+            return jsonify({
+                "resultMessage": {
+                    "en": "No data provided!",
+                    "vn": "Không tìm thấy dữ liệu nào được cung cấp!"
+                },
+                "resultCode": "00004"
+            }), 400
+        
+        if data:
+            ALLOW_FIELDS = {"name", "language", "timezone", "deviceId"}
+            unknown_fields = {field for field in data if field not in ALLOW_FIELDS}
+            if unknown_fields:
+                return jsonify({
+                    "resultMessage": {
+                        "en": f"Unknown fields: {', '.join(unknown_fields)}",
+                        "vn": f"Các trường không xác định: {', '.join(unknown_fields)}"
+                    },
+                    "resultCode": "00003"
+                }), 400
+            
+        edit_service = EditService()
+        updated_user = edit_service.update_user_info(user, data, avatar_file)
+        return jsonify({
+            "resultMessage": {
+                "en": "Your profile information was changed successfully.",
+                "vn": "Thông tin hồ sơ của bạn đã được thay đổi thành công."
+            },
+            "resultCode": "00086",
+            "updatedUser": updated_user.to_json()
+        }), 200
+        
+    except Exception as e:
+        logging.error(f"Internal server error: {str(e)}")
+        return jsonify({
+            "resultMessage": {
+                "en": "An internal server error has occurred, please try again.",
+                "vn": "Đã xảy ra lỗi máy chủ nội bộ, vui lòng thử lại."
+            },
+            "resultCode": "00008"
+        }), 500

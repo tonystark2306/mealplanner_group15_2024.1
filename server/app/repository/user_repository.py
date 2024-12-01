@@ -69,6 +69,18 @@ class UserRepository(UserInterface):
             raise
         
         
+    def update_user(self, user, data):
+        try:
+            for field, value in data.items():
+                setattr(user, field, value)
+            db.session.commit()
+            
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error updating user: {str(e)}")
+            raise
+        
+        
     def delete_user(self, user):
         try:
             db.session.delete(user)
