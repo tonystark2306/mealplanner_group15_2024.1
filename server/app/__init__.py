@@ -6,6 +6,7 @@ from sqlalchemy.orm import DeclarativeBase
 from celery import Celery
 
 from config import Config
+from .errors import handle_exception
 
 
 class Base(DeclarativeBase):
@@ -32,5 +33,7 @@ def create_app(config_class=Config):
     
     from .controllers.user import user_api
     app.register_blueprint(user_api, url_prefix="/user")
+    
+    app.register_error_handler(Exception, handle_exception)
 
     return app

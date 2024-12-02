@@ -9,7 +9,6 @@ class Group(Base):
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     group_name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
-    group_avatar: Mapped[str] = mapped_column(String(255), nullable=True)
     admin_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
