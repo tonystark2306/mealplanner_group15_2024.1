@@ -1,0 +1,16 @@
+Dear {{ user.name }},
+
+We’re thrilled to welcome you to Meal Planner – your trusted companion for healthier and easier meal planning.
+
+To complete your registration and get started, please use the verification code below:
+
+Verification Code: {{ code }}
+
+This code is valid for the next 10 minutes. Enter it in the Meal Planner app to activate your account and unlock features like personalized meal plans, grocery lists, and much more!
+
+If you did not request this code, please ignore this email or reach out to our support team for assistance.
+
+Warm regards,
+The Meal Planner Team
+
+Note: This email is sent from an unmonitored address. Please do not reply.
