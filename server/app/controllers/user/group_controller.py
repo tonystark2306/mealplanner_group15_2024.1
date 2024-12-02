@@ -204,3 +204,38 @@ def delete_member(user_id, group_id):
         },
         "resultCode": "00106"
     }), 200
+    
+    
+@user_api.route("/group/<group_id>", methods=["GET"])
+@JWT_required
+def get_group_members(user_id, group_id):
+    group_service = GroupService()
+    group = group_service.get_group_by_id(group_id)
+    if not group:
+        return jsonify({
+            "resultMessage": {
+                "en": "Group not found.",
+                "vn": "Không tìm thấy nhóm."
+            },
+            "resultCode": "00097"
+        }), 404
+    
+    if not group_service.is_member_of_group(user_id, group_id):
+        return jsonify({
+            "resultMessage": {
+                "en": "You are not a member of this group.",
+                "vn": "Bạn không phải là thành viên của nhóm này."
+            },
+            "resultCode": "00097"
+        }), 403
+        
+    group_members = group_service.list_members_of_group(group_id)
+    return jsonify({
+        "resultMessage": {
+            "en": "Successfully",
+            "vn": "Thành công"
+        },
+        "groupAdmin": group.admin_id,
+        "members": group_members,
+        "resultCode": "00098"
+    }), 200

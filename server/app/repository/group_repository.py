@@ -1,7 +1,9 @@
 import logging
+from typing import List
 
 from .interface.group_interface import GroupInterface, GroupMemberInterface
 from ..models.group import Group as GroupModel, GroupMember as GroupMemberModel
+from ..models.user import User as UserModel
 from .. import db
 
 
@@ -36,6 +38,14 @@ class GroupMemberRepository(GroupMemberInterface):
         return GroupMemberModel.query.filter_by(user_id=user_id, group_id=group_id).first()
     
     
+    def get_all_members_of_group(self, group_id) -> List[UserModel]:
+        return db.session.execute(
+            db.select(UserModel)
+            .join(GroupMemberModel, UserModel.id == GroupMemberModel.user_id)
+            .where(GroupMemberModel.group_id == group_id)
+        ).scalars().all()
+            
+            
     def add_member(self, user_id, group_id):
         try:
             new_member = GroupMemberModel(user_id=user_id, group_id=group_id)

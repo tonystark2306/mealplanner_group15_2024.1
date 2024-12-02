@@ -19,6 +19,11 @@ class GroupService:
         return self.user_repository.get_user_by_username(username)
     
     
+    def list_members_of_group(self, group_id):
+        group_members = self.group_member_repository.get_all_members_of_group(group_id)
+        return [member.to_json() for member in group_members]
+    
+    
     def save_new_group(self, admin_id, group_name, member_usernames):
         try:
             group = self.group_repository.create_group(admin_id, group_name)

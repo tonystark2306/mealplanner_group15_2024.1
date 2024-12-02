@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import List
 from ...models.group import Group as GroupModel, GroupMember as GroupMemberModel
+from ...models.user import User as UserModel
 
 
 class GroupInterface(ABC):
@@ -21,6 +23,10 @@ class GroupMemberInterface(ABC):
     
     @abstractmethod
     def get_group_member(self, user_id, group_id) -> GroupMemberModel:
+        pass
+    
+    @abstractmethod
+    def get_all_members_of_group(self, group_id) -> List[UserModel]:
         pass
     
     @abstractmethod
