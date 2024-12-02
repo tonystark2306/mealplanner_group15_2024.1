@@ -3,6 +3,8 @@ import './homepage.dart';
 import './refrigrator/refrigerator_management_screen.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
+  const BottomNavigationScreen({super.key});
+
   @override
   _BottomNavigationScreenState createState() => _BottomNavigationScreenState();
 }
@@ -14,8 +16,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   final List<Widget> _screens = [
     HomeScreen(), // Trang chủ
     RefrigeratorManagementScreen(), // Quản lý tủ lạnh
-    Center(child: Text('Kế Hoạch Bữa Ăn')), // Bữa ăn (tạm placeholder)
-    Center(child: Text('Cài Đặt')), // Cài đặt (tạm placeholder)
+    const Center(child: Text('Kế Hoạch Bữa Ăn')), // Bữa ăn (tạm placeholder)
+    const Center(child: Text('Cài Đặt')), // Cài đặt (tạm placeholder)
   ];
 
   void _onTabTapped(int index) {

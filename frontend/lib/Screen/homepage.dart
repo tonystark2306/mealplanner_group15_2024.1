@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
-  HomeScreen({Key? key}) : super(key: key);
+  HomeScreen({super.key});
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // Tạo key cho Scaffold
 
@@ -15,7 +15,7 @@ class HomeScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: true, // Căn giữa tiêu đề
         title: Text(
-          'Đi Chợ Tiện Lợi',
+          'Meal Planner',
           style: TextStyle(
             color: Colors.green[700],
             fontWeight: FontWeight.bold,

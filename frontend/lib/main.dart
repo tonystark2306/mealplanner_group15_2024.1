@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal_planner_app/Screen/admin/admin_dashboard_screen.dart';
 import './Screen/bottom_navigation_screen.dart';
 import 'package:provider/provider.dart';
 import 'Providers/refrigerator_provider.dart'; // Import Provider của bạn
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
           '/home': (context) => HomeScreen(),
           '/refrigerator': (context) => RefrigeratorManagementScreen(),
           '/bottomnav': (context) => BottomNavigationScreen(),
-
+          '/admin': (context) => AdminDashboardScreen(),
         },
       ),
     );
