@@ -9,6 +9,14 @@ class GroupService:
         self.group_repository = GroupRepository()
         self.group_member_repository = GroupMemberRepository()
         self.user_repository = UserRepository()
+        
+        
+    def get_group_by_id(self, group_id):
+        return self.group_repository.get_group_by_id(group_id)
+    
+    
+    def get_user_by_username(self, username):
+        return self.user_repository.get_user_by_username(username)
     
     
     def save_new_group(self, admin_id, group_name, member_usernames):
@@ -24,4 +32,19 @@ class GroupService:
         
         except Exception as e:
             logging.error(f"Error saving new group into database: {str(e)}")
+            raise
+        
+    
+    def is_member_of_group(self, user_id, group_id):
+        group_member = self.group_member_repository.get_group_member(user_id, group_id)
+        return group_member is not None
+    
+    
+    def add_members_to_group(self, group_id, member_usernames):
+        try:
+            for username in member_usernames:
+                user = self.user_repository.get_user_by_username(username)
+                self.group_member_repository.add_member(user.id, group_id)
+        except Exception as e:
+            logging.error(f"Error adding members to group: {str(e)}")
             raise
