@@ -14,6 +14,7 @@ class User(UserMixin, Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    username: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     language: Mapped[str] = mapped_column(String(10), default='en')
     timezone: Mapped[str] = mapped_column(String(50))
@@ -23,9 +24,10 @@ class User(UserMixin, Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    def __init__(self, email, password, name, language='en', timezone=None, device_id=None, is_verified=False):
+    def __init__(self, email, password, username, name, language='en', timezone=None, device_id=None, is_verified=False):
         self.email = email
         self.password_hash = generate_password_hash(password)
+        self.username = username
         self.name = name
         self.language = language
         self.timezone = timezone
@@ -42,6 +44,7 @@ class User(UserMixin, Base):
         return {
             "id": self.id,
             "email": self.email,
+            "username": self.username,
             "name": self.name,
             "language": self.language,
             "timezone": self.timezone,

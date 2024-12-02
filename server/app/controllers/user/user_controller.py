@@ -23,23 +23,12 @@ def get_user(user):
 @user_api.route("/", methods=["DELETE"])
 @JWT_required
 def delete_user(user):
-    try:
-        user_service = UserService()
-        user_service.delete_user_from_db(user)
-        return jsonify({
-            "resultMessage": {
-                "en": "Your account has been deleted successfully.",
-                "vn": "Tài khoản của bạn đã bị xóa thành công."
-            },
-            "resultCode": "00092"
-        }), 200
-        
-    except Exception as e:
-        logging.error(f"Internal server error: {str(e)}")
-        return jsonify({
-            "resultMessage": {
-                "en": "An internal server error has occurred, please try again.",
-                "vn": "Đã xảy ra lỗi máy chủ nội bộ, vui lòng thử lại."
-            },
-            "resultCode": "00008"
-        }), 500
+    user_service = UserService()
+    user_service.delete_user_from_db(user)
+    return jsonify({
+        "resultMessage": {
+            "en": "Your account has been deleted successfully.",
+            "vn": "Tài khoản của bạn đã bị xóa thành công."
+        },
+        "resultCode": "00092"
+    }), 200

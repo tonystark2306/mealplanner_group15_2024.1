@@ -22,6 +22,12 @@ class UserRepository(UserInterface):
         ).scalar()
         
         
+    def get_user_by_username(self, username) -> UserModel:
+        return db.session.execute(
+            db.select(UserModel).where(UserModel.username == username)
+        ).scalar()
+        
+        
     def save_user_to_db(self, email, password, name, language, timezone, device_id) -> UserModel:
         try:
             new_user = UserModel(
