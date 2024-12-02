@@ -1,21 +1,31 @@
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  HomeScreen({super.key});
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // Tạo key cho Scaffold
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey, // Gắn key vào Scaffold
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true, // Căn giữa tiêu đề
         title: Text(
-          'Đi Chợ Tiện Lợi',
+          'Meal Planner',
           style: TextStyle(
             color: Colors.green[700],
             fontWeight: FontWeight.bold,
           ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.menu, color: Colors.green[700]),
+          onPressed: () {
+            _scaffoldKey.currentState?.openDrawer(); // Mở Drawer bằng key
+          },
         ),
         actions: [
           IconButton(
@@ -26,6 +36,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
+      drawer: _buildDrawer(), // Thêm Drawer chứa các danh mục
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -102,6 +113,44 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(color: Colors.green[700]),
+            child: const Text(
+              'Have a nice day, user!',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+              ),
+            ),
+          ),
+          _buildDrawerItem(icon: Icons.group, text: 'Quản lý thành viên nhóm'),
+          _buildDrawerItem(icon: Icons.notifications, text: 'Cài đặt thông báo'),
+          _buildDrawerItem(icon: Icons.star, text: 'Đánh giá ứng dụng'),
+          _buildDrawerItem(icon: Icons.privacy_tip, text: 'Chính sách bảo mật'),
+          _buildDrawerItem(icon: Icons.help, text: 'Hướng dẫn sử dụng'),
+          const Divider(),
+          _buildDrawerItem(icon: Icons.logout, text: 'Đăng xuất'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem({required IconData icon, required String text}) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.green[700]),
+      title: Text(text, style: TextStyle(color: Colors.green[700])),
+      onTap: () {
+        // Đóng Drawer
+        _scaffoldKey.currentState?.closeDrawer();
+      },
     );
   }
 
