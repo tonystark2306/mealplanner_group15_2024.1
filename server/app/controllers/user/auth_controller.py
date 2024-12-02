@@ -1,5 +1,3 @@
-import logging
-
 from flask import request, jsonify
 from validate_email_address import validate_email
 

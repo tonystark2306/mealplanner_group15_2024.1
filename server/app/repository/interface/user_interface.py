@@ -15,6 +15,10 @@ class UserInterface(ABC):
         pass
     
     @abstractmethod
+    def get_user_by_username(self, username) -> UserModel:
+        pass
+    
+    @abstractmethod
     def save_user_to_db(self, email, password, name, language, timezone, device_id) -> UserModel:
         pass
     
