@@ -26,3 +26,7 @@ class GroupMemberInterface(ABC):
     @abstractmethod
     def add_member(self, user_id, group_id):
         pass
+    
+    @abstractmethod
+    def remove_member(self, user_id, group_id):
+        pass

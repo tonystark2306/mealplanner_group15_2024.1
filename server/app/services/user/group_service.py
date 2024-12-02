@@ -48,3 +48,11 @@ class GroupService:
         except Exception as e:
             logging.error(f"Error adding members to group: {str(e)}")
             raise
+        
+        
+    def remove_member_from_group(self, user_id, group_id):
+        try:
+            self.group_member_repository.remove_member(user_id, group_id)
+        except Exception as e:
+            logging.error(f"Error removing member from group: {str(e)}")
+            raise

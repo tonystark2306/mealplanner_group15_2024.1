@@ -1,7 +1,5 @@
 import logging
 
-from server.app.models.group import Group as GroupModel
-
 from .interface.group_interface import GroupInterface, GroupMemberInterface
 from ..models.group import Group as GroupModel, GroupMember as GroupMemberModel
 from .. import db
@@ -47,4 +45,16 @@ class GroupMemberRepository(GroupMemberInterface):
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error adding member: {str(e)}")
+            raise
+        
+    
+    def remove_member(self, user_id, group_id):
+        try:
+            member_to_remove = self.get_group_member(user_id, group_id)
+            db.session.delete(member_to_remove)
+            db.session.commit()
+        
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error removing member: {str(e)}")
             raise
