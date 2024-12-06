@@ -15,8 +15,8 @@ class Group(Base):
     # Add relationship to admin
     admin = relationship('User', foreign_keys=[admin_id])
 
-    def __init__(self, user_id, group_name):
-        self.admin_id = user_id
+    def __init__(self, admin_id, group_name):
+        self.admin_id = admin_id
         self.group_name = group_name
         
 
