@@ -16,17 +16,22 @@ class Recipe(Base):
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     dish_name: Mapped[str] = mapped_column(String(100), nullable=False)  # Name of the recipe
-    content_html: Mapped[str] = mapped_column(Text, nullable=False)  # HTML content of the recipe
-    description: Mapped[str] = mapped_column(Text, nullable=False)  # Description of the recipe
+    content_html: Mapped[str] = mapped_column(Text, nullable=True)  # HTML content of the recipe
+    description: Mapped[str] = mapped_column(Text, nullable=True)  # Description of the recipe
+    type: Mapped[str] = mapped_column(String(50), nullable=True, default='custom')  # Type of the recipe: custom, system
+    group_id: Mapped[str] = mapped_column(String(36), nullable=True)  # Group who created the recipe, if
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)  # Timestamp for when the recipe was created
 
     # Update relationship to be the owner side
     foods = relationship('Food', secondary=recipe_foods, backref='recipes')
+    groups = relationship('Group', backref='recipes')
 
-    def __init__(self, dish_name, content_html, description, foods=None):
+    def __init__(self, group_id, typee, dish_name, content_html, description, foods=None):
         self.dish_name = dish_name
         self.content_html = content_html
         self.description = description
+        self.type = typee
+        self.group_id = group_id
         if foods:
             self.foods = foods
 

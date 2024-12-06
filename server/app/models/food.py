@@ -18,6 +18,7 @@ class Food(Base):
     create_by: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=False)
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     type: Mapped[str] = mapped_column(String(50), nullable=False, default='ingredient')
+    group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), nullable=True)
     unit_id: Mapped[str] = mapped_column(String(36), ForeignKey('units.id'), nullable=False)
     image_url: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -26,13 +27,15 @@ class Food(Base):
     status: Mapped[str] = mapped_column(String(10), nullable=False, default='active')
     # Update relationships - remove recipes relationship
     categories = relationship('Category', secondary=food_categories, back_populates='foods')
+    group = relationship('Group', backref='foods')
     unit = relationship('Unit', backref='foods')
     creator = relationship('User', backref='foods', lazy=True)
 
-    def __init__(self, creator, name, typee, categories, unit_id, image_url=None, note=None):
-        self.create_by = creator
+    def __init__(self, user_id, name, typee, group_id, categories, unit_id, image_url=None, note=None):
+        self.create_by = user_id
         self.name = name
         self.type = typee
+        self.group_id = group_id
         self.categories = categories
         self.unit_id = unit_id
         self.image_url = image_url
