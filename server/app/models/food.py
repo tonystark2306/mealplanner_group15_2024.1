@@ -15,7 +15,7 @@ class Food(Base):
     __tablename__ = 'foods'
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
-    create_by: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=False)
+    create_by: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=True)
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     type: Mapped[str] = mapped_column(String(50), nullable=False, default='ingredient')
     group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), nullable=True)
