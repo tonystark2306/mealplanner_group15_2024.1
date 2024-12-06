@@ -19,6 +19,7 @@ class FridgeItem(Base):
     food = relationship('Food', backref='fridge_items')
     user = relationship('User', backref='fridge_items')
 
+
     def __init__(self, owner_id, food_id, user_id, quantity, expiration_date):
         self.owner_id = owner_id
         self.added_by = user_id
@@ -26,6 +27,18 @@ class FridgeItem(Base):
         self.quantity = quantity
         self.expiration_date = expiration_date
 
+
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
     
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'ownerId': self.owner_id,
+            'addedBy': self.added_by,
+            'foodId': self.food_id,
+            'quantity': self.quantity,
+            'expirationDate': str(self.expiration_date),
+            'createdAt': str(self.created_at)
+        }
