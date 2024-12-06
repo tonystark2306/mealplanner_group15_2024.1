@@ -5,6 +5,56 @@ from ...services.user.group_service import GroupService
 from ...utils.decorator import JWT_required
 
 
+@user_api.route("/group", methods=["GET"])
+@JWT_required
+def get_all_groups(user_id):
+    group_service = GroupService()
+    groups = group_service.list_groups_of_user(user_id)
+    return jsonify({
+        "resultMessage": {
+            "en": "Fetching user's groups successfully!",
+            "vn": "Lấy danh sách nhóm của user thành công!"
+        },
+        "groups": groups,
+        "resultCode": "00094"
+    }), 200
+
+
+@user_api.route("/group/<group_id>", methods=["GET"])
+@JWT_required
+def get_group_members(user_id, group_id):
+    group_service = GroupService()
+    group = group_service.get_group_by_id(group_id)
+    if not group:
+        return jsonify({
+            "resultMessage": {
+                "en": "Group not found.",
+                "vn": "Không tìm thấy nhóm."
+            },
+            "resultCode": "00097"
+        }), 404
+    
+    if not group_service.is_member_of_group(user_id, group_id):
+        return jsonify({
+            "resultMessage": {
+                "en": "You are not a member of this group.",
+                "vn": "Bạn không phải là thành viên của nhóm này."
+            },
+            "resultCode": "00097"
+        }), 403
+        
+    group_members = group_service.list_members_of_group(group_id)
+    return jsonify({
+        "resultMessage": {
+            "en": "Successfully",
+            "vn": "Thành công"
+        },
+        "groupAdmin": group.admin_id,
+        "members": group_members,
+        "resultCode": "00098"
+    }), 200
+
+
 @user_api.route("/group", methods=["POST"])
 @JWT_required
 def create_group(user_id):
@@ -203,39 +253,4 @@ def delete_member(user_id, group_id):
             "vn": "Xóa thành công"
         },
         "resultCode": "00106"
-    }), 200
-    
-    
-@user_api.route("/group/<group_id>", methods=["GET"])
-@JWT_required
-def get_group_members(user_id, group_id):
-    group_service = GroupService()
-    group = group_service.get_group_by_id(group_id)
-    if not group:
-        return jsonify({
-            "resultMessage": {
-                "en": "Group not found.",
-                "vn": "Không tìm thấy nhóm."
-            },
-            "resultCode": "00097"
-        }), 404
-    
-    if not group_service.is_member_of_group(user_id, group_id):
-        return jsonify({
-            "resultMessage": {
-                "en": "You are not a member of this group.",
-                "vn": "Bạn không phải là thành viên của nhóm này."
-            },
-            "resultCode": "00097"
-        }), 403
-        
-    group_members = group_service.list_members_of_group(group_id)
-    return jsonify({
-        "resultMessage": {
-            "en": "Successfully",
-            "vn": "Thành công"
-        },
-        "groupAdmin": group.admin_id,
-        "members": group_members,
-        "resultCode": "00098"
     }), 200

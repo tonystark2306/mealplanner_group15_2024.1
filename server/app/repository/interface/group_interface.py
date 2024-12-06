@@ -9,6 +9,10 @@ class GroupInterface(ABC):
         pass
     
     @abstractmethod
+    def list_groups_of_user(self, user_id) -> List[GroupModel]:
+        pass
+    
+    @abstractmethod
     def get_group_by_id(self, group_id) -> GroupModel:
         pass
         

@@ -1,6 +1,8 @@
 import logging
 from typing import List
 
+from server.app.models.group import Group as GroupModel
+
 from .interface.group_interface import GroupInterface, GroupMemberInterface
 from ..models.group import Group as GroupModel, GroupMember as GroupMemberModel
 from ..models.user import User as UserModel
@@ -10,6 +12,14 @@ from .. import db
 class GroupRepository(GroupInterface):
     def __init__(self):
         pass
+    
+    
+    def list_groups_of_user(self, user_id) -> List[GroupModel]:
+        return db.session.execute(
+            db.select(GroupModel)
+            .join(GroupMemberModel, GroupModel.id == GroupMemberModel.group_id)
+            .where(GroupMemberModel.user_id == user_id)
+        ).scalars().all()
     
     
     def get_group_by_id(self, group_id) -> GroupModel:

@@ -1,5 +1,3 @@
-import logging
-
 from flask import request, jsonify
 
 from . import user_api

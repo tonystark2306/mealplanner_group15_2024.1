@@ -10,6 +10,11 @@ class GroupService:
         self.group_member_repository = GroupMemberRepository()
         self.user_repository = UserRepository()
         
+    
+    def list_groups_of_user(self, user_id):
+        groups = self.group_repository.list_groups_of_user(user_id)
+        return [group.to_json() for group in groups]    
+       
         
     def get_group_by_id(self, group_id):
         return self.group_repository.get_group_by_id(group_id)
