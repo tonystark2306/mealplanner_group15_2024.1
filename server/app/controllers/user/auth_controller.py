@@ -196,7 +196,7 @@ def register():
             "resultCode": "00067"
         }), 400
         
-    new_user = auth_service.save_new_user(data["email"], data["password"], data["name"], data["language"], data["timezone"], data["deviceId"])
+    new_user = auth_service.save_new_user(data["email"], data["password"], data["username"], data["name"], data["language"], data["timezone"], data["deviceId"])
     verification_code = auth_service.generate_verification_code(new_user.email)
     confirm_token = auth_service.generate_confirm_token(new_user.email)
     send_email(

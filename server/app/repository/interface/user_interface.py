@@ -19,7 +19,7 @@ class UserInterface(ABC):
         pass
     
     @abstractmethod
-    def save_user_to_db(self, email, password, name, username, language, timezone, device_id) -> UserModel:
+    def save_user_to_db(self, email, password, username, name, language, timezone, device_id) -> UserModel:
         pass
     
     @abstractmethod

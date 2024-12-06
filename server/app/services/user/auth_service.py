@@ -108,10 +108,10 @@ class AuthService:
         return self.user_repository.get_user_by_username(username) is not None
 
 
-    def save_new_user(self, email, password, name, username, language, timezone, device_id):
+    def save_new_user(self, email, password, username, name, language, timezone, device_id):
         """Save a new user to the database."""
         try:
-            new_user = self.user_repository.save_user_to_db(email, password, name, username, language, timezone, device_id)
+            new_user = self.user_repository.save_user_to_db(email, password, username, name, language, timezone, device_id)
             return new_user
         
         except Exception as e:
