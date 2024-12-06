@@ -146,7 +146,7 @@ def register():
             "confirmToken": confirm_token
         }), 201
     
-    REQUIRED_FIELDS = {"email", "password", "name", "language", "timezone", "deviceId"}
+    REQUIRED_FIELDS = {"email", "password", "username", "name", "language", "timezone", "deviceId"}
     missing_fields = {field for field in REQUIRED_FIELDS if data.get(field) is None}
     
     if missing_fields:
@@ -185,6 +185,15 @@ def register():
                 "vn": "Vui lòng cung cấp một mật khẩu dài hơn 6 và ngắn hơn 20 ký tự."
             },
             "resultCode": "00066"
+        }), 400
+        
+    if auth_service.is_duplicated_username(data["username"]):
+        return jsonify({
+            "resultMessage": {
+                "en": "This username is already in use.",
+                "vn": "Username này đã được sử dụng."
+            },
+            "resultCode": "00067"
         }), 400
         
     new_user = auth_service.save_new_user(data["email"], data["password"], data["name"], data["language"], data["timezone"], data["deviceId"])

@@ -87,7 +87,7 @@ def edit_user(user):
         }), 400
     
     if data:
-        ALLOW_FIELDS = {"name", "language", "timezone", "deviceId"}
+        ALLOW_FIELDS = {"username", "name", "language", "timezone", "deviceId"}
         unknown_fields = {field for field in data if field not in ALLOW_FIELDS}
         if unknown_fields:
             return jsonify({
@@ -98,6 +98,16 @@ def edit_user(user):
                 "resultCode": "00003"
             }), 400
         
+    auth_service = AuthService()
+    if data.get("username") and auth_service.is_duplicated_username(data["username"]):
+        return jsonify({
+            "resultMessage": {
+                "en": "This username is already in use, please choose another username.",
+                "vn": "Username này đã được sử dụng, vui lòng chọn username khác."
+            },
+            "resultCode": "00071"
+        }), 400
+    
     edit_service = EditService()
     updated_user = edit_service.update_user_info(user, data, avatar_file)
     return jsonify({

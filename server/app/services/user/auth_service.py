@@ -101,6 +101,11 @@ class AuthService:
     def check_email_registered(self, email):
         """Checks if an email is already registered."""
         return self.user_repository.get_user_by_email(email)
+    
+    
+    def is_duplicated_username(self, username):
+        """Checks if a username is already in use."""
+        return self.user_repository.get_user_by_username(username) is not None
 
 
     def save_new_user(self, email, password, name, language, timezone, device_id):
