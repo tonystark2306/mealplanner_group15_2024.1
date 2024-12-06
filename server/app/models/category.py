@@ -9,8 +9,8 @@ class Category(Base):
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
-    type: Mapped[str] = mapped_column(String(50), ForeignKey('groups.id'), nullable=False, default='custom')  # Type of the category: custom, system
-    group_id: Mapped[str] = mapped_column(String(36), nullable=True) # Group who created the category
+    type: Mapped[str] = mapped_column(String(50), nullable=False, default='custom')  # Type of the category: custom, system
+    group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), nullable=True) # Group who created the category
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     # Add relationship
