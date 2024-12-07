@@ -98,7 +98,10 @@ def JWT_required(f):
 
     return decorated_function
 
+
+
 def group_member_required(f):
+    '''Decorator to require user to be a member of a group to access the API'''
     @wraps(f)
     def decorated_function(user_id, group_id, *args, **kwargs):
         group_service = GroupService()
@@ -124,3 +127,39 @@ def group_member_required(f):
             
         return f(user_id, group_id, *args, **kwargs)
     return decorated_function
+
+
+def validate_fields(allow_fields):
+    """Decorator to validate fields in request JSON data."""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Lấy dữ liệu từ request
+            data = request.get_json() or {}
+            
+            # Kiểm tra các trường không hợp lệ
+            unknown_fields = {field for field in data if field not in allow_fields}
+            if unknown_fields:
+                return jsonify({
+                    "resultMessage": {
+                        "en": f"Unknown fields: {', '.join(unknown_fields)}",
+                        "vn": f"Các trường không xác định: {', '.join(unknown_fields)}"
+                    },
+                    "resultCode": "00003"
+                }), 400
+
+            # Kiểm tra các trường bắt buộc có giá trị hay không
+            missing_fields = {field for field in allow_fields if not data.get(field)}
+            if missing_fields:
+                return jsonify({
+                    "resultMessage": {
+                        "en": "Please provide all required fields!",
+                        "vn": "Vui lòng cung cấp tất cả các trường bắt buộc!"
+                    },
+                    "resultCode": "00099"
+                }), 400
+
+            # Nếu tất cả hợp lệ, gọi hàm gốc
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
