@@ -136,17 +136,6 @@ def validate_fields(allow_fields):
         def wrapper(*args, **kwargs):
             # Lấy dữ liệu từ request
             data = request.get_json() or {}
-            
-            # Kiểm tra các trường không hợp lệ
-            unknown_fields = {field for field in data if field not in allow_fields}
-            if unknown_fields:
-                return jsonify({
-                    "resultMessage": {
-                        "en": f"Unknown fields: {', '.join(unknown_fields)}",
-                        "vn": f"Các trường không xác định: {', '.join(unknown_fields)}"
-                    },
-                    "resultCode": "00003"
-                }), 400
 
             # Kiểm tra các trường bắt buộc có giá trị hay không
             missing_fields = {field for field in allow_fields if not data.get(field)}
@@ -154,7 +143,7 @@ def validate_fields(allow_fields):
                 return jsonify({
                     "resultMessage": {
                         "en": "Please provide all required fields!",
-                        "vn": "Vui lòng cung cấp tất cả các trường bắt buộc!"
+                        "vn": "Vui lòng cung đầy đủ các trường bắt buộc!"
                     },
                     "resultCode": "00099"
                 }), 400
