@@ -1,5 +1,4 @@
-
-from sqlalchemy import String, Text, DateTime, ForeignKey, Integer
+from sqlalchemy import String, Text, DateTime, ForeignKey, Integer, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from uuid import uuid4
@@ -14,18 +13,28 @@ class ShoppingList(Base):
     assigned_to: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=True)
     notes: Mapped[str] = mapped_column(Text, nullable=True)
     due_time: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    status: Mapped[str] = mapped_column(
+        Enum('Draft', 'Active', 'Fully Completed', 
+             'Partially Completed', 'Archived', 'Cancelled', 
+             name='shopping_list_status'), 
+        nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     group = relationship('Group', backref='shopping_lists')
     tasks = relationship('ShoppingTask', backref='shopping_list', lazy=True)
     user = relationship('User', backref='shopping_lists', lazy=True)
 
-    def __init__(self, name, group_id,  user_id=None, notes=None, due_date=None):
+    def __init__(self, name, group_id,  assigned_to=None, notes=None, due_date=None, **kwargs):
         self.name = name
         self.group_id = group_id
-        self.assigned_to = user_id
+        self.assigned_to = assigned_to
         self.notes = notes
         self.due_date = due_date
+        if due_date is not None and assigned_to is not None:
+            self.status = 'Active'
+        else:
+            self.status = 'Draft'
 
 class ShoppingTask(Base):
     __tablename__ = 'shopping_tasks'
@@ -34,7 +43,16 @@ class ShoppingTask(Base):
     list_id: Mapped[str] = mapped_column(String(36), ForeignKey('shopping_lists.id'), nullable=False)
     food_id: Mapped[str] = mapped_column(String(36), ForeignKey('foods.id'), nullable=False)
     quantity: Mapped[str] = mapped_column(String(50), nullable=False)
-    status: Mapped[str] = mapped_column(String(10), nullable=False, default='pending')
+    status: Mapped[str] = mapped_column(
+        Enum(
+        'Active',
+        'Completed',
+        'Cancelled',
+        name='item_status'
+    ), 
+        nullable=False, 
+        default='Active'
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     food = relationship('Food', backref='tasks')
