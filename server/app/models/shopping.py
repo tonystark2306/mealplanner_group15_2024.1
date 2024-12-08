@@ -36,6 +36,10 @@ class ShoppingList(Base):
         else:
             self.status = 'Draft'
 
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 class ShoppingTask(Base):
     __tablename__ = 'shopping_tasks'
 
@@ -61,3 +65,6 @@ class ShoppingTask(Base):
         self.list_id = list_id
         self.food_id = food_id
         self.quantity = quantity
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
