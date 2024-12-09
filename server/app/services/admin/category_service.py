@@ -16,4 +16,8 @@ class CategoryService:
             logging.error(f"Error creating system category: {str(e)}")
             raise
             
-        
+    
+    def list_system_categories(self):
+        """ List all system categories """
+        return self.category_repository.get_all_system_categories()
+    

@@ -39,4 +39,20 @@ def create_system_category(user_id):
         "resultCode": "00135",
         "category": new_category.as_dict()
     }), 201
-   
+
+
+@admin_api.route("/category", methods=["GET"])
+@JWT_required
+@system_admin_required
+def get_all_system_categories(user_id):
+    category_service = CategoryService()
+    categories = category_service.list_system_categories()
+    return jsonify({
+        "resultMessage": {
+            "en": "Successfully retrieved categories",
+            "vn": "Lấy các category thành công"
+        },
+        "resultCode": "00129",
+        "categories": [category.as_dict() for category in categories]
+    }), 200
+    
