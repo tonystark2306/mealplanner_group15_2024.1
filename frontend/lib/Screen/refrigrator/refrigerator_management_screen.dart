@@ -86,7 +86,7 @@ class RefrigeratorManagementScreen extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddFoodItemScreen()),
+            MaterialPageRoute(builder: (context) => const AddFoodItemScreen()),
           );
         },
 
