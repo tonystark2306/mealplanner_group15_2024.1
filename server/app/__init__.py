@@ -32,11 +32,17 @@ def create_app(config_class=Config):
     from app.models import user, group, token, category, food, recipe, meal_plan, role, login_attempt, shopping, unit, fridge_item
     
     from .controllers.user import user_api
-    from .controllers.fridge import fridge_api
-    from .controllers.shopping import shopping_api
     app.register_blueprint(user_api, url_prefix="/user")
+    
+    from .controllers.admin import admin_api
+    app.register_blueprint(admin_api, url_prefix="/admin")
+    
+    from .controllers.fridge import fridge_api
     app.register_blueprint(fridge_api, url_prefix="/fridge")
+    
+    from .controllers.shopping import shopping_api
     app.register_blueprint(shopping_api, url_prefix="/shopping")
+    
     app.register_error_handler(Exception, handle_exception)
 
     return app

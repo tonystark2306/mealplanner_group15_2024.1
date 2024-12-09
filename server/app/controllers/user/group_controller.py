@@ -2,7 +2,7 @@ from flask import request, jsonify
 
 from . import user_api
 from ...services.user.group_service import GroupService
-from ...utils.decorator import JWT_required
+from ...utils.decorator import JWT_required, group_member_required, group_admin_required
 
 
 @user_api.route("/group", methods=["GET"])
@@ -22,6 +22,7 @@ def get_all_groups(user_id):
 
 @user_api.route("/group/<group_id>", methods=["GET"])
 @JWT_required
+@group_member_required
 def get_group_members(user_id, group_id):
     group_service = GroupService()
     group = group_service.get_group_by_id(group_id)
@@ -113,27 +114,8 @@ def create_group(user_id):
 
 @user_api.route("/group/<group_id>/add", methods=["POST"])
 @JWT_required
+@group_member_required
 def add_members(user_id, group_id):
-    group_service = GroupService()
-    group = group_service.get_group_by_id(group_id)
-    if not group:
-        return jsonify({
-            "resultMessage": {
-                "en": "Group not found.",
-                "vn": "Không tìm thấy nhóm."
-            },
-            "resultCode": "00097"
-        }), 404
-    
-    if not group_service.is_member_of_group(user_id, group_id):
-        return jsonify({
-            "resultMessage": {
-                "en": "You are not a member of this group.",
-                "vn": "Bạn không phải là thành viên của nhóm này."
-            },
-            "resultCode": "00097"
-        }), 403
-        
     data = request.get_json()
     if not data:
         return jsonify({
@@ -154,6 +136,7 @@ def add_members(user_id, group_id):
             "resultCode": "00025"
         }), 400
     
+    group_service = GroupService()
     for username in member_usernames:
         user_to_add = group_service.get_user_by_username(username)
         if not user_to_add:
@@ -186,27 +169,8 @@ def add_members(user_id, group_id):
     
 @user_api.route("/group/<group_id>", methods=["DELETE"])
 @JWT_required
+@group_admin_required
 def delete_member(user_id, group_id):
-    group_service = GroupService()
-    group = group_service.get_group_by_id(group_id)
-    if not group:
-        return jsonify({
-            "resultMessage": {
-                "en": "Group not found.",
-                "vn": "Không tìm thấy nhóm."
-            },
-            "resultCode": "00097"
-        }), 404
-    
-    if user_id != group.admin_id:
-        return jsonify({
-            "resultMessage": {
-                "en": "You are not an admin, cannot delete",
-                "vn": "Bạn không phải admin, không thể xóa"
-            },
-            "resultCode": "00104"
-        }),
-        
     data = request.get_json()
     if not data:
         return jsonify({
@@ -227,6 +191,7 @@ def delete_member(user_id, group_id):
             "resultCode": "00025"
         }), 400
     
+    group_service = GroupService()
     user_to_remove = group_service.get_user_by_username(username)
     if not user_to_remove:
         return jsonify({
