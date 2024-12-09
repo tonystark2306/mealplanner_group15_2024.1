@@ -31,12 +31,18 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.notifications, color: Colors.green[700]),
             onPressed: () {
-              // Xử lý thông báo
+              // Handle notifications
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.analytics, color: Colors.green[700]),
+            onPressed: () {
+              Navigator.pushNamed(context, '/report');
             },
           ),
         ],
       ),
-      drawer: _buildDrawer(),
+      drawer: _buildDrawer(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -104,7 +110,6 @@ class HomeScreen extends StatelessWidget {
                 },
                 child: Column(
                   children: [
-                    
                     const SizedBox(height: 10),
                     Row(
                       children: [
@@ -125,13 +130,38 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+            _buildSectionCard(
+              title: 'Quản lý công thức',
+              icon: Icons.menu_book,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/recipe-management');
+                },
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Xem, thêm hoặc chỉnh sửa công thức của bạn.',
+                        style: const TextStyle(color: Colors.black54),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.green,
+                      size: 16,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDrawer() {
+  Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -152,17 +182,23 @@ class HomeScreen extends StatelessWidget {
           _buildDrawerItem(icon: Icons.privacy_tip, text: 'Chính sách bảo mật'),
           _buildDrawerItem(icon: Icons.help, text: 'Hướng dẫn sử dụng'),
           const Divider(),
+          _buildDrawerItem(icon: Icons.analytics, text: 'Thống kê báo cáo', onTap: () {
+            Navigator.pushNamed(context, '/report');
+          }),
+          _buildDrawerItem(icon: Icons.menu_book, text: 'Quản lý công thức', onTap: () {
+            Navigator.pushNamed(context, '/recipe-management');
+          }),
           _buildDrawerItem(icon: Icons.logout, text: 'Đăng xuất'),
         ],
       ),
     );
   }
 
-  Widget _buildDrawerItem({required IconData icon, required String text}) {
+  Widget _buildDrawerItem({required IconData icon, required String text, void Function()? onTap}) {
     return ListTile(
       leading: Icon(icon, color: Colors.green[700]),
       title: Text(text, style: TextStyle(color: Colors.green[700])),
-      onTap: () {
+      onTap: onTap ?? () {
         _scaffoldKey.currentState?.closeDrawer();
       },
     );
