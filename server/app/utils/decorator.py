@@ -1,14 +1,13 @@
 from functools import wraps
 from inspect import signature
-import logging
 import jwt
 
 from flask import request, jsonify
 
 from config import secret_key
-from .. import db
-from ..models.user import User
 from ..services.user.group_service import GroupService
+from ..repository.user_repository import UserRepository
+from ..repository.role_repository import RoleRepository
 
 
 def JWT_required(f):
@@ -65,20 +64,8 @@ def JWT_required(f):
                 "resultCode": "00012"
             }), 401
             
-        try:
-            user = db.session.execute(
-                db.select(User).where(User.id == user_id)
-            ).scalar()
-        except Exception as e:
-            logging.error(f"Internal server error: {str(e)}")
-            return jsonify({
-                "resultMessage": {
-                    "en": "An internal server error has occurred, please try again.",
-                    "vn": "Đã xảy ra lỗi máy chủ nội bộ, vui lòng thử lại."
-                },
-                "resultCode": "00008"
-            }), 500
-            
+        user_repository = UserRepository()
+        user = user_repository.get_user_by_id(user_id)
         if not user:
             return jsonify({
                 "resultMessage": {
@@ -151,8 +138,29 @@ def group_admin_required(f):
                 },
                 "resultCode": "00032"
             }), 403
-            
+        
         return f(user_id, group_id, *args, **kwargs)
+    
+    return decorated_function
+
+
+def system_admin_required(f):
+    '''Decorator to require user to be a system admin to access the API'''
+    @wraps(f)
+    def decorated_function(user_id, *args, **kwargs):
+        role_repository = RoleRepository()
+        role = role_repository.get_role_of_user(user_id)
+        if role != "admin":
+            return jsonify({
+                "resultMessage": {
+                    "en": "You need to have system admin rights to access this API.",
+                    "vn": "Bạn cần có quyền admin hệ thống để truy cập vào API này."
+                },
+                "resultCode": "00033"
+            }), 403
+        
+        return f(user_id, *args, **kwargs)
+    
     return decorated_function
 
 

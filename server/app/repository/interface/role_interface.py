@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import List
 from ...models.role import Role as RoleModel, UserRole as UserRoleModel
 
 
