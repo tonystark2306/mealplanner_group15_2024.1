@@ -7,6 +7,7 @@ from werkzeug.security import check_password_hash
 
 from ...repository.user_repository import UserRepository
 from ...repository.token_repository import TokenRepository
+from ...repository.role_repository import RoleRepository, UserRoleRepository
 from config import secret_key
 
 
@@ -14,16 +15,18 @@ class AuthService:
     def __init__(self):
         self.user_repository = UserRepository()
         self.token_repository = TokenRepository()
+        self.role_repository = RoleRepository()
+        self.user_role_repository = UserRoleRepository()
 
 
     def validate_login(self, email, password):
         """Validate the login credentials of an user."""
         user = self.user_repository.get_user_by_email(email)
-
         if not user or not check_password_hash(user.password_hash, password):
-            return None
+            return None, None
         
-        return user
+        role = self.role_repository.get_role_of_user(user.id)
+        return user, role
 
 
     def generate_access_token(self, user_id, expires_in=600):
@@ -112,6 +115,13 @@ class AuthService:
         """Save a new user to the database."""
         try:
             new_user = self.user_repository.save_user_to_db(email, password, username, name, language, timezone, device_id)
+            existed_role_for_user = self.role_repository.get_role_by_role_name("user")
+            if not existed_role_for_user:
+                new_role = self.role_repository.create_role("user")
+                self.user_role_repository.create_user_role(new_user.id, new_role.id)
+            else:
+                self.user_role_repository.create_user_role(new_user.id, existed_role_for_user.id)
+            
             return new_user
         
         except Exception as e:

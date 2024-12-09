@@ -41,8 +41,7 @@ def login():
         }), 400
 
     auth_service = AuthService()
-    user = auth_service.validate_login(email, password)
-    
+    user, role = auth_service.validate_login(email, password)
     if not user:
         return jsonify({
             "resultMessage": {
@@ -62,6 +61,7 @@ def login():
         },
         "resultCode": "00047",
         "user": user.to_json(),
+        "role": role,
         "access_token": access_token,
         "refresh_token": refresh_token
     }), 200
@@ -214,6 +214,7 @@ def register():
         },
         "resultCode": "00035",
         "user": new_user.to_json(),
+        "role": "user",
         "confirmToken": confirm_token
     }), 201
         
