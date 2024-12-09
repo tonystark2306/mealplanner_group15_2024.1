@@ -1,6 +1,8 @@
 import logging
 from typing import List
 
+from sqlalchemy import and_
+
 from .interface.category_interface import CategoryInterface
 from ..models.category import Category as CategoryModel
 from ..import db
@@ -13,7 +15,12 @@ class CategoryRepository(CategoryInterface):
     
     def get_category_by_name(self, category_name) -> CategoryModel:
         return db.session.execute(
-            db.select(CategoryModel).where(CategoryModel.name == category_name)
+            db.select(CategoryModel).where(
+                and_(
+                    CategoryModel.type == "system",
+                    CategoryModel.name == category_name
+                )
+            )
         ).scalar()
     
     
@@ -46,4 +53,14 @@ class CategoryRepository(CategoryInterface):
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error updating category name: {str(e)}")
+            raise
+        
+        
+    def delete_category(self, category):
+        try:
+            db.session.delete(category)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error deleting system category: {str(e)}")
             raise

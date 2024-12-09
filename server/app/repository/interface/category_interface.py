@@ -22,3 +22,7 @@ class CategoryInterface(ABC):
     @abstractmethod
     def update_name_for_category(self, category, new_name):
         pass
+    
+    @abstractmethod
+    def delete_category(self, category):
+        pass

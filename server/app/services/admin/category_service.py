@@ -23,7 +23,7 @@ class CategoryService:
     
     
     def get_category_by_name(self, name):
-        """ Get a category by name """
+        """ Get a system category by name """
         return self.category_repository.get_category_by_name(name)
     
     
@@ -35,3 +35,11 @@ class CategoryService:
             logging.error(f"Error updating category name: {str(e)}")
             raise
     
+    
+    def delete_category(self, category):
+        """ Delete a system category"""
+        try:
+            self.category_repository.delete_category(category)
+        except Exception as e:
+            logging.error(f"Error deleting system category: {str(e)}")
+            raise
