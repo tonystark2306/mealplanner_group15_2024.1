@@ -99,7 +99,6 @@ def JWT_required(f):
     return decorated_function
 
 
-
 def group_member_required(f):
     '''Decorator to require user to be a member of a group to access the API'''
     @wraps(f)
@@ -123,6 +122,34 @@ def group_member_required(f):
                     "vn": "Bạn không phải là thành viên của nhóm này."
                 },
                 "resultCode": "00031"
+            }), 403
+            
+        return f(user_id, group_id, *args, **kwargs)
+    return decorated_function
+
+
+def group_admin_required(f):
+    '''Decorator to require user to be an admin of a group to access the API'''
+    @wraps(f)
+    def decorated_function(user_id, group_id, *args, **kwargs):
+        group_service = GroupService()
+        group = group_service.get_group_by_id(group_id)
+        if not group:
+            return jsonify({
+                "resultMessage": {
+                    "en": "Group not found.",
+                    "vn": "Không tìm thấy nhóm."
+                },
+                "resultCode": "00030"
+            }), 404
+            
+        if user_id != group.admin_id:
+            return jsonify({
+                "resultMessage": {
+                    "en": "You are not an admin of this group.",
+                    "vn": "Bạn không phải là admin của nhóm này."
+                },
+                "resultCode": "00032"
             }), 403
             
         return f(user_id, group_id, *args, **kwargs)
