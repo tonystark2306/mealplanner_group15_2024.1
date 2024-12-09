@@ -1,8 +1,6 @@
 import logging
 from typing import List
 
-from server.app.models.group import Group as GroupModel
-
 from .interface.group_interface import GroupInterface, GroupMemberInterface
 from ..models.group import Group as GroupModel, GroupMember as GroupMemberModel
 from ..models.user import User as UserModel

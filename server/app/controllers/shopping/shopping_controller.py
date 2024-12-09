@@ -3,7 +3,7 @@ from flask import request, jsonify
 
 from . import shopping_api
 from ...services.shopping.shopping_list_service import ShoppingListService
-from ...services.shopping.shopping_task_service import ShoppingTaskService
+# from ...services.shopping.shopping_task_service import ShoppingTaskService
 from ...services.user.group_service import GroupService
 from ...utils.decorator import JWT_required, group_member_required, validate_fields
 
