@@ -52,7 +52,7 @@ class ShoppingTask(Base):
         'Active',
         'Completed',
         'Cancelled',
-        name='item_status'
+        name='task_status'
     ), 
         nullable=False, 
         default='Active'
