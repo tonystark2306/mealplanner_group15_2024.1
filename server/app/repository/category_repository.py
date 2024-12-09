@@ -11,6 +11,12 @@ class CategoryRepository(CategoryInterface):
         pass
     
     
+    def get_category_by_name(self, category_name) -> CategoryModel:
+        return db.session.execute(
+            db.select(CategoryModel).where(CategoryModel.name == category_name)
+        ).scalar()
+    
+    
     def get_all_system_categories(self) -> List[CategoryModel]:
         return db.session.execute(
             db.select(CategoryModel).where(CategoryModel.type == "system")
@@ -30,4 +36,14 @@ class CategoryRepository(CategoryInterface):
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error creating system category: {str(e)}")
+            raise
+        
+        
+    def update_name_for_category(self, category, new_name):
+        try:
+            category.name = new_name
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error updating category name: {str(e)}")
             raise

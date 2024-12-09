@@ -21,3 +21,17 @@ class CategoryService:
         """ List all system categories """
         return self.category_repository.get_all_system_categories()
     
+    
+    def get_category_by_name(self, name):
+        """ Get a category by name """
+        return self.category_repository.get_category_by_name(name)
+    
+    
+    def update_category_name(self, category, new_name):
+        """ Update the name of a category """
+        try:
+            self.category_repository.update_name_for_category(category, new_name)
+        except Exception as e:
+            logging.error(f"Error updating category name: {str(e)}")
+            raise
+    
