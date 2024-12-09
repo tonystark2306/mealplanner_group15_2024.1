@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ReportScreen extends StatelessWidget {
-  const ReportScreen({Key? key}) : super(key: key);
+  const ReportScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class ReportScreen extends StatelessWidget {
           children: [
             Icon(icon, size: 40, color: color),
             const SizedBox(height: 10),
-            Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 5),
             Text(title, style: TextStyle(color: Colors.grey[600])),
           ],
@@ -73,7 +73,7 @@ class ReportScreen extends StatelessWidget {
     return Container(
       height: 200,
       color: Colors.grey[200], // Placeholder color
-      child: Center(
+      child: const Center(
         child: Text(
           'Biểu đồ thống kê ở đây', // Placeholder text
           style: TextStyle(color: Colors.black, fontSize: 18),

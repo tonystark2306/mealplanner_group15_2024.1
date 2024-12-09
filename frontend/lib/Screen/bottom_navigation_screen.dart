@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import './homepage.dart';
 import './refrigrator/refrigerator_management_screen.dart';
+import './meal_planning/meal_planning_screen.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   const BottomNavigationScreen({super.key});
@@ -15,8 +16,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   // Danh sách các màn hình cho từng tab
   final List<Widget> _screens = [
     HomeScreen(), // Trang chủ
-    RefrigeratorManagementScreen(), // Quản lý tủ lạnh
-    const Center(child: Text('Kế Hoạch Bữa Ăn')), // Bữa ăn (tạm placeholder)
+    const RefrigeratorManagementScreen(), // Quản lý tủ lạnh
+    const MealPlanningScreen(), // Kế hoạch bữa ăn
     const Center(child: Text('Cài Đặt')), // Cài đặt (tạm placeholder)
   ];
 

@@ -108,18 +108,18 @@ class HomeScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.pushNamed(context, '/shopping-list');
                 },
-                child: Column(
+                child: const Column(
                   children: [
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
                           child: Text(
                             '• Rau cải - 2 bó\n• Thịt gà - 1kg\n• Táo - 3 quả',
-                            style: const TextStyle(color: Colors.black54),
+                            style: TextStyle(color: Colors.black54),
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.arrow_forward_ios,
                           color: Colors.green,
                           size: 16,
@@ -138,15 +138,15 @@ class HomeScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.pushNamed(context, '/recipe-management');
                 },
-                child: Row(
+                child: const Row(
                   children: [
                     Expanded(
                       child: Text(
                         'Xem, thêm hoặc chỉnh sửa công thức của bạn.',
-                        style: const TextStyle(color: Colors.black54),
+                        style: TextStyle(color: Colors.black54),
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.arrow_forward_ios,
                       color: Colors.green,
                       size: 16,

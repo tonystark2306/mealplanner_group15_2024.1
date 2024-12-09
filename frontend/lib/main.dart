@@ -10,13 +10,13 @@ import 'Screen/homepage.dart';
 import 'Screen/shopping_list/shopping_list_screen.dart';
 import 'Screen/recipes/create_recipe_screen.dart';
 import 'Screen/recipes/recipe_management_screen.dart';
-
+import 'Providers/meal_planning_provider.dart';
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,18 +25,20 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => RefrigeratorProvider(),
         ),
+        ChangeNotifierProvider(create: (_) => MealPlanningProvider()), // Thêm MealPlanningProvider
+
       ],
       child: MaterialApp(
-        home: BottomNavigationScreen(), // Màn hình chính
+        home: const BottomNavigationScreen(), // Màn hình chính
         debugShowCheckedModeBanner: false,
         routes: {
           '/login': (context) => const SimpleLoginScreen(),
           '/signup': (context) => const SignUpScreen(),
           '/home': (context) => HomeScreen(),
-          '/refrigerator': (context) => RefrigeratorManagementScreen(),
-          '/bottomnav': (context) => BottomNavigationScreen(),
+          '/refrigerator': (context) => const RefrigeratorManagementScreen(),
+          '/bottomnav': (context) => const BottomNavigationScreen(),
           '/shopping-list': (context) => const ShoppingListScreen(),
-          '/report': (context) => ReportScreen(), // Correct route to ReportScreen
+          '/report': (context) => const ReportScreen(), // Correct route to ReportScreen
           '/recipe-management': (context) => const RecipeManagementScreen(),
           '/create-recipe': (context) => const CreateRecipeScreen(),
         },

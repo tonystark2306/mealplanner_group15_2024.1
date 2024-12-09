@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class RecipeManagementScreen extends StatelessWidget {
-  const RecipeManagementScreen({Key? key}) : super(key: key);
+  const RecipeManagementScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +30,8 @@ class RecipeManagementScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                       image: DecorationImage(
                         image: AssetImage('assets/recipe_placeholder.png'), // Thay bằng ảnh công thức
                         fit: BoxFit.cover,
