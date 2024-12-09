@@ -49,6 +49,10 @@ class GroupService:
         group_member = self.group_member_repository.get_group_member(user_id, group_id)
         return group_member is not None
     
+
+    def is_admin(self, user_id, group_id):
+        group = self.group_repository.get_group_by_id(group_id)
+        return group.admin_id == user_id
     
     def add_members_to_group(self, group_id, member_usernames):
         try:

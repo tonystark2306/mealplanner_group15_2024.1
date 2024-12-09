@@ -8,6 +8,7 @@ from flask import request, jsonify
 from config import secret_key
 from .. import db
 from ..models.user import User
+from ..services.user.group_service import GroupService
 
 
 def JWT_required(f):
@@ -96,3 +97,58 @@ def JWT_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
+
+
+def group_member_required(f):
+    '''Decorator to require user to be a member of a group to access the API'''
+    @wraps(f)
+    def decorated_function(user_id, group_id, *args, **kwargs):
+        group_service = GroupService()
+        group = group_service.get_group_by_id(group_id)
+        if not group:
+            return jsonify({
+                "resultMessage": {
+                    "en": "Group not found.",
+                    "vn": "Không tìm thấy nhóm."
+                },
+                "resultCode": "00030"
+            }), 404
+            
+        is_member = group_service.is_member_of_group(user_id, group_id)
+        if not is_member:
+            return jsonify({
+                "resultMessage": {
+                    "en": "You are not a member of this group.",
+                    "vn": "Bạn không phải là thành viên của nhóm này."
+                },
+                "resultCode": "00031"
+            }), 403
+            
+        return f(user_id, group_id, *args, **kwargs)
+    return decorated_function
+
+
+def validate_fields(allow_fields):
+    """Decorator to validate fields in request JSON data."""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Lấy dữ liệu từ request
+            data = request.get_json() or {}
+
+            # Kiểm tra các trường bắt buộc có giá trị hay không
+            missing_fields = {field for field in allow_fields if not data.get(field)}
+            if missing_fields:
+                return jsonify({
+                    "resultMessage": {
+                        "en": "Please provide all required fields!",
+                        "vn": "Vui lòng cung đầy đủ các trường bắt buộc!"
+                    },
+                    "resultCode": "00099"
+                }), 400
+
+            # Nếu tất cả hợp lệ, gọi hàm gốc
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
