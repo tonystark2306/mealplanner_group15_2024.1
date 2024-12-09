@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:meal_planner_app/Screen/admin/admin_dashboard_screen.dart';
-import './Screen/bottom_navigation_screen.dart';
 import 'package:provider/provider.dart';
-import 'Providers/refrigerator_provider.dart'; // Import Provider của bạn
+import './Screen/bottom_navigation_screen.dart';
+import './Screen/reports/consumption_report_screen.dart'; // Import màn hình báo cáo
+import 'Providers/refrigerator_provider.dart'; 
 import 'Screen/refrigrator/refrigerator_management_screen.dart'; 
 import 'Screen/auth/login.dart';
 import 'Screen/auth/signupscreen.dart';
 import 'Screen/homepage.dart';
+import 'Screen/shopping_list/shopping_list_screen.dart';
+import 'Screen/recipes/create_recipe_screen.dart';
+import 'Screen/recipes/recipe_management_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,7 +27,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        home: BottomNavigationScreen(), // Đặt màn hình chính
+        home: BottomNavigationScreen(), // Màn hình chính
         debugShowCheckedModeBanner: false,
         routes: {
           '/login': (context) => const SimpleLoginScreen(),
@@ -32,7 +35,10 @@ class MyApp extends StatelessWidget {
           '/home': (context) => HomeScreen(),
           '/refrigerator': (context) => RefrigeratorManagementScreen(),
           '/bottomnav': (context) => BottomNavigationScreen(),
-          '/admin': (context) => AdminDashboardScreen(),
+          '/shopping-list': (context) => const ShoppingListScreen(),
+          '/report': (context) => ReportScreen(), // Correct route to ReportScreen
+          '/recipe-management': (context) => const RecipeManagementScreen(),
+          '/create-recipe': (context) => const CreateRecipeScreen(),
         },
       ),
     );
