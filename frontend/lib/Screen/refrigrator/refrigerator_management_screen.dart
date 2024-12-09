@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import './add_food_item_screen.dart'; // Adjust the path as necessary
 
 class RefrigeratorManagementScreen extends StatelessWidget {
+  const RefrigeratorManagementScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +65,7 @@ class RefrigeratorManagementScreen extends StatelessWidget {
                         else
                           ListView.builder(
                             shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             itemCount: foodItems.length,
                             itemBuilder: (context, index) {
                               final foodItem = foodItems[index];
@@ -88,7 +90,7 @@ class RefrigeratorManagementScreen extends StatelessWidget {
           );
         },
 
-        child: Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -110,7 +112,7 @@ class RefrigeratorManagementScreen extends StatelessWidget {
 
   Widget _buildFoodItemTile(BuildContext context, FoodItem foodItem) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 4),
+      margin: const EdgeInsets.symmetric(vertical: 4),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.green[50],
@@ -118,7 +120,7 @@ class RefrigeratorManagementScreen extends StatelessWidget {
         ),
         title: Text(
           foodItem.name,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
           'Hết hạn: ${foodItem.expiryDate.toLocal().toString().split(' ')[0]}',

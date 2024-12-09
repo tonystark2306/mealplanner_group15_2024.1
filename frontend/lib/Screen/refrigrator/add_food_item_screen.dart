@@ -4,6 +4,8 @@ import '../../Models/food_item_model.dart';
 import '../../Providers/refrigerator_provider.dart';
 
 class AddFoodItemScreen extends StatefulWidget {
+  const AddFoodItemScreen({super.key});
+
   @override
   _AddFoodItemScreenState createState() => _AddFoodItemScreenState();
 }
@@ -67,7 +69,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Tên thực phẩm'),
+                decoration: const InputDecoration(labelText: 'Tên thực phẩm'),
                 textInputAction: TextInputAction.next,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -80,7 +82,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Số lượng'),
+                decoration: const InputDecoration(labelText: 'Số lượng'),
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
                 validator: (value) {
@@ -93,20 +95,20 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                   _quantity = int.parse(value!);
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Text(
                     'Ngày hết hạn: ${_expiryDate.toLocal().toString().split(' ')[0]}',
                   ),
-                  Spacer(),
+                  const Spacer(),
                   TextButton(
                     onPressed: _pickExpiryDate,
-                    child: Text('Chọn ngày'),
+                    child: const Text('Chọn ngày'),
                   ),
                 ],
               ),
-              Spacer(),
+              const Spacer(),
               ElevatedButton(
                 onPressed: _submitForm,
                 style: ElevatedButton.styleFrom(
@@ -114,9 +116,9 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: Center(
+                child: const Center(
                   child: Text(
                     'Thêm thực phẩm',
                     style: TextStyle(fontSize: 16, color: Colors.white),
