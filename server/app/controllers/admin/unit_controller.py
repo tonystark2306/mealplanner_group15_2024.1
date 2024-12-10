@@ -121,3 +121,48 @@ def update_system_unit_name(user_id):
         },
         "resultCode": "00122"
     }), 200
+    
+    
+@admin_api.route("/unit", methods=["DELETE"])
+@JWT_required
+@system_admin_required
+def delete_system_unit_by_name(user_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid JSON data.",
+                "vn": "Dữ liệu JSON không hợp lệ."
+            },
+            "resultCode": "00004"
+        }), 400
+    
+    unit_name = data.get("unitName")
+    if not unit_name:
+        return jsonify({
+            "resultMessage": {
+                "en": "Missing unit name information",
+                "vn": "Thiếu thông tin tên của đơn vị"
+            },
+            "resultCode": "00112"
+        }), 400
+    
+    unit_service = UnitService()
+    unit_to_delete = unit_service.get_unit_by_name(unit_name)
+    if not unit_to_delete:
+        return jsonify({
+            "resultMessage": {
+                "en": "Unit with this name not found",
+                "vn": "Không tìm thấy đơn vị với tên cung cấp"
+            },
+            "resultCode": "00119"
+        }), 404
+        
+    unit_service.delete_unit(unit_to_delete)
+    return jsonify({
+        "resultMessage": {
+            "en": "Unit deleted successfully",
+            "vn": "Xóa đơn vị thành công"
+        },
+        "resultCode": "00128"
+    }), 200

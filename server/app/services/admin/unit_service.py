@@ -34,3 +34,12 @@ class UnitService:
         except Exception as e:
             logging.error(f"Error updating unit name: {str(e)}")
             raise
+        
+        
+    def delete_unit(self, unit):
+        """ Delete a system unit"""
+        try:
+            self.unit_repository.delete_unit(unit)
+        except Exception as e:
+            logging.error(f"Error deleting system unit: {str(e)}")
+            raise

@@ -58,3 +58,13 @@ class UnitRepository(UnitInterface):
             db.session.rollback()
             logging.error(f"Error updating unit name: {str(e)}")
             raise
+        
+        
+    def delete_unit(self, unit):
+        try:
+            db.session.delete(unit)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error deleting system unit: {str(e)}")
+            raise

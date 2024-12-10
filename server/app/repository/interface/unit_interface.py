@@ -26,3 +26,7 @@ class UnitInterface(ABC):
     @abstractmethod
     def update_name_for_unit(self, unit, new_name):
         pass
+    
+    @abstractmethod
+    def delete_unit(self, unit):
+        pass
