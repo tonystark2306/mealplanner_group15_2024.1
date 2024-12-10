@@ -138,13 +138,11 @@ def register():
     if data is None:
         return jsonify({
             "resultMessage": {
-                "en": "You registered successfully.",
-                "vn": "Bạn đã đăng ký thành công."
+                "en": "Invalid JSON data.",
+                "vn": "Dữ liệu JSON không hợp lệ."
             },
-            "resultCode": "00035",
-            "user": new_user.to_json(),
-            "confirmToken": confirm_token
-        }), 201
+            "resultCode": "00004"
+        }), 400
     
     REQUIRED_FIELDS = {"email", "password", "username", "name", "language", "timezone", "deviceId"}
     missing_fields = {field for field in REQUIRED_FIELDS if data.get(field) is None}
