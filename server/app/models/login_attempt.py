@@ -3,6 +3,8 @@ from sqlalchemy import String, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from app import Base, db
+from typing import Optional
+
 
 class LoginAttempt(Base):
     __tablename__ = 'login_attempts'
@@ -12,7 +14,7 @@ class LoginAttempt(Base):
     attempt_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     ip_address: Mapped[str] = mapped_column(String(45))
     status: Mapped[str] = mapped_column(String(50), nullable=False)  # success, failed, locked_out
-    user_agent: Mapped[str] = mapped_column(String(255), nullable=True)
+    user_agent: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     is_remembered: Mapped[bool] = mapped_column(Boolean, default=False)  # Flask-Login remember me flag
     
     # Define relationship

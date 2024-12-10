@@ -3,6 +3,7 @@ from sqlalchemy import String, DateTime, ForeignKey, Column, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from app import Base
+from typing import Optional
 
 food_categories = Table(
     'food_categories',
@@ -18,7 +19,7 @@ class Food(Base):
     create_by: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=True)
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     type: Mapped[str] = mapped_column(String(50), nullable=False, default='ingredient')
-    group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), nullable=True)
+    group_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey('groups.id'), nullable=True)
     unit_id: Mapped[str] = mapped_column(String(36), ForeignKey('units.id'), nullable=False)
     image_url: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -31,10 +32,10 @@ class Food(Base):
     unit = relationship('Unit', backref='foods')
     creator = relationship('User', backref='foods', lazy=True)
 
-    def __init__(self, user_id, name, typee, group_id, categories, unit_id, image_url=None, note=None):
+    def __init__(self, user_id, name, type, group_id, categories, unit_id, image_url=None, note=None):
         self.create_by = user_id
         self.name = name
-        self.type = typee
+        self.type = type
         self.group_id = group_id
         self.categories = categories
         self.unit_id = unit_id
