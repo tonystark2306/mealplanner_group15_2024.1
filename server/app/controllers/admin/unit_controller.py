@@ -49,4 +49,19 @@ def create_system_unit(user_id):
         "resultCode": "00116",
         "category": new_category.as_dict()
     }), 201
-        
+
+
+@admin_api.route("/unit", methods=["GET"])
+@JWT_required
+@system_admin_required
+def get_all_system_unit(user_id):
+    unit_service = UnitService()
+    units = unit_service.list_system_units()
+    return jsonify({
+        "resultMessage": {
+            "en": "Get all units successfully",
+            "vn": "Lấy các unit thành công"
+        },
+        "resultCode": "00110",
+        "units": [unit.as_dict() for unit in units]
+    }), 200

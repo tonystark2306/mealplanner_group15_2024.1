@@ -28,6 +28,12 @@ class UnitRepository(UnitInterface):
         ).scalar()
         
         
+    def get_all_system_units(self) -> List[UnitModel]:
+        return db.session.execute(
+            db.select(UnitModel).where(UnitModel.type == "system")
+        ).scalars().all()
+        
+        
     def create_system_unit(self, unit_name):
         try:
             new_unit = UnitModel(

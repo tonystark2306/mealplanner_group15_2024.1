@@ -1,3 +1,4 @@
+from typing import List
 from abc import ABC, abstractmethod
 from ...models.unit import Unit as UnitModel
 
@@ -12,6 +13,10 @@ class UnitInterface(ABC):
 
     @abstractmethod
     def get_unit_by_name(self, name) -> UnitModel:
+        pass
+    
+    @abstractmethod
+    def get_all_system_units(self) -> List[UnitModel]:
         pass
     
     @abstractmethod

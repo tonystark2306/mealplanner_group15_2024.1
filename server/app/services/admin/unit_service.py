@@ -12,6 +12,11 @@ class UnitService:
         return self.unit_repository.get_unit_by_name(name)
     
     
+    def list_system_units(self):
+        """ List all system units """
+        return self.unit_repository.get_all_system_units()
+    
+    
     def create_unit_for_system(self, unit_name):
         """ Create a unit for the system """
         try:
