@@ -22,3 +22,7 @@ class UnitInterface(ABC):
     @abstractmethod
     def create_system_unit(self, unit_name) -> UnitModel:
         pass
+    
+    @abstractmethod
+    def update_name_for_unit(self, unit, new_name):
+        pass

@@ -27,3 +27,10 @@ class UnitService:
             raise
     
     
+    def update_unit_name(self, unit, new_name):
+        """ Update the name of a unit """
+        try:
+            self.unit_repository.update_name_for_unit(unit, new_name)
+        except Exception as e:
+            logging.error(f"Error updating unit name: {str(e)}")
+            raise

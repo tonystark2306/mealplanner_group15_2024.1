@@ -8,7 +8,7 @@ class Unit(Base):
     __tablename__ = 'units'
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
-    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
     type: Mapped[str] = mapped_column(String(50), nullable=False, default='custom') # custom, system
     group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), nullable=True) # the custom unit was created by which group
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

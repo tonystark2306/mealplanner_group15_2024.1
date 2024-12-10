@@ -48,3 +48,13 @@ class UnitRepository(UnitInterface):
             db.session.rollback()
             logging.error(f"Error creating system unit: {str(e)}")
             raise
+        
+        
+    def update_name_for_unit(self, unit, new_name):
+        try:
+            unit.name = new_name
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error updating unit name: {str(e)}")
+            raise
