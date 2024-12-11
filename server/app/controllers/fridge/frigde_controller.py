@@ -2,7 +2,8 @@ from flask import request, jsonify
 
 from . import fridge_api
 from ...services.fridge.fridge_service import FridgeService
-from ...utils.decorator import JWT_required, group_member_required, validate_fields
+from ...utils.decorator import JWT_required, group_member_required
+from ...utils.middleware import check_item_ownership, validate_fields
 
 
 @fridge_api.route("/<group_id>", methods=["GET"])
@@ -54,6 +55,7 @@ def create_fridge_item(user_id, group_id):
 @fridge_api.route("/<group_id>/<item_id>", methods=["GET"])
 @JWT_required
 @group_member_required
+@check_item_ownership
 def get_specific_item(user_id, group_id, item_id):
     fridge_service = FridgeService()
     fridge_item = fridge_service.get_specific_item(item_id)
@@ -87,6 +89,7 @@ def get_specific_item(user_id, group_id, item_id):
 @JWT_required
 @group_member_required
 @validate_fields({"itemId", "newFoodName", "newQuantity", "newExpiration_date"})
+@check_item_ownership
 def update_fridge_item(user_id, group_id):
     fridge_service = FridgeService()
     data = request.json
@@ -116,6 +119,7 @@ def update_fridge_item(user_id, group_id):
 @fridge_api.route("/<group_id>/<item_id>", methods=["DELETE"])
 @JWT_required
 @group_member_required
+@check_item_ownership
 def delete_fridge_item(user_id, group_id, item_id):
     fridge_service = FridgeService()
     result = fridge_service.delete_fridge_item(item_id)

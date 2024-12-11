@@ -6,6 +6,7 @@ from ...services.shopping.shopping_list_service import ShoppingListService
 # from ...services.shopping.shopping_task_service import ShoppingTaskService
 from ...services.user.group_service import GroupService
 from ...utils.decorator import JWT_required, group_member_required, validate_fields, group_admin_required
+from ...utils.middleware import check_list_ownership
 
 
 
@@ -54,6 +55,7 @@ def create_shopping_list(user_id, group_id):
 @JWT_required
 @group_admin_required
 @validate_fields(["list_id"])
+@check_list_ownership
 def update_shopping_list(user_id, group_id):
     '''Update shopping list''' 
     list_service = ShoppingListService()
@@ -94,6 +96,7 @@ def update_shopping_list(user_id, group_id):
 @shopping_api.route("/<group_id>/<list_id>", methods=["DELETE"])
 @JWT_required
 @group_admin_required
+@check_list_ownership
 def delete_shopping_list(user_id, group_id, list_id):
     '''Delete shopping list'''
     list_service = ShoppingListService()
