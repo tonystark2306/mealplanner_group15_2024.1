@@ -93,12 +93,13 @@ def update_shopping_list(user_id, group_id):
     }), 200
 
     
-@shopping_api.route("/<group_id>/<list_id>", methods=["DELETE"])
+@shopping_api.route("/<group_id>", methods=["DELETE"])
 @JWT_required
 @group_admin_required
 @check_list_ownership
 def delete_shopping_list(user_id, group_id, list_id):
     '''Delete shopping list'''
+    list_id = request.json.get("list_id")
     list_service = ShoppingListService()
     
     result = list_service.change_status(group_id, list_id, "Deleted")
