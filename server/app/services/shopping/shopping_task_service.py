@@ -90,8 +90,8 @@ class ShoppingTaskService:
         return "task updated successfully"
     
 
-    def mark_task(self, task_id):
-        task = self.task_repo.get_task_by_id(task_id)
+    def mark_task(self, list_id, task_id):
+        task = self.task_repo.get_task_by_id(list_id, task_id)
         if not task:
             return "task not found"
         new_status = ''
