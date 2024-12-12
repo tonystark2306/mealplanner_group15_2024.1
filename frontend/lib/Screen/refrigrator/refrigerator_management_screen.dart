@@ -3,7 +3,7 @@ import '../../Models/food_item_model.dart';
 import '../../Providers/refrigerator_provider.dart';
 import 'package:provider/provider.dart';
 import './add_food_item_screen.dart'; // Adjust the path as necessary
-
+import './edit_food_item_screen.dart';
 class RefrigeratorManagementScreen extends StatelessWidget {
   const RefrigeratorManagementScreen({super.key});
 
@@ -113,35 +113,46 @@ class RefrigeratorManagementScreen extends StatelessWidget {
  Widget _buildFoodItemTile(BuildContext context, FoodItem foodItem) {
   return Card(
     margin: const EdgeInsets.symmetric(vertical: 4),
-    child: ListTile(
-      leading: CircleAvatar(
-        backgroundColor: Colors.green[50],
-        child: Icon(Icons.food_bank, color: Colors.green[700]),
-      ),
-      title: Text(
-        foodItem.name,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Số lượng: ${foodItem.quantity}', // Thêm số lượng
-            style: TextStyle(color: Colors.grey[700]),
+    child: InkWell( // Dùng InkWell để thêm hiệu ứng bấm
+      onTap: () {
+        // Thực hiện hành động khi item được nhấn
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditFoodItemScreen(foodItem: foodItem),
           ),
-          const SizedBox(height: 4), // Khoảng cách giữa 2 dòng
-          Text(
-            'Hết hạn: ${foodItem.expiryDate.toLocal().toString().split(' ')[0]}',
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-        ],
-      ),
-      trailing: IconButton(
-        icon: Icon(Icons.delete, color: Colors.red[300]),
-        onPressed: () {
-          Provider.of<RefrigeratorProvider>(context, listen: false)
-              .deleteFoodItem(foodItem);
-        },
+        );
+      },
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.green[50],
+          child: Icon(Icons.food_bank, color: Colors.green[700]),
+        ),
+        title: Text(
+          foodItem.name,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Số lượng: ${foodItem.quantity}',
+              style: TextStyle(color: Colors.grey[700]),
+            ),     
+            const SizedBox(height: 4),
+            Text(
+              'Hết hạn: ${foodItem.expiryDate.toLocal().toString().split(' ')[0]}',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ],
+        ),
+        trailing: IconButton(
+          icon: Icon(Icons.delete, color: Colors.red[300]),
+          onPressed: () {
+            Provider.of<RefrigeratorProvider>(context, listen: false)
+                .deleteFoodItem(foodItem);
+          },
+        ),
       ),
     ),
   );
