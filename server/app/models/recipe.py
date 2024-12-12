@@ -66,3 +66,6 @@ class RecipeImage(Base):
         self.recipe_id = recipe_id
         self.image_url = image_url
         self.order = order
+
+    def as_dict(self):
+        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
