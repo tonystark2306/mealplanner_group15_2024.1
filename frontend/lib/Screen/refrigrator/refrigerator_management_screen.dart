@@ -110,30 +110,41 @@ class RefrigeratorManagementScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFoodItemTile(BuildContext context, FoodItem foodItem) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.green[50],
-          child: Icon(Icons.food_bank, color: Colors.green[700]),
-        ),
-        title: Text(
-          foodItem.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(
-          'Hết hạn: ${foodItem.expiryDate.toLocal().toString().split(' ')[0]}',
-          style: TextStyle(color: Colors.grey[600]),
-        ),
-        trailing: IconButton(
-          icon: Icon(Icons.delete, color: Colors.red[300]),
-          onPressed: () {
-            Provider.of<RefrigeratorProvider>(context, listen: false)
-                .deleteFoodItem(foodItem);
-          },
-        ),
+ Widget _buildFoodItemTile(BuildContext context, FoodItem foodItem) {
+  return Card(
+    margin: const EdgeInsets.symmetric(vertical: 4),
+    child: ListTile(
+      leading: CircleAvatar(
+        backgroundColor: Colors.green[50],
+        child: Icon(Icons.food_bank, color: Colors.green[700]),
       ),
-    );
-  }
+      title: Text(
+        foodItem.name,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Số lượng: ${foodItem.quantity}', // Thêm số lượng
+            style: TextStyle(color: Colors.grey[700]),
+          ),
+          const SizedBox(height: 4), // Khoảng cách giữa 2 dòng
+          Text(
+            'Hết hạn: ${foodItem.expiryDate.toLocal().toString().split(' ')[0]}',
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+        ],
+      ),
+      trailing: IconButton(
+        icon: Icon(Icons.delete, color: Colors.red[300]),
+        onPressed: () {
+          Provider.of<RefrigeratorProvider>(context, listen: false)
+              .deleteFoodItem(foodItem);
+        },
+      ),
+    ),
+  );
+}
+
 }
