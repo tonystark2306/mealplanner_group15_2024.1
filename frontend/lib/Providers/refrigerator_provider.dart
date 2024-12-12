@@ -36,7 +36,7 @@ class RefrigeratorProvider with ChangeNotifier {
   }
 
   void deleteFoodItem(FoodItem foodItem) {
-    _items.remove(foodItem);
+    _items.remove(foodItem);  
     notifyListeners();
   }
 

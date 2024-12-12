@@ -28,8 +28,13 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quản lý công thức'),
-        backgroundColor: Colors.green[700],
+        title: Text(
+          'Quản lý công thức',
+          style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.green[700]),
       ),
       body: Column(
         children: [
@@ -69,6 +74,7 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
                   },
                   child: const Text('Công thức của tôi'),
                 ),
+                const Spacer(),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: !isMyRecipes ? Colors.green[700] : Colors.grey,
