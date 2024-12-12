@@ -7,14 +7,14 @@ class ShoppingListInterface(ABC):
         pass
 
 
-    # @abstractmethod
-    # def get_shopping_by_id(self, shopping_id):
-    #     pass
+    @abstractmethod
+    def get_shopping_by_id(self, shopping_id):
+        pass
 
     
-    # @abstractmethod
-    # def get_list_by_group_id(self, group_id):
-    #     pass
+    @abstractmethod
+    def get_shopping_lists_by_group_id(self, group_id):
+        pass
 
 
     # @abstractmethod
@@ -22,14 +22,14 @@ class ShoppingListInterface(ABC):
     #     pass
 
 
-    # @abstractmethod
-    # def save_shopping_list(self, shopping_list):
-    #     pass
+    @abstractmethod
+    def add_shopping_task(self, shopping_list):
+        pass
 
 
-    # @abstractmethod
-    # def update_shopping_list(self, shopping_list):
-    #     pass
+    @abstractmethod
+    def update_shopping_list(self, shopping_list):
+        pass
 
 
     # @abstractmethod
