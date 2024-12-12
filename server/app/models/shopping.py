@@ -15,7 +15,7 @@ class ShoppingList(Base):
     due_time: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     status: Mapped[str] = mapped_column(
         Enum('Draft', 'Active', 'Fully Completed', 
-             'Partially Completed', 'Archived', 'Cancelled', 
+             'Partially Completed', 'Archived', 'Cancelled', 'Deleted',
              name='shopping_list_status'), 
         nullable=False
     )
@@ -25,13 +25,13 @@ class ShoppingList(Base):
     tasks = relationship('ShoppingTask', backref='shopping_list', lazy=True)
     user = relationship('User', backref='shopping_lists', lazy=True)
 
-    def __init__(self, name, group_id,  assigned_to=None, notes=None, due_date=None, **kwargs):
+    def __init__(self, name, group_id,  assigned_to=None, notes=None, due_time=None, **kwargs):
         self.name = name
         self.group_id = group_id
         self.assigned_to = assigned_to
         self.notes = notes
-        self.due_date = due_date
-        if due_date is not None and assigned_to is not None:
+        self.due_time = due_time
+        if due_time is not None and assigned_to is not None:
             self.status = 'Active'
         else:
             self.status = 'Draft'
@@ -52,6 +52,7 @@ class ShoppingTask(Base):
         'Active',
         'Completed',
         'Cancelled',
+        'Deleted',
         name='task_status'
     ), 
         nullable=False, 
