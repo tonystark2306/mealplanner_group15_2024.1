@@ -1,165 +1,175 @@
+// meal_planning_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../Providers/meal_planning_provider.dart';
-import 'package:intl/intl.dart';
-import '../../Models/meal_plan_model.dart';
 
 class MealPlanningScreen extends StatefulWidget {
-  const MealPlanningScreen({super.key});
+  const MealPlanningScreen({Key? key}) : super(key: key);
 
   @override
   _MealPlanningScreenState createState() => _MealPlanningScreenState();
 }
 
-void _navigateToAddMealPlan(BuildContext context, DateTime selectedDate) {
-  Navigator.pushNamed(context, '/add-meal-plan', arguments: selectedDate);
-}
-
-
 class _MealPlanningScreenState extends State<MealPlanningScreen> {
-  DateTime _selectedDate = DateTime.now();
+  DateTime selectedDate = DateTime.now();
+
+  void _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final mealPlans = Provider.of<MealPlanningProvider>(context).getMealPlansByDate(_selectedDate);
+    final mealPlanningProvider = Provider.of<MealPlanningProvider>(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Kế hoạch bữa ăn',
-          style: TextStyle(
-            color: Colors.green[700],
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.green[700]),
-          onPressed: () => Navigator.pop(context),
-        ),
+        title: const Text('Kế hoạch bữa ăn'),
       ),
-      body: SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
         children: [
-          _buildDatePicker(),
-          const SizedBox(height: 20),
-          if (mealPlans.isEmpty)
-            Column(
+          // Phần trên cùng: Chọn ngày
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Center(child: Text('Không có kế hoạch bữa ăn cho ngày này')),
-                const SizedBox(height: 10),
+                Text(
+                  'Ngày: ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                  style: const TextStyle(fontSize: 16),
+                ),
                 ElevatedButton(
-                  onPressed: () {
-                    _navigateToAddMealPlan(context, _selectedDate); // Điều hướng để thêm bữa ăn mới
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green[700],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  child: const Text('Thêm bữa ăn mới', style: TextStyle(color: Colors.white)),
+                  onPressed: () => _selectDate(context),
+                  child: const Text('Chọn ngày'),
                 ),
               ],
-            )
-          else
-            ...mealPlans.map((meal) => _buildMealPlanCard(context, meal)),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              _navigateToAddMealPlan(context, _selectedDate); // Điều hướng để thêm bữa ăn mới
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green[700],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
             ),
-            child: const Text('Thêm bữa ăn mới', style: TextStyle(color: Colors.white)),
+          ),
+
+          // Kế hoạch bữa sáng
+          Expanded(
+            child: MealPlanSection(
+              title: 'Kế hoạch bữa sáng',
+              meals: mealPlanningProvider.getMealsForDateAndType(selectedDate, 'breakfast'),
+              onEdit: () {
+                Navigator.pushNamed(context, '/edit-meal-plan',
+                    arguments: {
+                      'mealType': 'breakfast',
+                      'date': selectedDate,
+                      'meals': mealPlanningProvider.getMealsForDateAndType(selectedDate, 'breakfast'),
+                    });
+              },
+            ),
+          ),
+
+          // Kế hoạch bữa trưa
+          Expanded(
+            child: MealPlanSection(
+              title: 'Kế hoạch bữa trưa',
+              meals: mealPlanningProvider.getMealsForDateAndType(selectedDate, 'lunch'),
+              onEdit: () {
+                Navigator.pushNamed(context, '/edit-meal-plan',
+                    arguments: {
+                      'mealType': 'lunch',
+                      'date': selectedDate,
+                      'meals': mealPlanningProvider.getMealsForDateAndType(selectedDate, 'lunch'),
+                    });
+              },
+            ),
+          ),
+
+          // Kế hoạch bữa tối
+          Expanded(
+            child: MealPlanSection(
+              title: 'Kế hoạch bữa tối',
+              meals: mealPlanningProvider.getMealsForDateAndType(selectedDate, 'dinner'),
+              onEdit: () {
+                Navigator.pushNamed(context, '/edit-meal-plan',
+                    arguments: {
+                      'mealType': 'dinner',
+                      'date': selectedDate,
+                      'meals': mealPlanningProvider.getMealsForDateAndType(selectedDate, 'dinner'),
+                    });
+              },
+            ),
+          ),
+
+          // Thêm bữa phụ
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/edit-meal-plan',
+                    arguments: {
+                      'mealType': 'snack',
+                      'date': selectedDate,
+                      'meals': mealPlanningProvider.getMealsForDateAndType(selectedDate, 'snack'),
+                    });
+              },
+              child: const Text('Thêm bữa phụ'),
+            ),
           ),
         ],
       ),
-    ),
     );
   }
+}
 
-  Widget _buildDatePicker() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Ngày: ${DateFormat('dd/MM/yyyy').format(_selectedDate)}',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.green[700],
-          ),
-        ),
-        TextButton(
-          onPressed: () async {
-            DateTime? pickedDate = await showDatePicker(
-              context: context,
-              initialDate: _selectedDate,
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-            );
+class MealPlanSection extends StatelessWidget {
+  final String title;
+  final List<String> meals;
+  final VoidCallback onEdit;
 
-            if (pickedDate != null && pickedDate != _selectedDate) {
-              setState(() {
-                _selectedDate = pickedDate;
-              });
-            }
-          },
-          child: const Text('Chọn ngày', style: TextStyle(color: Colors.blue)),
-        ),
-      ],
-    );
-  }
+  const MealPlanSection({
+    Key? key,
+    required this.title,
+    required this.meals,
+    required this.onEdit,
+  }) : super(key: key);
 
-  Widget _buildMealPlanCard(BuildContext context, MealPlan meal) {
+  @override
+  Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              children: [
-                Icon(Icons.fastfood, color: Colors.green[700]),
-                const SizedBox(width: 10),
-                Text(
-                  meal.mealTime,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green[700],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  meal.dish,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  title,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.orange),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/edit-meal-plan');
-                  },
+                  icon: const Icon(Icons.edit),
+                  onPressed: onEdit,
                 ),
               ],
             ),
+            const SizedBox(height: 8),
+            const Text('Danh sách món dự kiến:'),
+            const SizedBox(height: 8),
+            meals.isEmpty
+                ? const Text('Hiện tại chưa có món nào!')
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: meals
+                        .map((meal) => Text('- $meal'))
+                        .toList(),
+                  ),
           ],
         ),
       ),

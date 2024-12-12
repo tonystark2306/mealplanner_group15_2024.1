@@ -23,7 +23,9 @@ class RefrigeratorManagementScreen extends StatelessWidget {
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.green[700]),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pop(context); // Quay về màn hình trước đó
+          },
         ),
       ),
       body: Consumer<RefrigeratorProvider>(
