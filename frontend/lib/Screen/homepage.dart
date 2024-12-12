@@ -155,6 +155,31 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+            _buildSectionCard(
+              title: 'Quản lý thành viên nhóm', // Thêm mục mới
+              icon: Icons.group,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/family-group');
+                },
+                child: const Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Quản lý nhóm gia đình của bạn.',
+                        style: TextStyle(color: Colors.black54),
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.green,
+                      size: 16,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -176,7 +201,9 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          _buildDrawerItem(icon: Icons.group, text: 'Quản lý thành viên nhóm'),
+          _buildDrawerItem(icon: Icons.group, text: 'Quản lý thành viên nhóm', onTap: () {
+            Navigator.pushNamed(context, '/family-group'); // Đường dẫn tới màn hình quản lý nhóm
+          }),
           _buildDrawerItem(icon: Icons.notifications, text: 'Cài đặt thông báo'),
           _buildDrawerItem(icon: Icons.star, text: 'Đánh giá ứng dụng'),
           _buildDrawerItem(icon: Icons.privacy_tip, text: 'Chính sách bảo mật'),
