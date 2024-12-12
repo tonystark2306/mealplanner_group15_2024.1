@@ -12,6 +12,7 @@ class ShoppingListRepository(ShoppingListInterface):
     def get_shopping_by_id(self, shopping_id):
 
         _list = db.session.query(ShoppingListModel).filter(ShoppingListModel.id == shopping_id, ShoppingListModel.status != 'Deleted').first()
+        return _list
 
 
     # def get_shopping_by_user_id(self, user_id):

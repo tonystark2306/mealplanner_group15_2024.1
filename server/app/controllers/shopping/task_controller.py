@@ -80,8 +80,9 @@ def create_tasks(user_id, group_id):
 @shopping_api.route("/<group_id>/task", methods=["GET"])
 @JWT_required
 @group_member_required
+@validate_fields(["list_id"])
 @check_list_ownership
-def get_tasks(user_id, group_id, list_id):
+def get_tasks(user_id, group_id):
     '''Get tasks of a shopping list'''
     list_id = request.json.get("list_id")
     task_service = ShoppingTaskService()
@@ -186,7 +187,7 @@ def update_task(user_id, group_id):
 @JWT_required
 @group_admin_required
 @check_list_ownership
-def delete_task(user_id, group_id, task_id):
+def delete_task(user_id, group_id):
     '''Delete shopping task'''
     list_id = request.json.get("list_id")
     task_id = request.json.get("task_id")
@@ -202,7 +203,7 @@ def delete_task(user_id, group_id, task_id):
             "resultCode": "00296"
         }), 404
     
-    if "Cannot change status" in result['en']:
+    if isinstance(result, dict) and 'en' in result and "Cannot change status" in result['en']:
         return jsonify({
             "resultMessage": {
                 "en": result['en'],
@@ -240,8 +241,8 @@ def mark_task(user_id, group_id):
             "resultCode": "00296"
         }), 404
     
-    #"Cannot change status from {task.status} to {new_status}"
-    if "Cannot change status" in result['en']:
+    #nếu kết quả trả về là dict thì kiểm tra key "Cannot change status" trong result['en']
+    if isinstance(result, dict) and 'en' in result and "Cannot change status" in result['en']:
         return jsonify({
             "resultMessage": {
                 "en": result['en'],

@@ -20,8 +20,8 @@ class ShoppingTaskService:
         if not shopping_list:
             return "list not found"
         
-
-        if user_id!= self.group_service.is_admin(user_id, shopping_list.group_id) and user_id != shopping_list.assigned_to:
+        is_admin = user_id!= self.group_service.is_admin(user_id, shopping_list.group_id) 
+        if not is_admin and user_id != shopping_list.assigned_to:
             return "you are not allowed to access this list"
         
         task_list = []
@@ -35,6 +35,8 @@ class ShoppingTaskService:
         tasks = data['tasks']
         #check if shopping_list exists and is not cancelled
         shopping_list = self.list_repo.get_shopping_by_id(list_id)
+        if not shopping_list:
+            return "list not found"
         if shopping_list.status == 'Cancelled':
             return "list is cancelled"
         existed_tasks = shopping_list.tasks
@@ -71,22 +73,28 @@ class ShoppingTaskService:
             return "task is cancelled or completed"
         
         #check food name, if other task has the same food name, merge them into one task
-        food = self.food_repo.get_foods_by_name(new_task['food_name'])
+        food = self.food_repo.get_foods_by_name(new_task['new_food_name'])
         if not food:
             return "food not found"
         
-        #merge case
+        #merge case: reomonve existed task and update new task
         for existed_task in task.shopping_list.tasks:
             if existed_task.food_id == food.id and existed_task.status == 'Active':
-                existed_task.quantity += float(new_task['quantity'])
-                self.task_repo.update_task(existed_task)
-                self.task_repo.delete_task(task)
-                return "task merged successfully"
+                if existed_task.id != task.id:
+                    new_task['new_food_id']=food.id
+                    new_task['new_quantity'] = str(float(new_task['new_quantity']) + float(existed_task.quantity))
+                    self.task_repo.update_task(new_task)
+                    self.task_repo.update_task({
+                        'list_id': existed_task.list_id,
+                        'task_id': existed_task.id,
+                        'new_status': 'Deleted'
+                    })
 
         #normal case
-        task.food_id = food.id
-        task.quantity = new_task['quantity']
-        self.task_repo.update_task(task)
+        new_task['new_food_id'] = food.id
+        new_task['new_quantity'] = float(new_task['new_quantity'])
+        new_task['new_status'] = task.status
+        self.task_repo.update_task(new_task)
         return "task updated successfully"
     
 
@@ -118,7 +126,7 @@ class ShoppingTaskService:
         
         STATUS_TRANSITIONS = {
             'Active': ['Completed', 'Cancelled'],
-            'Completed': ['Deleted'],
+            'Completed': [],
             'Cancelled': ['Active','Deleted'],
             'Deleted': []
         }
@@ -129,6 +137,7 @@ class ShoppingTaskService:
                 }
 
         new_task = {
+            'list_id': task.list_id,
             'task_id': task.id,
             'new_status': new_status
         }

@@ -38,7 +38,7 @@ def check_item_ownership(f):
     '''Decorator to check if the user has access to the fridge item'''
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        group_id = kwargs.get('group_id')
+        group_id = kwargs.get('group_id') or request.view_args.get('group_id')
         data = request.json
         item_id = data.get("itemId") or kwargs.get('item_id')
 
@@ -75,7 +75,7 @@ def check_list_ownership(f):
     ''''Decorator to check if user has access to the shopping list'''
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        group_id = kwargs.get('group_id')  # Lấy group_id từ URL
+        group_id = kwargs.get('group_id') or request.view_args.get('group_id')
         data = request.json
         list_id = data.get("list_id") or kwargs.get('list_id')  # Lấy list_id từ request hoặc URL
 

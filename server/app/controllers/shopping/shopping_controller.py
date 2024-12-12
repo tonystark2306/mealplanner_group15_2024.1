@@ -5,8 +5,8 @@ from . import shopping_api
 from ...services.shopping.shopping_list_service import ShoppingListService
 # from ...services.shopping.shopping_task_service import ShoppingTaskService
 from ...services.user.group_service import GroupService
-from ...utils.decorator import JWT_required, group_member_required, validate_fields, group_admin_required
-from ...utils.middleware import check_list_ownership
+from ...utils.decorator import JWT_required, group_member_required, group_admin_required
+from ...utils.middleware import check_list_ownership, validate_fields
 
 
 
@@ -97,7 +97,7 @@ def update_shopping_list(user_id, group_id):
 @JWT_required
 @group_admin_required
 @check_list_ownership
-def delete_shopping_list(user_id, group_id, list_id):
+def delete_shopping_list(user_id, group_id):
     '''Delete shopping list'''
     list_id = request.json.get("list_id")
     list_service = ShoppingListService()
@@ -109,7 +109,7 @@ def delete_shopping_list(user_id, group_id, list_id):
             "vn": "Danh sách mua sắm được xóa thành công."
         },
         "resultCode": "00267",
-    }), 204
+    }), 200
 
 
 @shopping_api.route("/<group_id>", methods=["GET"])
