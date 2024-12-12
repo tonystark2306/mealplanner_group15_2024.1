@@ -1,4 +1,3 @@
-// meal_planning_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../Providers/meal_planning_provider.dart';
@@ -33,11 +32,20 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kế hoạch bữa ăn'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          'Kế hoạch bữa ăn',
+          style:
+              TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.green[700]),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Column(
         children: [
-          // Phần trên cùng: Chọn ngày
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -48,77 +56,102 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
                   style: const TextStyle(fontSize: 16),
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[700],
+                      foregroundColor: Colors.white),
                   onPressed: () => _selectDate(context),
                   child: const Text('Chọn ngày'),
                 ),
               ],
             ),
           ),
-
-          // Kế hoạch bữa sáng
           Expanded(
-            child: MealPlanSection(
-              title: 'Kế hoạch bữa sáng',
-              meals: mealPlanningProvider.getMealsForDateAndType(selectedDate, 'breakfast'),
-              onEdit: () {
-                Navigator.pushNamed(context, '/edit-meal-plan',
-                    arguments: {
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: [
+                MealPlanSection(
+                  title: 'Kế hoạch bữa sáng',
+                  meals: mealPlanningProvider.getMealsForDateAndType(
+                      selectedDate, 'breakfast'),
+                  onEdit: () {
+                    Navigator.pushNamed(context, '/edit-meal-plan', arguments: {
                       'mealType': 'breakfast',
                       'date': selectedDate,
-                      'meals': mealPlanningProvider.getMealsForDateAndType(selectedDate, 'breakfast'),
+                      'meals': mealPlanningProvider.getMealsForDateAndType(
+                          selectedDate, 'breakfast'),
+                    }).then((updatedMeals) {
+                      if (updatedMeals != null) {
+                        mealPlanningProvider.updateMealsForDateAndType(
+                            selectedDate,
+                            'breakfast',
+                            updatedMeals as List<String>);
+                      }
                     });
-              },
-            ),
-          ),
-
-          // Kế hoạch bữa trưa
-          Expanded(
-            child: MealPlanSection(
-              title: 'Kế hoạch bữa trưa',
-              meals: mealPlanningProvider.getMealsForDateAndType(selectedDate, 'lunch'),
-              onEdit: () {
-                Navigator.pushNamed(context, '/edit-meal-plan',
-                    arguments: {
+                  },
+                ),
+                MealPlanSection(
+                  title: 'Kế hoạch bữa trưa',
+                  meals: mealPlanningProvider.getMealsForDateAndType(
+                      selectedDate, 'lunch'),
+                  onEdit: () {
+                    Navigator.pushNamed(context, '/edit-meal-plan', arguments: {
                       'mealType': 'lunch',
                       'date': selectedDate,
-                      'meals': mealPlanningProvider.getMealsForDateAndType(selectedDate, 'lunch'),
+                      'meals': mealPlanningProvider.getMealsForDateAndType(
+                          selectedDate, 'lunch'),
+                    }).then((updatedMeals) {
+                      if (updatedMeals != null) {
+                        mealPlanningProvider.updateMealsForDateAndType(
+                            selectedDate,
+                            'lunch',
+                            updatedMeals as List<String>);
+                      }
                     });
-              },
-            ),
-          ),
-
-          // Kế hoạch bữa tối
-          Expanded(
-            child: MealPlanSection(
-              title: 'Kế hoạch bữa tối',
-              meals: mealPlanningProvider.getMealsForDateAndType(selectedDate, 'dinner'),
-              onEdit: () {
-                Navigator.pushNamed(context, '/edit-meal-plan',
-                    arguments: {
+                  },
+                ),
+                MealPlanSection(
+                  title: 'Kế hoạch bữa tối',
+                  meals: mealPlanningProvider.getMealsForDateAndType(
+                      selectedDate, 'dinner'),
+                  onEdit: () {
+                    Navigator.pushNamed(context, '/edit-meal-plan', arguments: {
                       'mealType': 'dinner',
                       'date': selectedDate,
-                      'meals': mealPlanningProvider.getMealsForDateAndType(selectedDate, 'dinner'),
+                      'meals': mealPlanningProvider.getMealsForDateAndType(
+                          selectedDate, 'dinner'),
+                    }).then((updatedMeals) {
+                      if (updatedMeals != null) {
+                        mealPlanningProvider.updateMealsForDateAndType(
+                            selectedDate,
+                            'dinner',
+                            updatedMeals as List<String>);
+                      }
                     });
-              },
-            ),
-          ),
-
-          // Thêm bữa phụ
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/edit-meal-plan',
-                    arguments: {
-                      'mealType': 'snack',
-                      'date': selectedDate,
-                      'meals': mealPlanningProvider.getMealsForDateAndType(selectedDate, 'snack'),
-                    });
-              },
-              child: const Text('Thêm bữa phụ'),
+                  },
+                ),
+              ],
             ),
           ),
         ],
+      ),
+
+      // Thêm nút dấu cộng ở góc phải dưới
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.green[700],
+        onPressed: () {
+          Navigator.pushNamed(context, '/edit-meal-plan', arguments: {
+            'mealType': 'snack',
+            'date': selectedDate,
+            'meals': mealPlanningProvider.getMealsForDateAndType(
+                selectedDate, 'snack'),
+          }).then((updatedMeals) {
+            if (updatedMeals != null) {
+              mealPlanningProvider.updateMealsForDateAndType(
+                  selectedDate, 'snack', updatedMeals as List<String>);
+            }
+          });
+        },
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -140,6 +173,8 @@ class MealPlanSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: 4,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -150,25 +185,27 @@ class MealPlanSection extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green[700],
+                  ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.edit),
+                  icon: const Icon(Icons.edit, color: Colors.green),
                   onPressed: onEdit,
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            const Text('Danh sách món dự kiến:'),
-            const SizedBox(height: 8),
             meals.isEmpty
-                ? const Text('Hiện tại chưa có món nào!')
+                ? Text(
+                    'Hiện tại chưa có món nào!',
+                    style: TextStyle(color: Colors.grey[600]),
+                  )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: meals
-                        .map((meal) => Text('- $meal'))
-                        .toList(),
+                    children: meals.map((meal) => Text('- $meal')).toList(),
                   ),
           ],
         ),

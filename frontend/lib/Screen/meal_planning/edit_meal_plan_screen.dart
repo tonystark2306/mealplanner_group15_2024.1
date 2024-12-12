@@ -21,7 +21,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
   @override
   void initState() {
     super.initState();
-    meals = List.from(widget.initialMeals);
+    meals = List.from(widget.initialMeals); // Initialize meals from arguments
   }
 
   void _addMeal() {
@@ -40,8 +40,8 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
   }
 
   void _saveMealPlan() {
-    // Xử lý lưu danh sách món ăn (truyền về Provider hoặc callback)
-    Navigator.pop(context, meals);
+    // Save updated meal plan (can pass back to provider or callback)
+    Navigator.pop(context, meals); // Returning updated meals list
   }
 
   @override
