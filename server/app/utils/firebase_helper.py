@@ -13,7 +13,7 @@ class FirebaseHelper:
                 if not firebase_admin._apps:
                     cred = credentials.Certificate(app.config["FIREBASE_CREDENTIALS_PATH"])
                     firebase_admin.initialize_app(cred, {
-                        "storageBucket": app.config["FIREBASE_STORAGE_BUCKET"]
+                        'storageBucket': app.config["FIREBASE_STORAGE_BUCKET"]
                     })
                 cls._instance.bucket = storage.bucket()
             except Exception as e:
