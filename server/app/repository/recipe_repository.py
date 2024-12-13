@@ -12,7 +12,7 @@ class RecipeRepository(RecipeInterface):
 
 
     def get_recipe_by_id(self, recipe_id) -> RecipeModel:
-        return db.session.query(RecipeModel).filter(RecipeModel.id == recipe_id, RecipeModel.is_deleted == False).first
+        return db.session.query(RecipeModel).filter(RecipeModel.id == recipe_id, RecipeModel.is_deleted == False).first()
     
 
     def get_system_recipes(self) -> list:
@@ -24,24 +24,28 @@ class RecipeRepository(RecipeInterface):
 
 
     def get_recipe_by_name(self, recipe_name) -> RecipeModel:
-        return db.session.query(RecipeModel).filter(RecipeModel.name == recipe_name, RecipeModel.is_deleted == False).first
+        return db.session.query(RecipeModel).filter(RecipeModel.name == recipe_name, RecipeModel.is_deleted == False).first()
     
 
     def add_recipe(self, recipe):
-        new_recipe = RecipeModel(group_id=recipe['group_id'] or None,
-                                 dish_name=recipe['name'],
-                                 description=recipe.get('description') or None,
-                                 content_html=recipe.get('content_html') or None,
-                                 )
-        
-        db.session.add(new_recipe)
-        db.session.commit()
-        if recipe['foods']:
-            self.add_recipe_foods(new_recipe.id, recipe['foods'])
-        if recipe['images']:
-            self.image_repo.add_image(new_recipe.id, recipe['images'])
-        return new_recipe
-    
+        try:
+            new_recipe = RecipeModel(group_id=recipe['group_id'] or None,
+                                    dish_name=recipe['name'],
+                                    description=recipe.get('description') or None,
+                                    content_html=recipe.get('content_html') or None,
+                                    )
+            
+            db.session.add(new_recipe)
+            db.session.commit()
+            if recipe['foods']:
+                self.add_recipe_foods(new_recipe.id, recipe['foods'])
+            if recipe['images']:
+                self.image_repo.add_image(new_recipe.id, recipe['images'])
+            return new_recipe
+        except Exception as e:
+            db.session.rollback()
+            print(e)
+            raise e
 
     def add_recipe_foods(self, recipe_id, foods):
         # Lấy công thức dựa trên recipe_id và kiểm tra nếu chưa bị xóa
@@ -60,6 +64,20 @@ class RecipeRepository(RecipeInterface):
         else:
             raise ValueError(f"No recipe found with id {recipe_id} or it is deleted.")
 
+
+    def delete_recipe(self, recipe_id):
+        recipe = db.session.query(RecipeModel).filter(RecipeModel.id == recipe_id, RecipeModel.is_deleted == False).first()
+        if recipe:
+            recipe.is_deleted = True
+            #remove recipe_foods
+            db.session.query(recipe_foods).filter(recipe_foods.c.recipe_id == recipe_id).delete()
+            #set is_deleted = True for all images
+            db.session.query(RecipeImageModel).filter(RecipeImageModel.recipe_id == recipe_id).update({'is_deleted': True})
+
+            db.session.commit()
+            return recipe
+        else:
+            raise ValueError(f"No recipe found with id {recipe_id} or it is deleted.")
 
 class RecipeImageRepository:
     def __init__(self):
@@ -80,3 +98,13 @@ class RecipeImageRepository:
     def get_first_image(self, recipe_id):
         #lấy ra image có order thấp nhất
         return db.session.query(RecipeImageModel).filter(RecipeImageModel.recipe_id == recipe_id, RecipeImageModel.is_deleted==False).order_by(RecipeImageModel.order).first()
+    
+
+    def delete_image(self, image_id):
+        image = db.session.query(RecipeImageModel).filter(RecipeImageModel.id == image_id, RecipeImageModel.is_deleted == False).first()
+        if image:
+            image.is_deleted = True
+            db.session.commit()
+            return image
+        else:
+            raise ValueError(f"No image found with id {image_id} or it is deleted.")

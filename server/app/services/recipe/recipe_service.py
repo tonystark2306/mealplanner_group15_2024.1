@@ -58,7 +58,11 @@ class RecipeService:
 
         images_dict = []
         for image in recipe.images:
-            images_dict.append(image.as_dict())
+            REMOVED_FIELDS = ['created_at', 'updated_at', 'is_deleted']
+            image_dict = image.as_dict()
+            for field in REMOVED_FIELDS:
+                del image_dict[field]
+            images_dict.append(image_dict)
         recipe_dict['images'] = images_dict
 
         return recipe_dict
@@ -82,3 +86,40 @@ class RecipeService:
             recipes_dict.append(recipe_dict)
 
         return recipes_dict
+
+
+    def get_recipe(self, recipe_id):
+        recipe = self.recipe_repo.get_recipe_by_id(recipe_id)
+        if not recipe:
+            return None
+
+        recipe_dict = recipe.as_dict()
+        # REMOVED_FIELDS = ['created_at', 'updated_at', 'is_deleted']
+        # for field in REMOVED_FIELDS:
+        #     del recipe_dict[field]
+
+        # Get foods
+        foods_dict = []
+        for food in recipe.foods:
+            food_dict = food.as_dict()
+            del food_dict['created_at']
+            del food_dict['updated_at']
+            foods_dict.append(food_dict)
+        recipe_dict['foods'] = foods_dict
+
+        # Get images
+        images_dict = []
+        for image in recipe.images:
+            images_dict.append(image.as_dict())
+        recipe_dict['images'] = images_dict
+
+        return recipe_dict
+    
+
+    def delete_recipe(self, recipe_id):
+        recipe = self.recipe_repo.get_recipe_by_id(recipe_id)
+        if not recipe:
+            return "recipe not found"
+
+        self.recipe_repo.delete_recipe(recipe_id)
+        return recipe_id

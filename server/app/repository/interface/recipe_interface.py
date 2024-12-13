@@ -17,3 +17,20 @@ class RecipeInterface(ABC):
     @abstractmethod
     def get_recipe_by_name(self, recipe_name) -> RecipeModel:
         pass
+
+
+
+class RecipeImageInterface(ABC):
+    
+    def __init__(self):
+        pass
+
+
+    @abstractmethod
+    def add_image(self, recipe_id, images):
+        pass
+
+
+    @abstractmethod
+    def get_first_image(self, recipe_id):
+        pass

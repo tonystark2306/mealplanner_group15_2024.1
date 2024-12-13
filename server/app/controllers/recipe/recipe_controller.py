@@ -60,10 +60,11 @@ def create_recipe(user_id, group_id):
 @JWT_required
 @group_member_required
 def get_list_recipes(user_id, group_id):
-    '''Get list recipe of group API'''
+    '''get or list of recipes'''
     recipe_service = RecipeService()
-    recipes = recipe_service.get_list_recipes(group_id)
 
+    # Lấy danh sách công thức
+    recipes = recipe_service.get_list_recipes(group_id)
     return jsonify({
         "resultMessage": {
             "en": "List of recipes.",
@@ -72,3 +73,59 @@ def get_list_recipes(user_id, group_id):
         "resultCode": "00203",
         "recipes": recipes
     }), 200
+
+
+@recipe_api.route("/<group_id>/<recipe_id>", methods = ["GET"])
+@JWT_required
+@group_member_required
+@check_recipe_ownership
+def get_recipe_detail(user_id, group_id, recipe_id):
+    recipe_service = RecipeService()
+
+    # Lấy chi tiết công thức
+    recipe = recipe_service.get_recipe(recipe_id)
+    if not recipe:
+        return jsonify({
+            "resultMessage": {
+                "en": "Recipe not found.",
+                "vn": "Không tìm thấy công thức."
+            },
+            "resultCode": "00195"
+        }), 404
+
+    return jsonify({
+        "resultMessage": {
+            "en": "Recipe detail.",
+            "vn": "Chi tiết công thức."
+        },
+        "resultCode": "00378",
+        "detail_recipe": recipe
+    }), 200
+
+@recipe_api.route("/<group_id>", methods = ["DELETE"])
+@JWT_required
+@group_admin_required
+@check_recipe_ownership
+def delete_recipe(user_id, group_id):
+    recipe_serice = RecipeService()
+    recipe_id = request.json.get("recipe_id")
+
+    result = recipe_serice.delete_recipe(recipe_id)
+    
+    if result == "recipe not found":
+        return jsonify({
+            "resultMessage": {
+                "en": "Recipe with ID not exist or deleted.",
+                "vn": "Công thức nấu ăn không tồn tại."
+            },
+            "resultCode": "00250"
+        }), 404
+
+    if result:
+        return jsonify({
+            "resultMessage": {
+                "en": "Successfully delete recipe",
+                "vn": "Xoá thành công công thức nấu ăn"
+            },
+            "resultCode": "00250"
+        }), 200
