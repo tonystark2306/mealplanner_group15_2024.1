@@ -23,7 +23,7 @@ class ShoppingListInterface(ABC):
 
 
     @abstractmethod
-    def add_shopping_task(self, shopping_list):
+    def add_shopping_list(self, shopping_list):
         pass
 
 

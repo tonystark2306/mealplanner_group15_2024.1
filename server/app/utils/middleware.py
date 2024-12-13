@@ -150,8 +150,11 @@ def check_recipe_ownership(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         group_id = kwargs.get('group_id') or request.view_args.get('group_id')
-        data = request.json
-        recipe_id = data.get("recipe_id") or kwargs.get('recipe_id')  # Lấy list_id từ request hoặc URL
+        try:
+            data = request.json
+        except:
+            data = {}
+        recipe_id = kwargs.get('recipe_id') or request.view_args.get('recipe_id') or data.get('recipe_id')
 
         # Kiểm tra nếu thiếu recipe_id trong yêu cầu
         if not recipe_id:
