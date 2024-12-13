@@ -56,3 +56,19 @@ def create_recipe(user_id, group_id):
     }), 201
 
 
+@recipe_api.route("/<group_id>", methods=["GET"])
+@JWT_required
+@group_member_required
+def get_list_recipes(user_id, group_id):
+    '''Get list recipe of group API'''
+    recipe_service = RecipeService()
+    recipes = recipe_service.get_list_recipes(group_id)
+
+    return jsonify({
+        "resultMessage": {
+            "en": "List of recipes.",
+            "vn": "Danh sách các công thức."
+        },
+        "resultCode": "00203",
+        "recipes": recipes
+    }), 200

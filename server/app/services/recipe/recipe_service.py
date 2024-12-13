@@ -2,7 +2,7 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 
 from ...repository.food_repository import FoodRepository
-from ...repository.recipe_repository import RecipeRepository
+from ...repository.recipe_repository import RecipeRepository, RecipeImageRepository
 from ...utils.firebase_helper import FirebaseHelper
 
 
@@ -10,6 +10,7 @@ from ...utils.firebase_helper import FirebaseHelper
 class RecipeService:
     def __init__(self):
         self.recipe_repo = RecipeRepository()
+        self.image_repo = RecipeImageRepository()
         self.food_repo = FoodRepository()
         self.firebase_helper = FirebaseHelper()
 
@@ -61,3 +62,23 @@ class RecipeService:
         recipe_dict['images'] = images_dict
 
         return recipe_dict
+
+
+    def get_list_recipes(self, group_id):
+        recipes = self.recipe_repo.get_recipes_by_group_id(group_id) + self.recipe_repo.get_system_recipes()
+
+        recipes_dict = []
+        REMOVED_FIELDS = ['content_html', 'created_at', 'updated_at', 'is_deleted']
+        for recipe in recipes:
+            recipe_dict = recipe.as_dict()
+            for field in REMOVED_FIELDS:
+                del recipe_dict[field]
+            #lấy ra image có order = 0
+            image = self.image_repo.get_first_image(recipe.id)
+            if image:
+                recipe_dict['image'] = image.image_url
+            else:
+                recipe_dict['image'] = None
+            recipes_dict.append(recipe_dict)
+
+        return recipes_dict

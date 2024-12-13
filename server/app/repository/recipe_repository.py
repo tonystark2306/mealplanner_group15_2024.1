@@ -13,6 +13,14 @@ class RecipeRepository(RecipeInterface):
 
     def get_recipe_by_id(self, recipe_id) -> RecipeModel:
         return db.session.query(RecipeModel).filter(RecipeModel.id == recipe_id, RecipeModel.is_deleted == False).first
+    
+
+    def get_system_recipes(self) -> list:
+        return db.session.query(RecipeModel).filter(RecipeModel.type == 'system', RecipeModel.is_deleted == False).all()
+    
+    
+    def get_recipes_by_group_id(self, group_id) -> list:
+        return db.session.query(RecipeModel).filter(RecipeModel.group_id == group_id, RecipeModel.type == 'custom', RecipeModel.is_deleted == False).all()
 
 
     def get_recipe_by_name(self, recipe_name) -> RecipeModel:
@@ -68,3 +76,7 @@ class RecipeImageRepository:
         db.session.commit()
         return images
     
+
+    def get_first_image(self, recipe_id):
+        #lấy ra image có order thấp nhất
+        return db.session.query(RecipeImageModel).filter(RecipeImageModel.recipe_id == recipe_id, RecipeImageModel.is_deleted==False).order_by(RecipeImageModel.order).first()
