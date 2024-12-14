@@ -17,8 +17,9 @@ meal_plan_recipes = Table(
 meal_plan_foods = Table(
     'meal_plan_foods',
     Base.metadata,
-    Column('id', String(36), primary_key=True),
+    Column('id', String(36), primary_key=True, default=lambda: str(uuid4())),
     Column('plan_id', String(36), ForeignKey('meal_plans.id'), nullable=False),
+    Column('food_id', String(36), nullable=False),
     Column('food_name', String(255), nullable=False),
     Column('unit', String(50), nullable=True),
     Column('quantity', Float, nullable=False, default=0.0),
@@ -30,7 +31,8 @@ class MealPlan(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), nullable=False)
     schedule_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    meal_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
+    description: Mapped[str] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -38,12 +40,12 @@ class MealPlan(Base):
     # Updated relationships
     group = relationship('Group', backref='meal_plans')
     recipes = relationship('Recipe', secondary=meal_plan_recipes, back_populates='meal_plans', cascade='all, delete')
-    foods = relationship('Food', secondary=meal_plan_foods, backref='meal_plans')
 
-    def __init__(self, group_id, schedule_time, meal_type, recipes=None, foods=None):
+    def __init__(self, group_id, name, schedule_time, description, recipes=None, foods=None):
         self.group_id = group_id
         self.schedule_time = schedule_time
-        self.meal_type = meal_type
+        self.name = name
+        self.description = description
         if recipes:
             self.recipes = recipes
         if foods:
@@ -51,3 +53,7 @@ class MealPlan(Base):
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+    
+
+
+    
