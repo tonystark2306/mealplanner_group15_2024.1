@@ -5,6 +5,8 @@ from app import Base
 from uuid import uuid4
 from typing import Optional
 
+from .meal_plan import meal_plan_recipes
+
 # Move recipe_foods table here
 recipe_foods = Table(
     'recipe_foods',
@@ -28,9 +30,10 @@ class Recipe(Base):
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)  # Flag to indicate if the recipe is deleted
 
     # Update relationship to be the owner side
-    foods = relationship('Food', secondary=recipe_foods, backref='recipes')
+    foods = relationship('Food', secondary=recipe_foods, back_populates='recipes', cascade='all, delete')
     groups = relationship('Group', backref='recipes')
     images = relationship('RecipeImage', back_populates='recipe')
+    meal = relationship('MealPlan', secondary=meal_plan_recipes, back_populates='recipes', cascade='all, delete')
 
     def __init__(self, group_id, dish_name, content_html, description, **kwargs):
         self.dish_name = dish_name
