@@ -1,12 +1,12 @@
 // FILE: models/recipe_model.dart
-
+import 'dart:typed_data'; 
 class RecipeItem {
   final String id;
   final String name;
   final String timeCooking;
   final List<Ingredient> ingredients;
   final String steps;
-  final String? imagePath;
+  final Uint8List? imagePath;
 
   RecipeItem({
     required this.id,
