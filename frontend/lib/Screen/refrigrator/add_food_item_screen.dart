@@ -24,7 +24,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
         id: DateTime.now().toString(),
         name: _name,
         quantity: _quantity,
-        expiryDate: _expiryDate,
+        expirationDate: _expiryDate,
       );
 
       Provider.of<RefrigeratorProvider>(context, listen: false)
