@@ -14,5 +14,6 @@ def handle_exception(e):
             "en": "An internal server error has occurred, please try again.",
             "vn": "Đã xảy ra lỗi máy chủ nội bộ, vui lòng thử lại."
         },
-        "resultCode": "00008"
+        "resultCode": "00008",
+        "error": str(e)
     }), 500
