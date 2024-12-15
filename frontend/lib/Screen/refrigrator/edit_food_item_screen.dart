@@ -24,7 +24,7 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
     // Khởi tạo với thông tin của FoodItem hiện tại
     _name = widget.foodItem.name;
     _quantity = widget.foodItem.quantity;
-    _expiryDate = widget.foodItem.expiryDate;
+    _expiryDate = widget.foodItem.expirationDate;
   }
 
   void _submitForm() {
@@ -35,12 +35,12 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
         id: widget.foodItem.id, // Giữ nguyên ID
         name: _name,
         quantity: _quantity,
-        expiryDate: _expiryDate,
+        expirationDate: _expiryDate,
       );
 
       // Cập nhật item trong Provider
       Provider.of<RefrigeratorProvider>(context, listen: false)
-          .updateFoodItem(updatedFoodItem);
+          .updateItem(updatedFoodItem);
 
       Navigator.pop(context);
     }
