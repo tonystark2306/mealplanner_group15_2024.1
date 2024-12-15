@@ -3,7 +3,7 @@ import '../../Models/food_item_model.dart';
 import '../../Providers/refrigerator_provider.dart';
 import 'package:provider/provider.dart';
 import './add_food_item_screen.dart'; // Adjust the path as necessary
-
+import './edit_food_item_screen.dart';
 class RefrigeratorManagementScreen extends StatelessWidget {
   const RefrigeratorManagementScreen({super.key});
 
@@ -112,9 +112,19 @@ class RefrigeratorManagementScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFoodItemTile(BuildContext context, FoodItem foodItem) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
+ Widget _buildFoodItemTile(BuildContext context, FoodItem foodItem) {
+  return Card(
+    margin: const EdgeInsets.symmetric(vertical: 4),
+    child: InkWell( // Dùng InkWell để thêm hiệu ứng bấm
+      onTap: () {
+        // Thực hiện hành động khi item được nhấn
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditFoodItemScreen(foodItem: foodItem),
+          ),
+        );
+      },
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.green[50],
@@ -124,9 +134,19 @@ class RefrigeratorManagementScreen extends StatelessWidget {
           foodItem.name,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text(
-          'Hết hạn: ${foodItem.expiryDate.toLocal().toString().split(' ')[0]}',
-          style: TextStyle(color: Colors.grey[600]),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Số lượng: ${foodItem.quantity}',
+              style: TextStyle(color: Colors.grey[700]),
+            ),     
+            const SizedBox(height: 4),
+            Text(
+              'Hết hạn: ${foodItem.expiryDate.toLocal().toString().split(' ')[0]}',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ],
         ),
         trailing: IconButton(
           icon: Icon(Icons.delete, color: Colors.red[300]),
@@ -136,6 +156,8 @@ class RefrigeratorManagementScreen extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 }

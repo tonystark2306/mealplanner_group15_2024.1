@@ -36,7 +36,15 @@ class RefrigeratorProvider with ChangeNotifier {
   }
 
   void deleteFoodItem(FoodItem foodItem) {
-    _items.remove(foodItem);
+    _items.remove(foodItem);  
     notifyListeners();
+  }
+
+  void updateFoodItem(FoodItem updatedItem) {
+    final index = _items.indexWhere((item) => item.id == updatedItem.id);
+    if (index != -1) {
+      _items[index] = updatedItem;
+      notifyListeners(); // Cập nhật giao diện
+    }
   }
 }
