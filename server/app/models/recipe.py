@@ -33,7 +33,7 @@ class Recipe(Base):
     foods = relationship('Food', secondary=recipe_foods, back_populates='recipes', cascade='all, delete')
     groups = relationship('Group', backref='recipes')
     images = relationship('RecipeImage', back_populates='recipe')
-    meal = relationship('MealPlan', secondary=meal_plan_recipes, back_populates='recipes', cascade='all, delete')
+    meal_plans = relationship('MealPlan', secondary=meal_plan_recipes, back_populates='recipes', cascade='all, delete')
 
     def __init__(self, group_id, dish_name, content_html, description, **kwargs):
         self.dish_name = dish_name
