@@ -31,6 +31,7 @@ class RefrigeratorManagementScreen extends StatelessWidget {
       body: Consumer<RefrigeratorProvider>(
         builder: (context, refrigeratorProvider, child) {
           final foodItems = refrigeratorProvider.getFoodItems();
+          foodItems.sort((a, b) => a.expiryDate.compareTo(b.expiryDate)); // Sắp xếp theo ngày hết hạn
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -40,7 +41,7 @@ class RefrigeratorManagementScreen extends StatelessWidget {
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -56,7 +57,7 @@ class RefrigeratorManagementScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.green[700]
+                                color: Colors.green[700],
                               ),
                             ),
                           ],
@@ -112,9 +113,14 @@ class RefrigeratorManagementScreen extends StatelessWidget {
     );
   }
 
+  
   Widget _buildFoodItemTile(BuildContext context, FoodItem foodItem) {
+    final expiryDate = foodItem.expiryDate;
+    final isExpiringSoon = foodItem.expiryDate.isBefore(DateTime.now().add(Duration(days: 3)));
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
+      color: isExpiringSoon ? Colors.red[50] : Colors.white,  // Thêm màu đỏ nếu sắp hết hạn
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.green[50],
@@ -126,16 +132,46 @@ class RefrigeratorManagementScreen extends StatelessWidget {
         ),
         subtitle: Text(
           'Hết hạn: ${foodItem.expiryDate.toLocal().toString().split(' ')[0]}',
-          style: TextStyle(color: Colors.grey[600]),
+          style: TextStyle(color: isExpiringSoon ? Colors.red[700] : Colors.grey[600]),
         ),
         trailing: IconButton(
           icon: Icon(Icons.delete, color: Colors.red[300]),
           onPressed: () {
-            Provider.of<RefrigeratorProvider>(context, listen: false)
-                .deleteFoodItem(foodItem);
+            _confirmDelete(context, foodItem);
           },
         ),
       ),
     );
   }
+  void _confirmDelete(BuildContext context, FoodItem foodItem) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Xác nhận xóa'),
+        content: Text('Bạn có chắc chắn muốn xóa thực phẩm này không?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop(); // Đóng hộp thoại
+            },
+            child: Text('Hủy'),
+          ),
+          TextButton(
+            onPressed: () {
+              // Gọi provider để xóa thực phẩm
+              Provider.of<RefrigeratorProvider>(context, listen: false)
+                  .deleteFoodItem(foodItem);
+              Navigator.of(ctx).pop(); // Đóng hộp thoại
+              // Hiển thị SnackBar sau khi xóa
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Đã xóa thực phẩm ${foodItem.name}')),
+              );
+            },
+            child: Text('Xóa'),
+          ),
+        ],
+      ),
+    );
+  }
+
 }
