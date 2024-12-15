@@ -42,6 +42,9 @@ def create_app(config_class=Config):
     
     from .controllers.shopping import shopping_api
     app.register_blueprint(shopping_api, url_prefix="/shopping")
+
+    from .controllers.recipe import recipe_api
+    app.register_blueprint(recipe_api, url_prefix="/recipe")
     
     app.register_error_handler(Exception, handle_exception)
 

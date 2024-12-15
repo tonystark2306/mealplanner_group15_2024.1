@@ -31,6 +31,7 @@ class Food(Base):
     group = relationship('Group', backref='foods')
     unit = relationship('Unit', backref='foods')
     creator = relationship('User', backref='foods', lazy=True)
+    recipe = relationship('Recipe', secondary='recipe_foods', back_populates='foods', lazy=True, cascade='all, delete')
 
     def __init__(self, user_id, name, type, group_id, categories, unit_id, image_url=None, note=None):
         self.create_by = user_id

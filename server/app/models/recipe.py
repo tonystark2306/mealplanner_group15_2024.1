@@ -1,9 +1,11 @@
-from sqlalchemy import String, Text, DateTime, ForeignKey, Table, Column, CheckConstraint, Float, Integer
+from sqlalchemy import String, Text, DateTime, ForeignKey, Table, Column, CheckConstraint, Float, Integer, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from app import Base
 from uuid import uuid4
 from typing import Optional
+
+from .meal_plan import meal_plan_recipes
 
 # Move recipe_foods table here
 recipe_foods = Table(
@@ -24,20 +26,25 @@ class Recipe(Base):
     type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, default='custom')  # Type of the recipe: custom, system
     group_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey('groups.id'), nullable=True)  # Group who created the recipe, if
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)  # Timestamp for when the recipe was created
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # Timestamp for when the recipe was last updated
+    is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)  # Flag to indicate if the recipe is deleted
 
     # Update relationship to be the owner side
-    foods = relationship('Food', secondary=recipe_foods, backref='recipes')
+    foods = relationship('Food', secondary=recipe_foods, back_populates='recipes', cascade='all, delete')
     groups = relationship('Group', backref='recipes')
     images = relationship('RecipeImage', back_populates='recipe')
+    meal = relationship('MealPlan', secondary=meal_plan_recipes, back_populates='recipes', cascade='all, delete')
 
-    def __init__(self, group_id, typee, dish_name, content_html, description, foods=None):
+    def __init__(self, group_id, dish_name, content_html, description, **kwargs):
         self.dish_name = dish_name
         self.content_html = content_html
         self.description = description
-        self.type = typee
         self.group_id = group_id
-        if foods:
-            self.foods = foods
+        if not group_id:
+            self.type = 'system'
+        else:
+            self.group_id = group_id
+            self.type = 'custom'
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
@@ -53,5 +60,15 @@ class RecipeImage(Base):
     order: Mapped[int] = mapped_column(Integer, nullable=False)  # Order of the image
     image_url: Mapped[str] = mapped_column(Text, nullable=False)  # URL or path to the image
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)  # Timestamp for when the image was added
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # Timestamp for when the image was last updated
+    is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)  # Flag to indicate if the image is deleted
 
     recipe = relationship('Recipe', back_populates='images')
+
+    def __init__(self, recipe_id, image_url, order):
+        self.recipe_id = recipe_id
+        self.image_url = image_url
+        self.order = order
+
+    def as_dict(self):
+        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}

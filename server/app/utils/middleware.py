@@ -3,6 +3,7 @@ from flask import jsonify, request
 from ..models.shopping import ShoppingList
 from ..models.fridge_item import FridgeItem
 from ..models.shopping import ShoppingTask
+from ..models.recipe import Recipe
 
 from .. import db
 
@@ -138,6 +139,44 @@ def check_task_ownership(f):
                     "vn": "Nhiệm vụ không thuộc nhóm này."
                 },
                 "resultCode": "00293"
+            }), 403
+
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def check_recipe_ownership(f):
+    '''Decorator to check if the recipe belongs to the group'''
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        group_id = kwargs.get('group_id') or request.view_args.get('group_id')
+        try:
+            data = request.json
+        except:
+            data = {}
+        recipe_id = kwargs.get('recipe_id') or request.view_args.get('recipe_id') or data.get('recipe_id')
+
+        # Kiểm tra nếu thiếu recipe_id trong yêu cầu
+        if not recipe_id:
+            return jsonify({
+                "resultMessage": {
+                    "en": "Missing recipe_id in the request.",
+                    "vn": "Thiếu recipe_id trong yêu cầu."
+                },
+                "resultCode": "00298"
+            }), 400
+
+        # Truy vấn để kiểm tra quyền sở hữu
+        recipe = db.session.query(Recipe).filter_by(id=recipe_id, group_id=group_id).first()
+
+        # Nếu recipe không tồn tại hoặc không thuộc nhóm
+        if not recipe:
+            return jsonify({
+                "resultMessage": {
+                    "en": "Recipe does not belong to this group.",
+                    "vn": "Công thức không thuộc nhóm này."
+                },
+                "resultCode": "00299"
             }), 403
 
         return f(*args, **kwargs)
