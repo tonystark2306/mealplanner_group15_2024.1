@@ -4,6 +4,7 @@ from sqlalchemy import String, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from app import Base, db
+from typing import Optional
 
 class Token(Base):
     __tablename__ = 'tokens'
@@ -12,12 +13,12 @@ class Token(Base):
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=False)
     
     # Token fields
-    refresh_token: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
+    refresh_token: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
     confirm_token: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
     
     # Verification token fields
-    verification_code: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
-    verification_code_expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    verification_code: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
+    verification_code_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     user = relationship('User', foreign_keys=[user_id])
 

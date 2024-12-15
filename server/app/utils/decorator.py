@@ -162,28 +162,3 @@ def system_admin_required(f):
         return f(user_id, *args, **kwargs)
     
     return decorated_function
-
-
-def validate_fields(allow_fields):
-    """Decorator to validate fields in request JSON data."""
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            # Lấy dữ liệu từ request
-            data = request.get_json() or {}
-
-            # Kiểm tra các trường bắt buộc có giá trị hay không
-            missing_fields = {field for field in allow_fields if not data.get(field)}
-            if missing_fields:
-                return jsonify({
-                    "resultMessage": {
-                        "en": "Please provide all required fields!",
-                        "vn": "Vui lòng cung đầy đủ các trường bắt buộc!"
-                    },
-                    "resultCode": "00099"
-                }), 400
-
-            # Nếu tất cả hợp lệ, gọi hàm gốc
-            return func(*args, **kwargs)
-        return wrapper
-    return decorator

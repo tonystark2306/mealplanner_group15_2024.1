@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from ...models.shopping import ShoppingTask as ShoppingTaskModel
 
 
-class ShoppingTaskInterface(ABC):
+class TaskInterface(ABC):
     def __init__(self):
         pass
 
