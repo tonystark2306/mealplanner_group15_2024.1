@@ -1,0 +1,42 @@
+Delete System Category by Name
+This API allows a system administrator to delete a system category by its name.
+---
+tags:
+  - Admin - Category
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the category to delete
+          example: "Breakfast"
+
+responses:
+  200:
+    description: Category deleted successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Category deleted successfully"
+            vn:
+              type: string
+              example: "Xóa category thành công"
+        resultCode:
+          type: string
+          example: "00146"

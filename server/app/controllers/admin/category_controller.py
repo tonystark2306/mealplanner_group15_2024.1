@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from flasgger.utils import swag_from
 
 from . import admin_api
 from ...services.admin.category_service import CategoryService
@@ -8,6 +9,7 @@ from ...utils.decorator import JWT_required, system_admin_required
 @admin_api.route("/category", methods=["POST"])
 @JWT_required
 @system_admin_required
+@swag_from("../../docs/admin/category/create_system_category.yaml", endpoint="admin_api.create_system_category", methods=["POST"])
 def create_system_category(user_id):
     data = request.get_json()
     if data is None:
@@ -54,6 +56,7 @@ def create_system_category(user_id):
 @admin_api.route("/category", methods=["GET"])
 @JWT_required
 @system_admin_required
+@swag_from("../../docs/admin/category/get_all_system_categories.yaml", endpoint="admin_api.get_all_system_categories", methods=["GET"])
 def get_all_system_categories(user_id):
     category_service = CategoryService()
     categories = category_service.list_system_categories()
@@ -70,6 +73,7 @@ def get_all_system_categories(user_id):
 @admin_api.route("/category", methods=["PUT"])
 @JWT_required
 @system_admin_required
+@swag_from("../../docs/admin/category/update_system_category_name.yaml", endpoint="admin_api.update_system_category_name", methods=["PUT"])
 def update_system_category_name(user_id):
     data = request.get_json()
     if not data:
@@ -126,6 +130,7 @@ def update_system_category_name(user_id):
 @admin_api.route("/category", methods=["DELETE"])
 @JWT_required
 @system_admin_required
+@swag_from("../../docs/admin/category/delete_system_category_by_name.yaml", endpoint="admin_api.delete_system_category_by_name", methods=["DELETE"])
 def delete_system_category_by_name(user_id):
     data = request.get_json()
     if not data:

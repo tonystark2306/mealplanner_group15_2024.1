@@ -1,0 +1,46 @@
+Update System Unit Name
+This API allows a system administrator to update the name of an existing system unit.
+---
+tags:
+  - Admin - Unit
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        oldName:
+          type: string
+          description: Current name of the unit
+          example: "kg"
+        newName:
+          type: string
+          description: New name for the unit
+          example: "kilogram"
+
+responses:
+  200:
+    description: Unit name updated successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Unit name updated successfully"
+            vn:
+              type: string
+              example: "Sửa đổi đơn vị thành công"
+        resultCode:
+          type: string
+          example: "00122"

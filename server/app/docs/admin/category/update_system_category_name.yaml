@@ -1,0 +1,46 @@
+Update System Category Name
+This API allows a system administrator to update the name of an existing system category.
+---
+tags:
+  - Admin - Category
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        oldName:
+          type: string
+          description: Current name of the category
+          example: "Breakfast"
+        newName:
+          type: string
+          description: New name for the category
+          example: "Brunch"
+
+responses:
+  200:
+    description: Category name updated successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Category modification successful"
+            vn:
+              type: string
+              example: "Sửa đổi category thành công"
+        resultCode:
+          type: string
+          example: "00141"

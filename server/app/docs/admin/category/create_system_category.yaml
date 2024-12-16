@@ -1,0 +1,67 @@
+Create System Food Category
+This API allows a system administrator to create a new food category in the system.
+---
+tags:
+  - Admin - Category
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the category to create
+          example: "Breakfast"
+
+responses:
+  201:
+    description: Category created successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Category created successfully"
+            vn:
+              type: string
+              example: "Tạo category thành công"
+        resultCode:
+          type: string
+          example: "00135"
+        category:
+          type: object
+          description: Details of the created category
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the category
+              example: "123e4567-e89b-12d3-a456-426614174000"
+            name:
+              type: string
+              description: Name of the category
+              example: "Breakfast"
+            type:
+              type: string
+              description: Type of the category
+              example: "system"
+            group_id:
+              type: string
+              description: Unique identifier of the category group
+              example: null
+            created_at:
+              type: string
+              format: date-time
+              description: Date and time when the category was created
+              example: "2021-07-01T00:00:00.000Z"

@@ -1,0 +1,42 @@
+Delete System Unit by Name
+This API allows a system administrator to delete a system unit by its name.
+---
+tags:
+  - Admin - Unit
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        unitName:
+          type: string
+          description: Name of the unit to delete
+          example: "kg"
+
+responses:
+  200:
+    description: Unit deleted successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Unit deleted successfully"
+            vn:
+              type: string
+              example: "Xóa đơn vị thành công"
+        resultCode:
+          type: string
+          example: "00128"

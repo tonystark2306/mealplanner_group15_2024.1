@@ -1,0 +1,59 @@
+Get All System Categories
+This API allows a system administrator to retrieve all system categories.
+---
+tags:
+  - Admin - Category
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+responses:
+  200:
+    description: Successfully retrieved system categories
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Successfully retrieved categories"
+            vn:
+              type: string
+              example: "Lấy các category thành công"
+        resultCode:
+          type: string
+          example: "00129"
+        categories:
+          type: array
+          description: List of all system categories
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier of the category
+                example: "123e4567-e89b-12d3-a456-426614174000"
+              name:
+                type: string
+                description: Name of the category
+                example: "Breakfast"
+              type:
+                type: string
+                description: Type of the category
+                example: "system"
+              group_id:
+                type: string
+                description: Unique identifier of the category group
+                example: null
+              created_at:
+                type: string
+                format: date-time
+                description: Date and time when the category was created
+                example: "2021-07-01T00:00:00.000Z"

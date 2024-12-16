@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from flasgger.utils import swag_from
 
 from . import admin_api
 from ...services.admin.unit_service import UnitService
@@ -8,6 +9,7 @@ from ...utils.decorator import JWT_required, system_admin_required
 @admin_api.route("/unit", methods=["POST"])
 @JWT_required
 @system_admin_required
+@swag_from("../../docs/admin/unit/create_system_unit.yaml", endpoint="admin_api.create_system_unit", methods=["POST"])
 def create_system_unit(user_id):
     data = request.get_json()
     if data is None:
@@ -40,20 +42,21 @@ def create_system_unit(user_id):
             "resultCode": "00113"
         }), 400
     
-    new_category = unit_service.create_unit_for_system(unit_name)
+    new_unit = unit_service.create_unit_for_system(unit_name)
     return jsonify({
         "resultMessage": {
             "en": "Unit created successfully",
             "vn": "Tạo đơn vị thành công"
         },
         "resultCode": "00116",
-        "category": new_category.as_dict()
+        "unit": new_unit.as_dict()
     }), 201
 
 
 @admin_api.route("/unit", methods=["GET"])
 @JWT_required
 @system_admin_required
+@swag_from("../../docs/admin/unit/get_all_system_unit.yaml", endpoint="admin_api.get_all_system_unit", methods=["GET"])
 def get_all_system_unit(user_id):
     unit_service = UnitService()
     units = unit_service.list_system_units()
@@ -70,6 +73,7 @@ def get_all_system_unit(user_id):
 @admin_api.route("/unit", methods=["PUT"])
 @JWT_required
 @system_admin_required
+@swag_from("../../docs/admin/unit/update_system_unit_name.yaml", endpoint="admin_api.update_system_unit_name", methods=["PUT"])
 def update_system_unit_name(user_id):
     data = request.get_json()
     if data is None:
@@ -126,6 +130,7 @@ def update_system_unit_name(user_id):
 @admin_api.route("/unit", methods=["DELETE"])
 @JWT_required
 @system_admin_required
+@swag_from("../../docs/admin/unit/delete_system_unit_by_name.yaml", endpoint="admin_api.delete_system_unit_by_name", methods=["DELETE"])
 def delete_system_unit_by_name(user_id):
     data = request.get_json()
     if not data:

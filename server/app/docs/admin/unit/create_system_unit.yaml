@@ -1,0 +1,67 @@
+Create System Unit
+This API allows a system administrator to create a new system unit.
+---
+tags:
+  - Admin - Unit
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        unitName:
+          type: string
+          description: Name of the unit to create
+          example: "kg"
+
+responses:
+  201:
+    description: Unit created successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Unit created successfully"
+            vn:
+              type: string
+              example: "Tạo đơn vị thành công"
+        resultCode:
+          type: string
+          example: "00116"
+        unit:
+          type: object
+          description: Details of the created unit
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the unit
+              example: "123e4567-e89b-12d3-a456-426614174000"
+            name:
+              type: string
+              description: Name of the unit
+              example: "kg"
+            type:
+              type: string
+              description: Type of the unit
+              example: "system"
+            group_id:
+              type: string
+              description: Unique identifier of the group that the unit belongs to
+              example: null
+            created_at:
+              type: string
+              format: date-time
+              description: Date and time when the unit was created
+              example: "2021-07-01T00:00:00.000Z"

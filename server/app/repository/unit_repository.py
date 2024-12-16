@@ -34,7 +34,7 @@ class UnitRepository(UnitInterface):
         ).scalars().all()
         
         
-    def create_system_unit(self, unit_name):
+    def create_system_unit(self, unit_name) -> UnitModel:
         try:
             new_unit = UnitModel(
                 name=unit_name,
