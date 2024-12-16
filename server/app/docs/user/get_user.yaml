@@ -1,0 +1,72 @@
+Get User Information
+This API fetches the authenticated user's information.
+---
+tags:
+  - User
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+responses:
+  200:
+    description: User information fetched successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "The user information has gotten successfully."
+            vn:
+              type: string
+              example: "Thông tin người dùng đã được lấy thành công."
+        resultCode:
+          type: string
+          example: "00089"
+        user:
+          type: object
+          description: Details of the authenticated user
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the user
+              example: "123e4567-e89b-12d3-a456-426614174000"
+            username:
+              type: string
+              description: Username of the user
+              example: "johndoe"
+            name:
+              type: string
+              description: Full name of the user
+              example: "John Doe"
+            email:
+              type: string
+              description: Email address of the user
+              example: "johndoe@example.com"
+            language:
+              type: string
+              description: Preferred language code
+              example: "en"
+            timezone:
+              type: string
+              description: User's timezone
+              example: "Asia/Singapore"
+            deviceId:
+              type: string
+              description: User's device identifier
+              example: "e6b3562f-6cc5-4e2c-95d2-b7ac8ec478cc"
+            avatar_url:
+              type: string
+              description: URL of the user's avatar
+              example: "https://example.com/avatar.jpg"
+            is_verified:
+              type: boolean
+              description: User's verification status
+              example: true

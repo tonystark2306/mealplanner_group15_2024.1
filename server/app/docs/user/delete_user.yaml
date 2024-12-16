@@ -1,0 +1,32 @@
+Delete User Account
+This API allows the authenticated user to delete their account.
+---
+tags:
+  - User
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+responses:
+  200:
+    description: Account deleted successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Your account has been deleted successfully."
+            vn:
+              type: string
+              example: "Tài khoản của bạn đã bị xóa thành công."
+        resultCode:
+          type: string
+          example: "00092"

@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from flasgger.utils import swag_from
 from validate_email_address import validate_email
 
 from . import user_api
@@ -8,6 +9,7 @@ from ...utils.decorator import JWT_required
 
 
 @user_api.route("/login", methods=["POST"])
+@swag_from("../../docs/user/auth/login.yaml", endpoint="user_api.login", methods=["POST"])
 def login():
     data = request.get_json()
     if data is None:
@@ -68,6 +70,7 @@ def login():
         
         
 @user_api.route("/refresh-token", methods=["POST"])
+@swag_from("../../docs/user/auth/refresh_token.yaml", endpoint="user_api.refresh_token", methods=["POST"])
 def refresh_token():
     data = request.get_json()
     if data is None:
@@ -118,6 +121,7 @@ def refresh_token():
         
 @user_api.route("/logout", methods=["POST"])
 @JWT_required
+@swag_from("../../docs/user/auth/logout.yaml", endpoint="user_api.logout", methods=["POST"])
 def logout(user_id):
     auth_service = AuthService()
     if auth_service.invalidate_token(user_id):
@@ -133,6 +137,7 @@ def logout(user_id):
         
         
 @user_api.route("/register", methods=["POST"])
+@swag_from("../../docs/user/auth/register.yaml", endpoint="user_api.register", methods=["POST"])
 def register():
     data = request.get_json()
     if data is None:
@@ -218,6 +223,7 @@ def register():
         
         
 @user_api.route("/send-verification-code", methods=["POST"])
+@swag_from("../../docs/user/auth/send_verification_code.yaml", endpoint="user_api.send_verification_code", methods=["POST"])
 def send_verification_code():
     data = request.get_json()
     if data is None:
@@ -290,6 +296,7 @@ def send_verification_code():
         
         
 @user_api.route("/verify-email", methods=["POST"])
+@swag_from("../../docs/user/auth/verify_email.yaml", endpoint="user_api.verify_email", methods=["POST"])
 def verify_email():
     data = request.get_json()
     if data is None:

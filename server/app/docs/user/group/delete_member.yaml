@@ -1,0 +1,49 @@
+Delete Member from Group
+This API allows a group admin to remove a member from the group.
+---
+tags:
+  - User - Group
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    description: The unique identifier of the group
+    schema:
+      type: string
+      example: "123e4567-e89b-12d3-a456-426614174000"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        username:
+          type: string
+          description: The username of the member to be removed
+          example: "johndoe"
+
+responses:
+  200:
+    description: Member removed from the group successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "User removed from the group successfully"
+            vn:
+              type: string
+              example: "Xóa thành công"
+        resultCode:
+          type: string
+          example: "00106"

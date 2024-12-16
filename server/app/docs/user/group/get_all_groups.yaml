@@ -1,0 +1,55 @@
+Get All Groups Of A User
+This API fetches all groups associated with the authenticated user
+---
+tags:
+  - User - Group
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+responses:
+  200:
+    description: Successfully fetched user's groups
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Fetching user's groups successfully!"
+            vn:
+              type: string
+              example: "Lấy danh sách nhóm của user thành công!"
+        groups:
+          type: array
+          description: List of groups associated with the user
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier of the group
+                example: "cc611420-3e9a-4d62-b3da-d2ef6bbcfcda"
+              group_name:
+                type: string
+                description: Name of the group
+                example: "Project Team"
+              admin_id:
+                type: string
+                description: Unique identifier of the group admin
+                example: "24a2f9f3-96c2-4b91-ad1c-5f9417df1dfa"
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp when the group was created
+                example: "2024-01-01T12:00:00Z"
+        resultCode:
+          type: string
+          example: "00094"

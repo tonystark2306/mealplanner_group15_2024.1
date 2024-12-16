@@ -1,0 +1,17 @@
+User Logout
+This API is used to log out a user and invalidate their access token.
+---
+tags:
+  - User - Auth
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for user authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+responses:
+  204:
+    description: Successfully logged out. No content is returned.

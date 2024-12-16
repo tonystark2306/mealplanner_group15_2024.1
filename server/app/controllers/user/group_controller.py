@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from flasgger.utils import swag_from
 
 from . import user_api
 from ...services.user.group_service import GroupService
@@ -7,6 +8,7 @@ from ...utils.decorator import JWT_required, group_member_required, group_admin_
 
 @user_api.route("/group", methods=["GET"])
 @JWT_required
+@swag_from("../../docs/user/group/get_all_groups.yaml", endpoint="user_api.get_all_groups", methods=["GET"])
 def get_all_groups(user_id):
     group_service = GroupService()
     groups = group_service.list_groups_of_user(user_id)
@@ -23,6 +25,7 @@ def get_all_groups(user_id):
 @user_api.route("/group/<group_id>", methods=["GET"])
 @JWT_required
 @group_member_required
+@swag_from("../../docs/user/group/get_group_members.yaml", endpoint="user_api.get_group_members", methods=["GET"])
 def get_group_members(user_id, group_id):
     group_service = GroupService()
     group = group_service.get_group_by_id(group_id)
@@ -58,6 +61,7 @@ def get_group_members(user_id, group_id):
 
 @user_api.route("/group", methods=["POST"])
 @JWT_required
+@swag_from("../../docs/user/group/create_group.yaml", endpoint="user_api.create_group", methods=["POST"])
 def create_group(user_id):
     data = request.get_json()
     if not data:
@@ -115,6 +119,7 @@ def create_group(user_id):
 @user_api.route("/group/<group_id>/add", methods=["POST"])
 @JWT_required
 @group_member_required
+@swag_from("../../docs/user/group/add_members.yaml", endpoint="user_api.add_members", methods=["POST"])
 def add_members(user_id, group_id):
     data = request.get_json()
     if not data:
@@ -170,6 +175,7 @@ def add_members(user_id, group_id):
 @user_api.route("/group/<group_id>", methods=["DELETE"])
 @JWT_required
 @group_admin_required
+@swag_from("../../docs/user/group/delete_member.yaml", endpoint="user_api.delete_member", methods=["DELETE"])
 def delete_member(user_id, group_id):
     data = request.get_json()
     if not data:

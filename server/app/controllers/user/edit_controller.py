@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from flasgger.utils import swag_from
 
 from . import user_api
 from ...services.user.edit_service import EditService
@@ -8,6 +9,7 @@ from ...utils.decorator import JWT_required
 
 @user_api.route("/change-password", methods=["POST"])
 @JWT_required
+@swag_from("../../docs/user/edit/change_password.yaml", endpoint="user_api.change_password", methods=["POST"])
 def change_password(user):
     data = request.get_json()
     if data is None:
@@ -72,6 +74,7 @@ def change_password(user):
         
 @user_api.route("/", methods=["PUT"])
 @JWT_required
+@swag_from("../../docs/user/edit/edit_user.yaml", endpoint="user_api.edit_user", methods=["PUT"])
 def edit_user(user):
     data = request.form
     avatar_file = request.files.get("image")

@@ -1,0 +1,69 @@
+Create Group
+This API allows an authenticated user to create a new group and add members by their usernames.
+---
+tags:
+  - User - Group
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        group_name:
+          type: string
+          description: Name of the new group
+          example: "Project Alpha"
+        memberUsernames:
+          type: array
+          description: List of usernames to be added to the group
+          items:
+            type: string
+            example: "johndoe"
+
+responses:
+  201:
+    description: Group created successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Your group has been created successfully"
+            vn:
+              type: string
+              example: "Tạo nhóm thành công"
+        resultCode:
+          type: string
+          example: "00095"
+        group:
+          type: object
+          description: Details of the created group
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the group
+              example: "cc611420-3e9a-4d62-b3da-d2ef6bbcfcda"
+            group_name:
+              type: string
+              description: Name of the group
+              example: "Project Alpha"
+            admin_id:
+              type: string
+              description: Unique identifier of the group admin
+              example: "24a2f9f3-96c2-4b91-ad1c-5f9417df1dfa"
+            created_at:
+              type: string
+              format: date-time
+              description: Timestamp when the group was created
+              example: "2024-01-01T12:00:00Z"

@@ -1,0 +1,39 @@
+Resend Verification Code
+This API is used to resend a verification code to the user's email
+---
+tags:
+  - User - Auth
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        email:
+          type: string
+          description: The email address to send the verification code to
+          example: johndoe@example.com
+
+responses:
+  200:
+    description: Verification code sent successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Code has been sent to your email successfully."
+            vn:
+              type: string
+              example: "Mã đã được gửi đến email của bạn thành công."
+        resultCode:
+          type: string
+          example: "00048"
+        confirmToken:
+          type: string
+          description: Token for confirming email verification
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."

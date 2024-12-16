@@ -1,0 +1,92 @@
+Edit User
+This API allows authenticated users to update their profile information
+---
+tags:
+  - User - Edit
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: username
+    in: formData
+    type: string
+    description: New username for the user
+    required: false
+    example: "new_username"
+  - name: name
+    in: formData
+    type: string
+    description: Full name of the user
+    required: false
+    example: "John Doe"
+  - name: language
+    in: formData
+    type: string
+    description: Preferred language code
+    required: false
+    example: "en"
+  - name: timezone
+    in: formData
+    type: string
+    description: Timezone of the user
+    required: false
+    example: "Asia/Singapore"
+  - name: deviceId
+    in: formData
+    type: string
+    description: Device identifier
+    required: false
+    example: "e6b3562f-6cc5-4e2c-95d2-b7ac8ec478cc"
+  - name: image
+    in: formData
+    type: file
+    description: Profile avatar image
+    required: false
+
+responses:
+  200:
+    description: Profile information updated successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Your profile information was changed successfully."
+            vn:
+              type: string
+              example: "Thông tin hồ sơ của bạn đã được thay đổi thành công."
+        resultCode:
+          type: string
+          example: "00086"
+        updatedUser:
+          type: object
+          description: Updated user details
+          properties:
+            id:
+              type: string
+              example: "e6b3562f-6cc5-4e2c-95d2-b7ac8ec478cc"
+            username:
+              type: string
+              example: "new_username"
+            name:
+              type: string
+              example: "John Doe"
+            language:
+              type: string
+              example: "en"
+            timezone:
+              type: string
+              example: "Asia/Singapore"
+            deviceId:
+              type: string
+              example: "e6b3562f-6cc5-4e2c-95d2-b7ac8ec478cc"
+            avatar_url:
+              type: string
+              example: "https://example.com/avatar.jpg"

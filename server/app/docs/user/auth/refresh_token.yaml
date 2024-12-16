@@ -1,0 +1,43 @@
+User Refresh Token
+This API is used to refresh access and refresh tokens
+---
+tags:
+  - User - Auth
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+          description: Refresh token issued during login
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+responses:
+  200:
+    description: Token refreshed successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Token refreshed successfully."
+            vn:
+              type: string
+              example: "Token đã được làm mới thành công."
+        resultCode:
+          type: string
+          example: "00065"
+        access_token:
+          type: string
+          description: New access token for the user
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refresh_token:
+          type: string
+          description: New refresh token for the user
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."

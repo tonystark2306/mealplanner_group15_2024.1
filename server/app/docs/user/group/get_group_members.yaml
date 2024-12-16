@@ -1,0 +1,76 @@
+Get All Members Of A Group
+This API fetches the list of members in a specific group.
+---
+tags:
+  - User - Group
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    description: The unique identifier of the group
+    schema:
+      type: string
+      example: "123e4567-e89b-12d3-a456-426614174000"
+
+responses:
+  200:
+    description: Successfully fetched group members
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Successfully"
+            vn:
+              type: string
+              example: "Thành công"
+        groupAdmin:
+          type: string
+          description: The ID of the group admin
+          example: "e6b3562f-6cc5-4e2c-95d2-b7ac8ec478cc"
+        members:
+          type: array
+          description: List of members in the group
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: "e6b3562f-6cc5-4e2c-95d2-b7ac8ec478cc"
+              email:
+                type: string
+                example: "johndoe@example.com"
+              username:
+                type: string
+                example: "johndoe"
+              name:
+                type: string
+                example: "John Doe"
+              language:
+                type: string
+                example: "en"
+              timezone:
+                type: string
+                example: "Asia/Singapore"
+              deviceId:
+                type: string
+                example: "e6b3562f-6cc5-4e2c-95d2-b7ac8ec478cc"
+              avatar_url:
+                type: string
+                example: "https://example.com/avatar.jpg"
+              is_verified:
+                type: boolean
+                example: true
+        resultCode:
+          type: string
+          example: "00098"

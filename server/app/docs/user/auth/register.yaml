@@ -1,0 +1,91 @@
+User Registration
+This API is used to register a new user
+---
+tags:
+  - User - Auth
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        email:
+          type: string
+          description: User email address
+          example: johndoe@example.com
+        password:
+          type: string
+          description: User password (6-20 characters)
+          example: "password123"
+        username:
+          type: string
+          description: Desired username for the account
+          example: "johndoe"
+        name:
+          type: string
+          description: Full name of the user
+          example: "John Doe"
+        language:
+          type: string
+          description: Preferred language code
+          example: "en"
+        timezone:
+          type: string
+          description: User timezone
+          example: "Asia/Singapore"
+        deviceId:
+          type: string
+          description: Device identifier
+          example: "e6b3562f-6cc5-4e2c-95d2-b7ac8ec478cc"
+
+responses:
+  201:
+    description: User registered successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "You registered successfully."
+            vn:
+              type: string
+              example: "Bạn đã đăng ký thành công."
+        resultCode:
+          type: string
+          example: "00035"
+        user:
+          type: object
+          description: Details of the newly registered user
+          properties:
+            id:
+              type: string
+              example: "e6b3562f-6cc5-4e2c-95d2-b7ac8ec478cc"
+            email:
+              type: string
+              example: "johndoe@example.com"
+            username:
+              type: string
+              example: "johndoe"
+            name:
+              type: string
+              example: "John Doe"
+            language:
+              type: string
+              example: "en"
+            timezone:
+              type: string
+              example: "Asia/Singapore"
+            deviceId:
+              type: string
+              example: "e6b3562f-6cc5-4e2c-95d2-b7ac8ec478cc"
+        role:
+          type: string
+          example: "user"
+        confirmToken:
+          type: string
+          description: Token for email verification
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."

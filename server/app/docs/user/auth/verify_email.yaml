@@ -1,0 +1,47 @@
+Verify Email
+This API is used to verify a user's email address using a confirmation token and verification code
+---
+tags:
+  - User - Auth
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        confirm_token:
+          type: string
+          description: Confirmation token sent to the user's email
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        verification_code:
+          type: string
+          description: Verification code sent to the user's email
+          example: "123456"
+
+responses:
+  200:
+    description: Email verified successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Your email address has been verified successfully."
+            vn:
+              type: string
+              example: "Địa chỉ email của bạn đã được xác minh thành công."
+        resultCode:
+          type: string
+          example: "00058"
+        access_token:
+          type: string
+          description: Access token for the user
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refresh_token:
+          type: string
+          description: Refresh token for the user
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
