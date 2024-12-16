@@ -10,6 +10,44 @@ from config import Config
 from .errors import handle_exception
 
 
+swagger_template = {
+    "swagger": "2.0",
+    "info": {
+        "title": "👨‍🍳 Meal Planner API 🍴",
+        "description": "API documentation for the Meal Planner system.\nMade with 🧡 by Group 15 - IT4788 - K66 - HUST",
+        "version": "1.0.0"
+    },
+    "host": "localhost:5000",  
+    "schemes": ["http"],
+    "tags": [
+        {
+            "name": "User - Auth",
+            "description": "Endpoints for user authentication, login, register, and token management."
+        },
+        {
+            "name": "User - Edit",
+            "description": "Endpoints for editing user profiles, including password changes and personal information updates."
+        },
+        {
+            "name": "User - Group",
+            "description": "Endpoints for managing user groups, including creating, editing, and retrieving groups."
+        },
+        {
+            "name": "User",
+            "description": "General user-related endpoints such as profile retrieval and account deletion."
+        },
+        {
+            "name": "Admin - Category",
+            "description": "Administrative endpoints for managing categories in the system, including creation, updates, and deletion."
+        },
+        {
+            "name": "Admin - Unit",
+            "description": "Administrative endpoints for managing measurement units in the system."
+        }
+    ]
+}
+
+
 class Base(DeclarativeBase):
     pass
 
@@ -23,7 +61,7 @@ celery = Celery(__name__, broker=Config.CELERY_BROKER_URL)
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-    swagger = Swagger(app)
+    swagger = Swagger(app, template=swagger_template)
     
     db.init_app(app)
     migrate.init_app(app, db)
