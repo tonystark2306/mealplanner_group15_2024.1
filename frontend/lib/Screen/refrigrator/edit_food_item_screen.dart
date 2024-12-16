@@ -3,32 +3,44 @@ import 'package:provider/provider.dart';
 import '../../Models/food_item_model.dart';
 import '../../Providers/refrigerator_provider.dart';
 
-class AddFoodItemScreen extends StatefulWidget {
-  const AddFoodItemScreen({super.key});
+class EditFoodItemScreen extends StatefulWidget {
+  final FoodItem foodItem; // Nhận FoodItem cần chỉnh sửa
+
+  const EditFoodItemScreen({super.key, required this.foodItem});
 
   @override
-  _AddFoodItemScreenState createState() => _AddFoodItemScreenState();
+  _EditFoodItemScreenState createState() => _EditFoodItemScreenState();
 }
 
-class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
+class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _name = '';
-  int _quantity = 1;
-  DateTime _expiryDate = DateTime.now();
+  late String _name;
+  late int _quantity;
+  late DateTime _expiryDate;
+
+  @override
+  void initState() {
+    super.initState();
+    // Khởi tạo với thông tin của FoodItem hiện tại
+    _name = widget.foodItem.name;
+    _quantity = widget.foodItem.quantity;
+    _expiryDate = widget.foodItem.expirationDate;
+  }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      final newFoodItem = FoodItem(
-        id: DateTime.now().toString(),
+      final updatedFoodItem = FoodItem(
+        id: widget.foodItem.id, // Giữ nguyên ID
         name: _name,
         quantity: _quantity,
         expirationDate: _expiryDate,
       );
 
+      // Cập nhật item trong Provider
       Provider.of<RefrigeratorProvider>(context, listen: false)
-          .addItem(newFoodItem);
+          .updateItem(updatedFoodItem);
 
       Navigator.pop(context);
     }
@@ -54,7 +66,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Thêm Thực Phẩm',
+          'Chỉnh Sửa Thực Phẩm',
           style: TextStyle(color: Colors.green[700]),
         ),
         backgroundColor: Colors.white,
@@ -69,6 +81,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
+                initialValue: _name,
                 decoration: const InputDecoration(labelText: 'Tên thực phẩm'),
                 textInputAction: TextInputAction.next,
                 validator: (value) {
@@ -82,6 +95,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                 },
               ),
               TextFormField(
+                initialValue: _quantity.toString(),
                 decoration: const InputDecoration(labelText: 'Số lượng'),
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
@@ -120,7 +134,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                 ),
                 child: const Center(
                   child: Text(
-                    'Thêm thực phẩm',
+                    'Lưu thay đổi',
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),

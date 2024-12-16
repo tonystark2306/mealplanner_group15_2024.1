@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal_planner_app/Providers/recipe_provider.dart';
 import 'package:provider/provider.dart';
 import 'routes.dart';
 import 'Providers/refrigerator_provider.dart';
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => RefrigeratorProvider()),
         ChangeNotifierProvider(create: (_) => MealPlanningProvider()),
+        ChangeNotifierProvider(create: (_) => RecipeProvider()),
       ],
       child: MaterialApp(
         home: const BottomNavigationScreen(),

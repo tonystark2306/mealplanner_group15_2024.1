@@ -1,25 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:html' as html;
 import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';  // Thêm thư viện image_picker
 
 import '../../Models/recipe_model.dart';
 import '../../Providers/recipe_provider.dart';
 
-class CreateRecipeScreen extends StatefulWidget {
-  const CreateRecipeScreen({super.key});
+class EditRecipeScreen extends StatefulWidget {
+  final RecipeItem recipe;
+
+  const EditRecipeScreen({super.key, required this.recipe});
 
   @override
-  State<CreateRecipeScreen> createState() => _CreateRecipeScreenState();
+  State<EditRecipeScreen> createState() => _EditRecipeScreenState();
 }
 
-class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController timeController = TextEditingController();
-  final List<TextEditingController> ingredientNameControllers = [];
-  final List<TextEditingController> ingredientWeightControllers = [];
-  final TextEditingController stepsController = TextEditingController();
+class _EditRecipeScreenState extends State<EditRecipeScreen> {
+  late TextEditingController nameController;
+  late TextEditingController timeController;
+  late List<TextEditingController> ingredientNameControllers;
+  late List<TextEditingController> ingredientWeightControllers;
+  late TextEditingController stepsController;
   Uint8List? uploadedImage;
+
+  @override
+  void initState() {
+    super.initState();
+    // Khởi tạo các controller với dữ liệu hiện tại của công thức
+    nameController = TextEditingController(text: widget.recipe.name);
+    timeController = TextEditingController(text: widget.recipe.timeCooking);
+    ingredientNameControllers = widget.recipe.ingredients
+        .map((ingredient) => TextEditingController(text: ingredient.name))
+        .toList();
+    ingredientWeightControllers = widget.recipe.ingredients
+        .map((ingredient) => TextEditingController(text: ingredient.weight))
+        .toList();
+    stepsController = TextEditingController(text: widget.recipe.steps);
+    uploadedImage = widget.recipe.imagePath;
+  }
 
   @override
   void dispose() {
@@ -99,24 +117,17 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     );
   }
 
+  // Sửa lại hàm pickImage để sử dụng image_picker
   Future<void> pickImage() async {
-    html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
-    uploadInput.accept = 'image/*';
-    uploadInput.click();
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);  // Chọn ảnh từ thư viện
 
-    uploadInput.onChange.listen((e) async {
-      final files = uploadInput.files;
-      if (files != null && files.isNotEmpty) {
-        final reader = html.FileReader();
-        reader.readAsArrayBuffer(files[0]);
-
-        reader.onLoadEnd.listen((event) {
-          setState(() {
-            uploadedImage = reader.result as Uint8List;
-          });
-        });
-      }
-    });
+    if (pickedFile != null) {
+      final imageBytes = await pickedFile.readAsBytes();
+      setState(() {
+        uploadedImage = imageBytes;  // Cập nhật ảnh chọn
+      });
+    }
   }
 
   void saveRecipe() {
@@ -139,8 +150,8 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
       return;
     }
 
-    final newRecipe = RecipeItem(
-      id: DateTime.now().toString(),
+    final updatedRecipe = RecipeItem(
+      id: widget.recipe.id,
       name: name,
       timeCooking: time,
       ingredients: ingredients,
@@ -149,10 +160,10 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     );
 
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
-    recipeProvider.addRecipe(newRecipe);
+    recipeProvider.updateRecipe(updatedRecipe.id, updatedRecipe);  // Cập nhật công thức
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã thêm công thức thành công!')),
+      const SnackBar(content: Text('Đã chỉnh sửa công thức thành công!')),
     );
 
     Navigator.of(context).pop();
@@ -163,7 +174,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Thêm công thức mới',
+          'Chỉnh sửa công thức',
           style:
               TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
         ),
@@ -275,9 +286,6 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                  elevation: 5,
                 ),
               ),
             ),
