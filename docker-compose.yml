@@ -7,6 +7,7 @@ services:
     environment:
       - SECRET_KEY=group15
       - CELERY_BROKER_URL=amqp://guest:guest@message_queue:5672//
+      - DATABASE_URL=postgresql://postgres:it4788@database:5432/mealplanner_db
       - POSTGRESQL_USERNAME=postgres
       - POSTGRESQL_PASSWORD=it4788
       - POSTGRESQL_DBNAME=mealplanner_db
