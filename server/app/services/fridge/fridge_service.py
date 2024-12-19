@@ -55,7 +55,7 @@ class FridgeService:
     def add_item_to_fridge(self, data: dict) -> Tuple[str, Optional[str]]:
         food = self.food_repo.get_foods_by_name(data['foodName'])
         if not food:
-            return "Food item not found"
+            return "food item not found"
 
         convert_date = datetime.strptime(data['expiration_date'], "%Y-%m-%d %H:%M:%S")
         return self.fridge_repo.add_item(data['owner_id'], data['added_by'], food.id, data['quantity'], convert_date)
