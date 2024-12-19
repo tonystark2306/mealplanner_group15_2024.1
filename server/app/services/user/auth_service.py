@@ -26,7 +26,7 @@ class AuthService:
             return None, None
         
         role = self.role_repository.get_role_of_user(user.id)
-        return user, role
+        return user, role.role_name
 
 
     def generate_access_token(self, user_id, expires_in=600):
