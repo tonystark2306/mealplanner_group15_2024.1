@@ -10,12 +10,20 @@ class RefrigeratorProvider with ChangeNotifier {
 
   // Hàm tải danh sách các thực phẩm từ backend
   Future<void> loadFoodItemsFromApi(String groupId) async {
-    final url = 'https://your-api-url/fridge/$groupId'; // Thay thế với URL của bạn
+    final url =
+        'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
     try {
+      print('Loading food items from API ${url}');
       final response = await http.get(
         Uri.parse(url),
-        headers: {'Authorization': 'Bearer YOUR_TOKEN'}, // Thay 'YOUR_TOKEN' bằng token của người dùng
+        headers: {
+          'Authorization':
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTNiZGY1N2EtNjQ4NS00Y2JmLTg1ZGItNjhhNDBlOTZmYWEwIiwiZXhwIjoxNzM0NjI3NTEzfQ.4Wab4dqokbO3HKAz-60Fzegd9OjZocC9WM0G8QGRkpg'
+        }, // Thay 'YOUR_TOKEN' bằng token của người dùng
       );
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final fridgeItems = (data['fridgeItems'] as List)
@@ -23,23 +31,27 @@ class RefrigeratorProvider with ChangeNotifier {
             .toList();
         _items = fridgeItems;
         notifyListeners();
+        print('Loaded food items');
       } else {
         throw Exception('Failed to load food items');
       }
     } catch (error) {
+      print(error);
       throw error;
     }
   }
 
   // Hàm thêm thực phẩm vào tủ lạnh (POST request)
   Future<void> addItemToApi(String groupId, FoodItem item) async {
-    final url = 'https://your-api-url/fridge/$groupId'; // Thay thế với URL của bạn
+    final url =
+        'http://localhost:5000/fridge/$groupId'; // Thay thế với URL của bạn
     try {
       final response = await http.post(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN', // Thay 'YOUR_TOKEN' bằng token của người dùng
+          'Authorization':
+              'Bearer YOUR_TOKEN', // Thay 'YOUR_TOKEN' bằng token của người dùng
         },
         body: json.encode({
           'foodName': item.name,
@@ -62,13 +74,15 @@ class RefrigeratorProvider with ChangeNotifier {
 
   // Hàm cập nhật thông tin thực phẩm trong tủ lạnh (PUT request)
   Future<void> updateItemInApi(String groupId, FoodItem updatedItem) async {
-    final url = 'https://your-api-url/fridge/$groupId'; // Thay thế với URL của bạn
+    final url =
+        'http://localhost:5000/fridge/$groupId'; // Thay thế với URL của bạn
     try {
       final response = await http.put(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN', // Thay 'YOUR_TOKEN' bằng token của người dùng
+          'Authorization':
+              'Bearer YOUR_TOKEN', // Thay 'YOUR_TOKEN' bằng token của người dùng
         },
         body: json.encode({
           'itemId': updatedItem.id,
@@ -91,11 +105,14 @@ class RefrigeratorProvider with ChangeNotifier {
 
   // Hàm xóa thực phẩm trong tủ lạnh (DELETE request)
   Future<void> deleteItemFromApi(String groupId, String itemId) async {
-    final url = 'https://your-api-url/fridge/$groupId/$itemId'; // Thay thế với URL của bạn
+    final url =
+        'http://localhost:5000/$groupId/$itemId'; // Thay thế với URL của bạn
     try {
       final response = await http.delete(
         Uri.parse(url),
-        headers: {'Authorization': 'Bearer YOUR_TOKEN'}, // Thay 'YOUR_TOKEN' bằng token của người dùng
+        headers: {
+          'Authorization': 'Bearer YOUR_TOKEN'
+        }, // Thay 'YOUR_TOKEN' bằng token của người dùng
       );
       if (response.statusCode == 200) {
         removeItem(itemId);

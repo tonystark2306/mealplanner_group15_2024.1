@@ -27,7 +27,8 @@ class _RefrigeratorManagementScreenState
   Future<void> _loadFoodItems() async {
     try {
       await Provider.of<RefrigeratorProvider>(context, listen: false)
-          .loadFoodItemsFromApi('group_id'); // Thay 'group_id' bằng ID nhóm thực tế
+          .loadFoodItemsFromApi(
+              '572ac983-195b-4029-803d-fb26e5a86b9b'); // Thay 'group_id' bằng ID nhóm thực tế
       setState(() {
         _isLoading = false;
       });
@@ -68,8 +69,8 @@ class _RefrigeratorManagementScreenState
           : Consumer<RefrigeratorProvider>(
               builder: (context, refrigeratorProvider, child) {
                 final foodItems = refrigeratorProvider.items;
-                foodItems.sort(
-                    (a, b) => a.expirationDate.compareTo(b.expirationDate)); // Sắp xếp theo ngày hết hạn
+                foodItems.sort((a, b) => a.expirationDate
+                    .compareTo(b.expirationDate)); // Sắp xếp theo ngày hết hạn
 
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
@@ -110,7 +111,8 @@ class _RefrigeratorManagementScreenState
                                   itemCount: foodItems.length,
                                   itemBuilder: (context, index) {
                                     final foodItem = foodItems[index];
-                                    return _buildFoodItemTile(context, foodItem);
+                                    return _buildFoodItemTile(
+                                        context, foodItem);
                                   },
                                 ),
                             ],
@@ -169,7 +171,7 @@ class _RefrigeratorManagementScreenState
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
-      color: isExpiringSoon ? Colors.red[50] : Colors.white, // Thêm màu đỏ nếu sắp hết hạn
+      color: isExpiringSoon ? Colors.red[50] : Colors.white,
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.green[50],
@@ -180,8 +182,11 @@ class _RefrigeratorManagementScreenState
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
-          'Hết hạn: ${foodItem.expirationDate.toLocal().toString().split(' ')[0]}',
-          style: TextStyle(color: isExpiringSoon ? Colors.red[700] : Colors.grey[600]),
+          'Hết hạn: ${foodItem.expirationDate.toLocal().toString().split(' ')[0]}\n'
+          'Số lượng: ${foodItem.quantity}', // Hiển thị thêm số lượng
+          style: TextStyle(
+            color: isExpiringSoon ? Colors.red[700] : Colors.grey[600],
+          ),
         ),
         trailing: IconButton(
           icon: Icon(Icons.delete, color: Colors.red[300]),
@@ -212,7 +217,8 @@ class _RefrigeratorManagementScreenState
               // Gọi provider để xóa thực phẩm từ API
               try {
                 await Provider.of<RefrigeratorProvider>(context, listen: false)
-                    .deleteItemFromApi('group_id', foodItem.id); // Thay 'group_id' bằng ID thực tế
+                    .deleteItemFromApi('group_id',
+                        foodItem.id); // Thay 'group_id' bằng ID thực tế
                 Navigator.of(ctx).pop(); // Đóng hộp thoại
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Đã xóa thực phẩm ${foodItem.name}')),
