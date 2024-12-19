@@ -1,5 +1,6 @@
 from flask import Flask
 from flasgger import Swagger
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_mail import Mail
@@ -62,6 +63,12 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     swagger = Swagger(app, template=swagger_template)
+    CORS(app, resources={r"/*": {
+        "origins": "*", 
+        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        "allow_headers": "*",
+        "expose_headers": "*"
+    }})
     
     db.init_app(app)
     migrate.init_app(app, db)
@@ -76,6 +83,9 @@ def create_app(config_class=Config):
     
     from .controllers.admin import admin_api
     app.register_blueprint(admin_api, url_prefix="/api/admin")
+    
+    from .controllers.food import food_api
+    app.register_blueprint(food_api, url_prefix="/api/food")
     
     from .controllers.fridge import fridge_api
     app.register_blueprint(fridge_api, url_prefix="/api/fridge")
