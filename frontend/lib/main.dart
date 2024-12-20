@@ -5,6 +5,7 @@ import 'routes.dart';
 import 'Providers/refrigerator_provider.dart';
 import 'Providers/meal_planning_provider.dart';
 import 'Screen/bottom_navigation_screen.dart';
+import 'Screen/admin/admin_dashboard_screen.dart'; // Import màn hình Admin Dashboard
 
 void main() {
   runApp(const MyApp());
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         home: const BottomNavigationScreen(),
+        //home: const AdminDashboardScreen(),
         debugShowCheckedModeBanner: false,
         routes: AppRoutes.routes, // Sử dụng routes từ AppRoutes
       ),
