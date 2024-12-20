@@ -60,8 +60,11 @@ class MealPlan(Base):
             self.recipes = recipes
         if foods:
             self.foods = foods
-            
-        if schedule_time < datetime.now():
+
+        if isinstance(schedule_time, str):
+            self.schedule_time = datetime.strptime(schedule_time, '%Y-%m-%d %H:%M:%S')  # Assuming 'YYYY-MM-DD HH:MM:SS' format
+        
+        if self.schedule_time < datetime.now():
             self.status = 'Cancelled'
         else:
             self.status = 'Scheduled'

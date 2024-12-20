@@ -172,7 +172,8 @@ def mark_meal_plan(user_id, group_id):
         "resultMessage": {
             "en": "Meal plan status changed successfully",
             "vn": "Thay đổi trạng thái kế hoạch ăn thành công"
-        }
+        },
+        "resultCode": "00229"
     }), 200
 
 
@@ -199,5 +200,6 @@ def delete_meal_plan(user_id, group_id):
         "resultMessage": {
             "en": "Meal plan deleted successfully",
             "vn": "Xóa kế hoạch ăn thành công"
-        }
+        },
+        "resultCode": "00229"
     }), 200
