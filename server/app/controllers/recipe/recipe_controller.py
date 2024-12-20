@@ -75,6 +75,45 @@ def get_list_recipes(user_id, group_id):
     }), 200
 
 
+@recipe_api.route("/<group_id>/search", methods=["GET"])
+@JWT_required
+@group_member_required
+def search_recipe(user_id, group_id):
+    '''search recipe by keyword'''
+    keyword = request.json.get("keyword")
+    recipe_service = RecipeService()
+    if not keyword:
+        return jsonify({
+            "resultMessage": {
+                "en": "Keyword is required.",
+                "vn": "Từ khóa là bắt buộc."
+        },
+        "resultCode": "00194"
+    }), 400
+
+    # Tìm kiếm công thức
+    recipes = recipe_service.search_by_keyword(group_id, keyword)
+    if not recipes:
+        return jsonify({
+            "resultMessage": {
+                "en": "No recipe found.",
+                "vn": "Không tìm thấy công thức."
+            },
+            "resultCode": "00194"
+        }), 404
+    
+    return jsonify({
+        "resultMessage": {
+            "en": "List of recipes.",
+            "vn": "Danh sách các công thức."
+        },
+        "resultCode": "00203",
+        "recipes": recipes
+    }), 200
+    
+    
+
+
 @recipe_api.route("/<group_id>/<recipe_id>", methods = ["GET"])
 @JWT_required
 @group_member_required
