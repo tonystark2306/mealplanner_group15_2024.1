@@ -21,6 +21,10 @@ class RecipeRepository(RecipeInterface):
     
     def get_recipes_by_group_id(self, group_id) -> list:
         return db.session.query(RecipeModel).filter(RecipeModel.group_id == group_id, RecipeModel.type == 'custom', RecipeModel.is_deleted == False).all()
+    
+
+    def get_recipes_by_keywords(self, group_id, keyword) -> list:
+        return db.session.query(RecipeModel).filter(RecipeModel.group_id == group_id, RecipeModel.dish_name.ilike(f'%{keyword}%'), RecipeModel.is_deleted == False).all() + db.session.query(RecipeModel).filter(RecipeModel.type == 'system', RecipeModel.dish_name.ilike(f'%{keyword}%'), RecipeModel.is_deleted == False).all()
 
 
     def get_system_recipe_by_name(self, recipe_name) -> RecipeModel:
