@@ -93,6 +93,9 @@ def create_app(config_class=Config):
     from .controllers.shopping import shopping_api
     app.register_blueprint(shopping_api, url_prefix="/api/shopping")
 
+    from .controllers.meal import meal_api
+    app.register_blueprint(meal_api, url_prefix="/api/meal")
+
     from .controllers.recipe import recipe_api
     app.register_blueprint(recipe_api, url_prefix="/api/recipe")
     

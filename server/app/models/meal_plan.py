@@ -1,5 +1,5 @@
 from uuid import uuid4
-from sqlalchemy import String, DateTime, ForeignKey, Table, Column, Boolean, Float, UniqueConstraint
+from sqlalchemy import String, DateTime, ForeignKey, Table, Column, Boolean, Float, UniqueConstraint, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from app import Base
@@ -35,6 +35,16 @@ class MealPlan(Base):
     description: Mapped[str] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    status: Mapped[str] = mapped_column(
+        Enum(
+        'Scheduled',
+        'Cancelled',
+        'Completed',
+        name='meal_plan_status'
+    ), 
+        nullable=False, 
+        default='Scheduled'
+    )
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Updated relationships
@@ -50,6 +60,27 @@ class MealPlan(Base):
             self.recipes = recipes
         if foods:
             self.foods = foods
+
+        if isinstance(schedule_time, str):
+            self.schedule_time = datetime.strptime(schedule_time, '%Y-%m-%d %H:%M:%S')  # Assuming 'YYYY-MM-DD HH:MM:SS' format
+        
+        if self.schedule_time < datetime.now():
+            self.status = 'Cancelled'
+        else:
+            self.status = 'Scheduled'
+
+
+    @property
+    def foods(self):
+        from app import db  # Import db nếu cần
+        result = (
+            db.session.query(meal_plan_foods.c.food_id, meal_plan_foods.c.food_name, meal_plan_foods.c.unit, meal_plan_foods.c.quantity)
+            .filter(meal_plan_foods.c.plan_id == self.id)
+            .all()
+        )
+        return [dict(food_id=r.food_id, food_name=r.food_name, unit=r.unit, quantity=r.quantity) for r in result]
+        
+         
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}

@@ -4,6 +4,7 @@ from ..models.shopping import ShoppingList
 from ..models.fridge_item import FridgeItem
 from ..models.shopping import ShoppingTask
 from ..models.recipe import Recipe
+from ..models.meal_plan import MealPlan
 
 from .. import db
 
@@ -177,6 +178,44 @@ def check_recipe_ownership(f):
                     "vn": "Công thức không thuộc nhóm này."
                 },
                 "resultCode": "00299"
+            }), 403
+
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def check_meal_plan_ownership(f):
+    '''Decorator to check if the meal plan belongs to the group'''
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        group_id = kwargs.get('group_id') or request.view_args.get('group_id')
+        try:
+            data = request.json
+        except:
+            data = {}
+        meal_id = data.get("meal_id") or kwargs.get('meal_id') or request.view_args.get('meal_id')
+
+        # Kiểm tra nếu thiếu meal_plan_id trong yêu cầu
+        if not meal_id:
+            return jsonify({
+                "resultMessage": {
+                    "en": "Missing meal_id in the request.",
+                    "vn": "Thiếu ID kế hoạch bữa ăn trong yêu cầu."
+                },
+                "resultCode": "00300"
+            }), 400
+
+        # Truy vấn để kiểm tra quyền sở hữu
+        meal_plan = db.session.query(MealPlan).filter_by(id=meal_id, group_id=group_id, is_deleted=False).first()
+
+        # Nếu meal_plan không tồn tại hoặc không thuộc nhóm
+        if not meal_plan:
+            return jsonify({
+                "resultMessage": {
+                    "en": "You do not have access to this meal plan.",
+                    "vn": "Bạn không có quyền truy cập kế hoạch ăn này."
+                },
+                "resultCode": "00301"
             }), 403
 
         return f(*args, **kwargs)
