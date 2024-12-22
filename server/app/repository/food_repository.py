@@ -22,6 +22,10 @@ class FoodRepository(FoodInterface):
         #trả về 1 thực phẩm duy nhất
         return db.session.query(FoodModel).filter_by(name=name).first()
     
+    
+    def get_food_in_group_by_name(self, group_id, food_name) -> FoodModel:
+        return db.session.query(FoodModel).filter_by(group_id=group_id, name=food_name).first()
+    
 
     def get_food_categories(self, id) -> List[str]:
         food = db.session.query(FoodModel).filter_by(id=id).first()
@@ -49,4 +53,16 @@ class FoodRepository(FoodInterface):
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error creating food: {str(e)}")
+            raise
+        
+        
+    def update_food(self, food, data):
+        try:
+            for field, value in data.items():
+                setattr(food, field, value)
+            db.session.commit()
+        
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error updating food: {str(e)}")
             raise

@@ -16,9 +16,17 @@ class FoodInterface(ABC):
         pass
     
     @abstractmethod
+    def get_food_in_group_by_name(self, group_id, food_name) -> FoodModel:
+        pass
+    
+    @abstractmethod
     def get_food_categories(self) -> List[str]:
         pass
     
     @abstractmethod
     def create_food(self, user_id, group_id, image_url, data) -> FoodModel:
+        pass
+
+    @abstractmethod
+    def update_food(self, food, data):
         pass

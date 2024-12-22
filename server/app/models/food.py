@@ -25,7 +25,7 @@ class Food(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     note: Mapped[str] = mapped_column(String(255))
-    status: Mapped[str] = mapped_column(String(10), nullable=False, default='active')
+
     # Update relationships - remove recipes relationship
     categories = relationship('Category', secondary=food_categories, back_populates='foods')
     group = relationship('Group', backref='foods')
