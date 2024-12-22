@@ -35,7 +35,6 @@ class EditService:
                 
             if image_file:
                 filename = secure_filename(image_file.filename)
-                self.firebase_helper.upload_image(image_file, filename)
                 image_url = self.firebase_helper.upload_image(image_file, f"user_avatars/{filename}")
                 self.user_repository.update_user(user, {"avatar_url": image_url})
                 

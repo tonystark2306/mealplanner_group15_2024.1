@@ -33,15 +33,17 @@ class Food(Base):
     creator = relationship('User', backref='foods', lazy=True)
     recipes = relationship('Recipe', secondary='recipe_foods', back_populates='foods', lazy=True, cascade='all, delete')
 
-    def __init__(self, user_id, name, type, group_id, categories, unit_id, image_url=None, note=None):
+
+    def __init__(self, user_id, name, type, group_id, categories, unit_id, image_url, note):
         self.create_by = user_id
         self.name = name
         self.type = type
         self.group_id = group_id
-        self.categories = categories
+        self.categories.append(categories)
         self.unit_id = unit_id
         self.image_url = image_url
         self.note = note
+
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}

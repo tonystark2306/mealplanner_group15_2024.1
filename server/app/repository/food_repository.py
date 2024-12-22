@@ -1,12 +1,17 @@
-from ..models.food import Food as FoodModel
+import logging
 from typing import List
+
 from .. import db
-from abc import ABC, abstractmethod
+from ..models.food import Food as FoodModel
 from .interface.food_interface import FoodInterface
+from .category_repository import CategoryRepository
+from .unit_repository import UnitRepository
+
 
 class FoodRepository(FoodInterface):
     def __init__(self):
-        pass
+        self.category_repository = CategoryRepository()
+        self.unit_repository = UnitRepository()
 
 
     def get_food_by_id(self,id) -> FoodModel:
@@ -21,3 +26,27 @@ class FoodRepository(FoodInterface):
     def get_food_categories(self, id) -> List[str]:
         food = db.session.query(FoodModel).filter_by(id=id).first()
         return food.categories
+
+    
+    def create_food(self, user_id, group_id, image_url, data) -> FoodModel:
+        try:
+            categories = []
+            for name in data["foodCategoryNames"]:
+                category = self.category_repository.get_category_by_name(name)
+                if not category:
+                    return None
+                categories.append(category)
+                
+            unit = self.unit_repository.get_unit_by_name(data["unitName"])
+            if not unit:
+                return None
+            
+            new_food = FoodModel(user_id, data["name"], data["type"], group_id, categories, unit.id, image_url, data["note"])
+            db.session.add(new_food)
+            db.session.commit()
+            return new_food
+        
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error creating food: {str(e)}")
+            raise
