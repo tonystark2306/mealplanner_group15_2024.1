@@ -59,13 +59,12 @@ def create_system_unit(user_id):
 
 @admin_api.route("/unit", methods=["GET"])
 @JWT_required
-@system_admin_required
 @swag_from(
     "../../docs/admin/unit/get_all_system_unit.yaml", 
     endpoint="admin_api.get_all_system_unit", 
     methods=["GET"]
 )
-def get_all_system_unit(user_id):
+def get_all_system_unit():
     unit_service = UnitService()
     units = unit_service.list_system_units()
     return jsonify({

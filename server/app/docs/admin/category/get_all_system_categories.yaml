@@ -1,5 +1,5 @@
 Get All System Categories
-This API allows a system administrator to retrieve all system categories.
+This API allows a system administrator or user to retrieve all system categories.
 ---
 tags:
   - Admin - Category
