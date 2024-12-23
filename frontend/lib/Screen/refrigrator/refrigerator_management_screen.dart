@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../Models/food_item_model.dart';
 import '../../Providers/refrigerator_provider.dart';
-import './add_food_item_screen.dart'; // Đảm bảo đường dẫn đúng
+import './add_food_item_screen.dart';
+import './edit_food_item_screen.dart';
 
 class RefrigeratorManagementScreen extends StatefulWidget {
   const RefrigeratorManagementScreen({super.key});
@@ -165,7 +166,7 @@ class _RefrigeratorManagementScreenState
   // Hiển thị mỗi món ăn trong danh sách
   Widget _buildFoodItemTile(BuildContext context, FoodItem foodItem) {
     final expirationDate = foodItem.expirationDate;
-    final isExpiringSoon = foodItem.expirationDate.isBefore(
+    final isExpiringSoon = expirationDate.isBefore(
       DateTime.now().add(Duration(days: 3)),
     );
 
@@ -188,11 +189,29 @@ class _RefrigeratorManagementScreenState
             color: isExpiringSoon ? Colors.red[700] : Colors.grey[600],
           ),
         ),
-        trailing: IconButton(
-          icon: Icon(Icons.delete, color: Colors.red[300]),
-          onPressed: () {
-            _confirmDelete(context, foodItem);
-          },
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: Icon(Icons.edit, color: Colors.blue[300]),
+              onPressed: () {
+                // Chuyển đến màn hình chỉnh sửa thực phẩm
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        EditFoodItemScreen(foodItem: foodItem),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.delete, color: Colors.red[300]),
+              onPressed: () {
+                _confirmDelete(context, foodItem);
+              },
+            ),
+          ],
         ),
       ),
     );
