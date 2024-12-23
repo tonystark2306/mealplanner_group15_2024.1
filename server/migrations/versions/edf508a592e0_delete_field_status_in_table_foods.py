@@ -1,7 +1,7 @@
 """Delete field 'status' in table 'foods'
 
 Revision ID: edf508a592e0
-Revises: 1ae83483db9b
+Revises: 00fd00304df6
 Create Date: 2024-12-22 22:22:37.171515
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'edf508a592e0'
-down_revision = '1ae83483db9b'
+down_revision = '00fd00304df6'
 branch_labels = None
 depends_on = None
 

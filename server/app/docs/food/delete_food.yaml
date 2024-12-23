@@ -3,7 +3,7 @@ This API allows a user to delete a food item from a specific group.
 
 ---
 tags:
-  - Group - Food
+  - Food
 parameters:
   - name: Authorization
     in: header

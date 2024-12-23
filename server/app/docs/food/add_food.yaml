@@ -3,7 +3,7 @@ This API allows a user to add a new food item to a specific group.
 
 ---
 tags:
-  - Group - Food
+  - Food
 parameters:
   - name: Authorization
     in: header

@@ -44,6 +44,10 @@ swagger_template = {
         {
             "name": "Admin - Unit",
             "description": "Administrative endpoints for managing measurement units in the system."
+        },
+        {
+            "name": "Food",
+            "description": "Endpoints for managing food items, including creation, updates, and deletion."
         }
     ]
 }
@@ -84,8 +88,8 @@ def create_app(config_class=Config):
     from .controllers.admin import admin_api
     app.register_blueprint(admin_api, url_prefix="/api/admin")
     
-    # from .controllers.food import food_api
-    # app.register_blueprint(food_api, url_prefix="/api/food")
+    from .controllers.food import food_api
+    app.register_blueprint(food_api, url_prefix="/api/food")
     
     from .controllers.fridge import fridge_api
     app.register_blueprint(fridge_api, url_prefix="/api/fridge")
