@@ -166,13 +166,24 @@ class _RefrigeratorManagementScreenState
   // Hiển thị mỗi món ăn trong danh sách
   Widget _buildFoodItemTile(BuildContext context, FoodItem foodItem) {
     final expirationDate = foodItem.expirationDate;
-    final isExpiringSoon = expirationDate.isBefore(
-      DateTime.now().add(Duration(days: 3)),
-    );
+    final now = DateTime.now();
+    final isExpired = expirationDate.isBefore(now);
+    final isExpiringSoon =
+        expirationDate.isBefore(now.add(Duration(days: 3))) && !isExpired;
+
+    // Xác định màu nền theo trạng thái
+    Color? backgroundColor;
+    if (isExpired) {
+      backgroundColor = Colors.red[100]; // Hết hạn
+    } else if (isExpiringSoon) {
+      backgroundColor = Colors.red[50]; // Sắp hết hạn
+    } else {
+      backgroundColor = Colors.green[50]; // Chưa hết hạn
+    }
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
-      color: isExpiringSoon ? Colors.red[50] : Colors.white,
+      color: backgroundColor,
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.green[50],
@@ -186,7 +197,11 @@ class _RefrigeratorManagementScreenState
           'Hết hạn: ${foodItem.expirationDate.toLocal().toString().split(' ')[0]}\n'
           'Số lượng: ${foodItem.quantity}', // Hiển thị thêm số lượng
           style: TextStyle(
-            color: isExpiringSoon ? Colors.red[700] : Colors.grey[600],
+            color: isExpired
+                ? Colors.red[700]
+                : isExpiringSoon
+                    ? Colors.grey[600]
+                    : Colors.grey[600],
           ),
         ),
         trailing: Row(

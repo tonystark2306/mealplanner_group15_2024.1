@@ -50,7 +50,7 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: _expiryDate,
-      firstDate: DateTime.now(),
+      firstDate: DateTime(2024),
       lastDate: DateTime(2100),
     );
 
