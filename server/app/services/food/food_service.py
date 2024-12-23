@@ -12,6 +12,11 @@ class FoodService:
         self.firebase_helper = FirebaseHelper()
         
         
+    def get_all_foods_in_group(self, group_id):
+        foods = self.food_repository.get_all_foods_in_group(group_id)
+        return [food.as_dict() for food in foods]
+        
+        
     def get_food_in_group_by_name(self, group_id, food_name):
         return self.food_repository.get_food_in_group_by_name(group_id, food_name)
 

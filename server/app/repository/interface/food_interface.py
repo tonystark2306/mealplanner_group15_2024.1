@@ -8,6 +8,10 @@ class FoodInterface(ABC):
         pass
     
     @abstractmethod
+    def get_all_foods_in_group(self, group_id) -> List[FoodModel]:
+        pass
+    
+    @abstractmethod
     def get_food_by_id(self,id) -> FoodModel:
         pass
     

@@ -12,6 +12,10 @@ class FoodRepository(FoodInterface):
     def __init__(self):
         self.category_repository = CategoryRepository()
         self.unit_repository = UnitRepository()
+        
+        
+    def get_all_foods_in_group(self, group_id) -> List[FoodModel]:
+        return db.session.query(FoodModel).filter_by(group_id=group_id).all()
 
 
     def get_food_by_id(self,id) -> FoodModel:
