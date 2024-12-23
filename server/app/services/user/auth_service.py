@@ -186,6 +186,36 @@ class AuthService:
             raise
         
         
+    def verify_reset_code(self, reset_token, reset_code):
+        """Verifies the reset password token and reset password code."""
+        try:
+            payload = jwt.decode(reset_token, secret_key, algorithms=["HS256"])
+            user_id = payload.get("user_id")
+            if not user_id:
+                logging.warning("Token missing required field: user_id.")
+                return None
+
+            token = self.token_repository.get_token_by_user_id(user_id)
+            if (
+                token is None or token.reset_token != reset_token or
+                token.reset_code != reset_code or
+                token.reset_code_expires_at < datetime.now(tz=timezone.utc)
+            ):
+                return None
+            
+            return self.user_repository.get_user_by_id(user_id)
+        
+        except jwt.ExpiredSignatureError:
+            logging.warning("Reset token expired.")
+            return None
+        except jwt.InvalidTokenError:
+            logging.warning("Invalid reset token.")
+            return None
+        except Exception as e:
+            logging.error(f"Error verifying reset code: {str(e)}")
+            raise
+        
+        
     def generate_confirm_token(self, email, expires_in=1800):
         """Generates a confirmation token for the user."""
         try:

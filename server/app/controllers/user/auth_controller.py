@@ -405,3 +405,49 @@ def request_reset_password():
         "resultCode": "00048",
         "resetToken": reset_token
     }), 200
+    
+    
+@user_api.route("/validate-reset-code", methods=["POST"])
+# @swag_from("../../docs/user/auth/validate_reset_code.yaml", endpoint="user_api.validate_reset_code", methods=["POST"])
+def validate_reset_code():
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid JSON data.",
+                "vn": "Dữ liệu JSON không hợp lệ."
+            },
+            "resultCode": "00004"
+        }), 400
+    
+    reset_token = data.get("confirm_token")
+    reset_code = data.get("verification_code")
+    if not reset_token or not reset_code:
+        return jsonify({
+            "resultMessage": {
+                "en": "Please provide all required fields!",
+                "vn": "Vui lòng cung cấp tất cả các trường bắt buộc!"
+            },
+            "resultCode": "00025"
+        }), 400
+
+    auth_service = AuthService()
+    user = auth_service.verify_reset_code(reset_token, reset_code)
+    if user:
+        temp_access_token = auth_service.generate_access_token(user.id)
+        return jsonify({
+            "resultMessage": {
+                "en": "Reset code is valid.",
+                "vn": "Mã reset hợp lệ."
+            },
+            "resultCode": "00048",
+            "tempAccessToken": temp_access_token
+        }), 200
+    else:
+        return jsonify({
+            "resultMessage": {
+                "en": "The code you entered does not match the code we sent to your email. Please check again.",
+                "vn": "Mã bạn nhập không khớp với mã chúng tôi đã gửi đến email của bạn. Vui lòng kiểm tra lại."
+            },
+            "resultCode": "00054"
+        }), 400
