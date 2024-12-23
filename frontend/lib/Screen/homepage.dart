@@ -188,7 +188,9 @@ class HomeScreen extends StatelessWidget {
           _buildDrawerItem(icon: Icons.menu_book, text: 'Quản lý công thức', onTap: () {
             Navigator.pushNamed(context, '/recipe-management');
           }),
-          _buildDrawerItem(icon: Icons.logout, text: 'Đăng xuất'),
+          _buildDrawerItem(icon: Icons.logout, text: 'Đăng xuất', onTap: () {
+            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+          }),
         ],
       ),
     );
