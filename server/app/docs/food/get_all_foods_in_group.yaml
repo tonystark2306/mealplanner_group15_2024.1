@@ -3,7 +3,7 @@ This API allows a user to retrieve a list of all food items in a specific group.
 
 ---
 tags:
-  - Group - Food
+  - Food
 parameters:
   - name: Authorization
     in: header
