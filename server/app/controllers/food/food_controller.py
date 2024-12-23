@@ -9,6 +9,11 @@ from ...utils.decorator import JWT_required
 
 @food_api.route("/group/<group_id>", methods=["POST"])
 @JWT_required
+@swag_from(
+    "../../docs/food/add_food.yaml", 
+    endpoint="food_api.add_food", 
+    methods=["POST"]
+)
 def add_food(user_id, group_id):
     group_service = GroupService()
     if not group_service.is_member_of_group(user_id, group_id):
@@ -75,6 +80,11 @@ def add_food(user_id, group_id):
     
 @food_api.route("/group/<group_id>", methods=["PUT"])
 @JWT_required
+@swag_from(
+    "../../docs/food/update_food.yaml", 
+    endpoint="food_api.update_food", 
+    methods=["PUT"]
+)
 def update_food(user_id, group_id):
     group_service = GroupService()
     if not group_service.is_member_of_group(user_id, group_id):
@@ -143,6 +153,11 @@ def update_food(user_id, group_id):
 
 @food_api.route("/group/<group_id>", methods=["DELETE"])
 @JWT_required
+@swag_from(
+    "../../docs/food/delete_food.yaml", 
+    endpoint="food_api.delete_food", 
+    methods=["DELETE"]
+)
 def delete_food(user_id, group_id):
     group_service = GroupService()
     if not group_service.is_member_of_group(user_id, group_id):
@@ -154,12 +169,12 @@ def delete_food(user_id, group_id):
             "resultCode": "00031"
         }), 403
         
-    data = request.form
+    data = request.get_json()
     if not data:
         return jsonify({
             "resultMessage": {
-                "en": "No data provided!",
-                "vn": "Không tìm thấy dữ liệu nào được cung cấp!"
+                "en": "Invalid JSON data.",
+                "vn": "Dữ liệu JSON không hợp lệ."
             },
             "resultCode": "00004"
         }), 400
@@ -197,6 +212,11 @@ def delete_food(user_id, group_id):
     
 @food_api.route("/group/<group_id>", methods=["GET"])
 @JWT_required
+@swag_from(
+    "../../docs/food/get_all_foods_in_group.yaml", 
+    endpoint="food_api.get_all_foods_in_group", 
+    methods=["GET"]
+)
 def get_all_foods_in_group(user_id, group_id):
     group_service = GroupService()
     if not group_service.is_member_of_group(user_id, group_id):
@@ -212,9 +232,9 @@ def get_all_foods_in_group(user_id, group_id):
     foods = food_service.get_all_foods_in_group(group_id)
     return jsonify({
         "resultMessage": {
-            "en": "Successful",
-            "vn": "Thành công"
+            "en": "Successfull retrieve all foods",
+            "vn": "Lấy danh sách thực phẩm thành công"
         },
-        "resultCode": "00185",
+        "resultCode": "00188",
         "foods": foods
     }), 200
