@@ -1,0 +1,94 @@
+Get All Foods in Group
+This API allows a user to retrieve a list of all food items in a specific group.
+
+---
+tags:
+  - Group - Food
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    description: Unique identifier of the group
+    schema:
+      type: string
+      example: "123e4567-e89b-12d3-a456-426614174000"
+
+responses:
+  200:
+    description: Foods retrieved successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Successful retrieve all foods"
+            vn:
+              type: string
+              example: "Lấy danh sách thực phẩm thành công"
+        resultCode:
+          type: string
+          example: "00188"
+        foods:
+          type: array
+          description: List of foods in the group
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier of the food
+                example: "123e4567-e89b-12d3-a456-426614174000"
+              name:
+                type: string
+                description: Name of the food
+                example: "Apple"
+              type:
+                type: string
+                description: Type of the food
+                example: "ingredient"
+              created_by:
+                type: string
+                description: Unique identifier of the user who created the food
+                example: "123e4567-e89b-12d3-a456-426614174000"
+              group_id:
+                type: string
+                description: Unique identifier of the group
+                example: "123e4567-e89b-12d3-a456-426614174000"
+              categories:
+                type: array
+                description: List of categories the food belongs to
+                items:
+                  type: string
+                  example: "Fruit"
+              unit:
+                type: string
+                description: Unit of the food
+                example: "kg"
+              image_url:
+                type: string
+                description: URL of the food image
+                example: "https://example.com/images/apple.jpg"
+              note:
+                type: string
+                description: Additional notes about the food
+                example: "Fresh and organic"
+              created_at:
+                type: string
+                format: date-time
+                description: Date and time when the food was created
+                example: "2021-07-01T00:00:00.000Z"
+              updated_at:
+                type: string
+                format: date-time
+                description: Date and time when the food was last updated
+                example: "2021-07-01T00:00:00.000Z"

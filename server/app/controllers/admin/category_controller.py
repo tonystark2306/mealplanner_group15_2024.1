@@ -59,13 +59,12 @@ def create_system_category(user_id):
 
 @admin_api.route("/category", methods=["GET"])
 @JWT_required
-@system_admin_required
 @swag_from(
     "../../docs/admin/category/get_all_system_categories.yaml", 
     endpoint="admin_api.get_all_system_categories", 
     methods=["GET"]
 )
-def get_all_system_categories(user_id):
+def get_all_system_categories():
     category_service = CategoryService()
     categories = category_service.list_system_categories()
     return jsonify({

@@ -17,7 +17,7 @@ class UnitRepository(UnitInterface):
         return db.session.query(UnitModel).filter_by(id=id).first()
     
     
-    def get_unit_by_name(self, name):
+    def get_unit_by_name(self, name) -> UnitModel:
         return db.session.execute(
             db.select(UnitModel).where(
                 and_(

@@ -1,0 +1,50 @@
+Delete Food from Group
+This API allows a user to delete a food item from a specific group.
+
+---
+tags:
+  - Group - Food
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    description: Unique identifier of the group
+    schema:
+      type: string
+      example: "123e4567-e89b-12d3-a456-426614174000"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the food to delete
+          example: "Apple"
+
+responses:
+  200:
+    description: Food deleted successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Food deletion successful"
+            vn:
+              type: string
+              example: "Xóa thực phẩm thành công"
+        resultCode:
+          type: string
+          example: "00184"

@@ -1,0 +1,129 @@
+Update Food in Group
+This API allows a user to update a food item in a specific group.
+
+---
+tags:
+  - Group - Food
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    description: Unique identifier of the group
+    schema:
+      type: string
+      example: "123e4567-e89b-12d3-a456-426614174000"
+  - name: name
+    in: formData
+    required: true
+    type: string
+    description: Name of the food item to update
+    example: "Apple"
+  - name: newType
+    in: formData
+    required: false
+    type: string
+    description: New type of the food item
+    example: "ingredient"
+  - name: newUnitName
+    in: formData
+    required: false
+    type: string
+    description: New unit name for the food
+    example: "kg"
+  - name: newFoodCategoryNames
+    in: formData
+    required: false
+    type: array
+    description: New list of food category names
+    items:
+      type: string
+    example: ["Fruit", "Healthy"]
+  - name: newNote
+    in: formData
+    required: false
+    type: string
+    description: Additional notes about the food item
+    example: "Updated note for the food"
+  - name: image
+    in: formData
+    required: false
+    type: file
+    description: New image of the food item
+
+responses:
+  200:
+    description: Food updated successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Successful"
+            vn:
+              type: string
+              example: "Thành công"
+        resultCode:
+          type: string
+          example: "00178"
+        food:
+          type: object
+          description: Updated food details
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the food
+              example: "123e4567-e89b-12d3-a456-426614174000"
+            name:
+              type: string
+              description: Name of the food
+              example: "Apple"
+            type:
+              type: string
+              description: Type of the food
+              example: "ingredient"
+            created_by:
+              type: string
+              description: Unique identifier of the user who created the food
+              example: "123e4567-e89b-12d3-a456-426614174000"
+            group_id:
+              type: string
+              description: Unique identifier of the group
+              example: "123e4567-e89b-12d3-a456-426614174000"
+            categories:
+              type: array
+              description: List of updated categories the food belongs to
+              items:
+                type: string
+                example: "Fruit"
+            unit:
+              type: string
+              description: Updated unit of the food
+              example: "kg"
+            image_url:
+              type: string
+              description: URL of the updated food image
+              example: "https://example.com/images/apple_updated.jpg"
+            note:
+              type: string
+              description: Updated notes about the food
+              example: "Updated note for the food"
+            created_at:
+              type: string
+              format: date-time
+              description: Date and time when the food was created
+              example: "2021-07-01T00:00:00.000Z"
+            updated_at:
+              type: string
+              format: date-time
+              description: Date and time when the food was last updated
+              example: "2023-12-20T00:00:00.000Z"
