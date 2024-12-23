@@ -140,6 +140,19 @@ class AuthService:
         except Exception as e:
             logging.error(f"Error generating verification code: {str(e)}")
             raise
+        
+        
+    def generate_reset_code(self, email):
+        """Generates a reset password code for a user."""
+        try:
+            reset_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
+            user = self.user_repository.get_user_by_email(email)
+            self.token_repository.save_reset_code(user.id, reset_code)
+            return reset_code
+        
+        except Exception as e:
+            logging.error(f"Error generating reset code: {str(e)}")
+            raise
 
 
     def verify_verification_code(self, confirm_token, verification_code):
@@ -191,6 +204,27 @@ class AuthService:
 
         except Exception as e:
             logging.error(f"Error generating confirm token: {str(e)}")
+            raise
+        
+        
+    def generate_reset_token(self, email, expires_in=1800):
+        """Generates a reset password token for the user."""
+        try:
+            user_id = self.user_repository.get_user_by_email(email).id
+            payload = {
+                "user_id": user_id,
+                "exp":  datetime.now(tz=timezone.utc) + timedelta(seconds=expires_in)
+            }
+            new_reset_token = jwt.encode(payload, secret_key, algorithm="HS256")
+            self.token_repository.save_reset_token(user_id, new_reset_token)
+            return new_reset_token
+        
+        except jwt.PyJWTError as e:
+            logging.error(f"JWT Error: {str(e)}")
+            raise
+
+        except Exception as e: 
+            logging.error(f"Error generating reset token: {str(e)}")
             raise
         
         

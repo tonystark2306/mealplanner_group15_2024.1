@@ -342,3 +342,66 @@ def verify_email():
             },
             "resultCode": "00054"
         }), 400
+        
+        
+@user_api.route("/request-reset-password", methods=["POST"])
+# @swag_from("../../docs/user/auth/request_reset_password.yaml", endpoint="user_api.request_reset_password", methods=["POST"])
+def request_reset_password():
+    data = request.get_json()
+    if data is None:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid JSON data.",
+                "vn": "Dữ liệu JSON không hợp lệ."
+            },
+            "resultCode": "00004"
+        }), 400
+    
+    email = data.get("email")
+    if not email:
+        return jsonify({
+            "resultMessage": {
+                "en": "Please provide all required fields!",
+                "vn": "Vui lòng cung cấp tất cả các trường bắt buộc!"
+            },
+            "resultCode": "00025"
+        }), 400
+        
+    if not validate_email(email):
+        return jsonify({
+            "resultMessage": {
+                "en": "Please provide a valid email address!",
+                "vn": "Vui lòng cung cấp một địa chỉ email hợp lệ!"
+            },
+            "resultCode": "00026"
+        }), 400
+
+    auth_service = AuthService()
+    registered_user = auth_service.check_email_registered(email)
+    if not registered_user:
+        return jsonify({
+            "resultMessage": {
+                "en": "Your email has not been registered, please register first.",
+                "vn": "Email của bạn chưa được đăng ký, vui lòng đăng ký trước."
+            },
+            "resultCode": "00043"
+        }), 400
+        
+    reset_code = auth_service.generate_reset_code(email)
+    reset_token = auth_service.generate_reset_token(email)
+    send_email(
+        to=email, 
+        subject="Reset Your Password from Meal Planner",
+        template="reset-password",
+        user=registered_user,
+        code=reset_code
+    )
+
+    return jsonify({
+        "resultMessage": {
+            "en": "Reset code has been sent to your email successfully.",
+            "vn": "Mã reset đã được gửi đến email của bạn thành công."
+        },
+        "resultCode": "00048",
+        "resetToken": reset_token
+    }), 200
