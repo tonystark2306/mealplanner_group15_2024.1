@@ -1,215 +1,198 @@
 import 'package:flutter/material.dart';
+import '../../Models/shopping_list_model.dart'; // Import model ShoppingList
 
 class ShoppingListScreen extends StatefulWidget {
   const ShoppingListScreen({super.key});
 
   @override
-  State<ShoppingListScreen> createState() => _ShoppingListScreenState();
+  _ShoppingListScreenState createState() => _ShoppingListScreenState();
 }
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
-  final List<Map<String, String>> _shoppingList = [];
-  final TextEditingController _itemController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
+  final List<ShoppingList> shoppingLists = []; // Danh sách tất cả các ngày mua sắm
 
-  void _addItem() {
-    final item = _itemController.text.trim();
-    final quantity = _quantityController.text.trim();
+  final TextEditingController _itemController = TextEditingController(); // Controller cho item mới
+  final TextEditingController _dateController = TextEditingController(); // Controller cho ngày mua sắm
 
-    if (item.isNotEmpty && quantity.isNotEmpty) {
+  // Hàm chọn ngày
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (selectedDate != null && selectedDate != DateTime.now()) {
       setState(() {
-        _shoppingList.add({'item': item, 'quantity': quantity});
+        _dateController.text = "${selectedDate.toLocal()}".split(' ')[0]; // Định dạng ngày theo YYYY-MM-DD
       });
-      _itemController.clear();
-      _quantityController.clear();
-      Navigator.of(context).pop();
     }
   }
 
-  void _showAddItemDialog() {
+  void _addItem(ShoppingList shoppingList) {
+    if (_itemController.text.isNotEmpty) {
+      setState(() {
+        shoppingList.items.add(ShoppingItem(name: _itemController.text));
+      });
+      _itemController.clear();
+    }
+  }
+
+  void _toggleItemPurchase(ShoppingList shoppingList, int index) {
+    setState(() {
+      shoppingList.items[index].isPurchased = !shoppingList.items[index].isPurchased;
+    });
+  }
+
+  void _editItem(ShoppingList shoppingList, int index) {
+    _itemController.text = shoppingList.items[index].name;
     showDialog(
       context: context,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
+      builder: (context) => AlertDialog(
+        title: const Text('Chỉnh sửa món đồ'),
+        content: TextField(
+          controller: _itemController,
+          decoration: const InputDecoration(hintText: 'Nhập món đồ'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Hủy'),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Thêm thực phẩm',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green[700],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _itemController,
-                  decoration: InputDecoration(
-                    labelText: 'Tên thực phẩm',
-                    hintText: 'Ví dụ: Rau cải',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: _quantityController,
-                  decoration: InputDecoration(
-                    labelText: 'Định lượng',
-                    hintText: 'Ví dụ: 500g, 1 bó',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text(
-                        'Hủy',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: _addItem,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[700],
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                      ),
-                      child: const Text(
-                        'Thêm',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                shoppingList.items[index].name = _itemController.text;
+              });
+              _itemController.clear();
+              Navigator.pop(context);
+            },
+            child: const Text('Lưu'),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
-  void _removeItem(int index) {
+  void _removeItem(ShoppingList shoppingList, int index) {
     setState(() {
-      _shoppingList.removeAt(index);
+      shoppingList.items.removeAt(index);
     });
+  }
+
+  void _addShoppingList() {
+    if (_dateController.text.isNotEmpty) {
+      setState(() {
+        shoppingLists.add(ShoppingList(date: _dateController.text));
+      });
+      _dateController.clear();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
+        title: const Text('Danh sách mua sắm'),
         backgroundColor: Colors.green[700],
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'Danh sách mua sắm',
-          style: TextStyle(color: Colors.white, fontSize: 20),
-        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: _shoppingList.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.shopping_cart_outlined,
-                      size: 100,
-                      color: Colors.green[200],
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _dateController,
+                    decoration: const InputDecoration(
+                      labelText: 'Ngày mua sắm',
+                      border: OutlineInputBorder(),
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Danh sách trống',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Nhấn vào nút "+" ở góc dưới để thêm thực phẩm.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
+                    readOnly: true, // Chỉ đọc, không cho nhập tay
+                    onTap: () => _selectDate(context), // Chọn ngày khi tap vào TextField
+                  ),
                 ),
-              )
-            : ListView.builder(
-                itemCount: _shoppingList.length,
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: _addShoppingList,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                itemCount: shoppingLists.length,
                 itemBuilder: (context, index) {
-                  final item = _shoppingList[index];
+                  ShoppingList shoppingList = shoppingLists[index];
                   return Card(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.green[100],
-                        child: const Icon(
-                          Icons.shopping_bag,
-                          color: Colors.green,
+                    elevation: 3,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text(shoppingList.date),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () {
+                              // Có thể mở màn hình chỉnh sửa ngày mua sắm
+                            },
+                          ),
                         ),
-                      ),
-                      title: Text(
-                        item['item']!,
-                        style: TextStyle(
-                          color: Colors.green[700],
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                        for (int i = 0; i < shoppingList.items.length; i++)
+                          ListTile(
+                            title: Text(shoppingList.items[i].name),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Checkbox(
+                                  value: shoppingList.items[i].isPurchased,
+                                  onChanged: (_) {
+                                    _toggleItemPurchase(shoppingList, i);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () => _editItem(shoppingList, i),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () => _removeItem(shoppingList, i),
+                                ),
+                              ],
+                            ),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _itemController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Thêm món đồ',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.add),
+                                onPressed: () => _addItem(shoppingList),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      subtitle: Text(
-                        'Định lượng: ${item['quantity']}',
-                        style: const TextStyle(color: Colors.black54),
-                      ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _removeItem(index),
-                      ),
+                      ],
                     ),
                   );
                 },
               ),
-      ),
-      floatingActionButton: GestureDetector(
-        onTap: _showAddItemDialog,
-        child: Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            color: Colors.green[700],
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: const Icon(
-            Icons.add,
-            color: Colors.white,
-            size: 30,
-          ),
+            ),
+          ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
