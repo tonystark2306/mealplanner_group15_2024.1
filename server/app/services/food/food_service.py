@@ -43,3 +43,12 @@ class FoodService:
         except Exception as e:
             logging.error(f"Error updating food info: {str(e)}")
             raise
+        
+        
+    def delete_food_from_db(self, food):
+        try:
+            self.food_repository.delete_food(food)
+            
+        except Exception as e:
+            logging.error(f"Error while deleting food: {str(e)}")
+            raise

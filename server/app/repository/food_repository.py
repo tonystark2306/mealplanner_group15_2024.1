@@ -66,3 +66,14 @@ class FoodRepository(FoodInterface):
             db.session.rollback()
             logging.error(f"Error updating food: {str(e)}")
             raise
+        
+        
+    def delete_food(self, food):
+        try:
+            db.session.delete(food)
+            db.session.commit()
+            
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error deleting food: {str(e)}")
+            raise

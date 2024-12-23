@@ -139,4 +139,57 @@ def update_food(user_id, group_id):
         "resultCode": "00178",
         "food": updated_food.as_dict()
     }), 200
-    
+
+
+@food_api.route("/group/<group_id>", methods=["DELETE"])
+@JWT_required
+def delete_food(user_id, group_id):
+    group_service = GroupService()
+    if not group_service.is_member_of_group(user_id, group_id):
+        return jsonify({
+            "resultMessage": {
+                "en": "You are not a member of this group.",
+                "vn": "Bạn không phải là thành viên của nhóm này."
+            },
+            "resultCode": "00031"
+        }), 403
+        
+    data = request.form
+    if not data:
+        return jsonify({
+            "resultMessage": {
+                "en": "No data provided!",
+                "vn": "Không tìm thấy dữ liệu nào được cung cấp!"
+            },
+            "resultCode": "00004"
+        }), 400
+        
+    food_name = data.get("name")
+    if not food_name:
+        return jsonify({
+            "resultMessage": {
+                "en": "Please provide food name.",
+                "vn": "Vui lòng cung cấp tên thực phẩm."
+            },
+            "resultCode": "00035"
+        }), 400
+        
+    food_service = FoodService()
+    food_to_delete = food_service.get_food_in_group_by_name(group_id, food_name)
+    if not food_to_delete:
+        return jsonify({
+            "resultMessage": {
+                "en": "Food with provided name not found in this group.",
+                "vn": "Thực phẩm với tên cung cấp không tồn tại trong nhóm này."
+            },
+            "resultCode": "00036"
+        }), 404
+        
+    food_service.delete_food(food_to_delete)
+    return jsonify({
+        "resultMessage": {
+            "en": "Food deletion successfull",
+            "vn": "Xóa thực phẩm thành công"
+        },
+        "resultCode": "00184"
+    }), 200

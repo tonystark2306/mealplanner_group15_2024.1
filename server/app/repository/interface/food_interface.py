@@ -30,3 +30,7 @@ class FoodInterface(ABC):
     @abstractmethod
     def update_food(self, food, data):
         pass
+    
+    @abstractmethod
+    def delete_food(self, food):
+        pass
