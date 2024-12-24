@@ -18,36 +18,40 @@ class RecipeDetailPopup extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Recipe Name Section
+              Center(
+                child: Text(
+                  recipe.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30,
+                    color: Colors.green[700],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 12), // Adjust space after title
+
               // Image Section
               recipe.imagePath != null
                   ? ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(10),
                       child: Image.memory(
                         recipe.imagePath!,
                         width: double.infinity,
-                        height: 500, // Chỉnh lại chiều cao ảnh
-                        fit: BoxFit.contain,  // Giữ tỷ lệ gốc của ảnh
+                        height: 250, // Adjusted height for better layout
+                        fit: BoxFit.contain, // Keep aspect ratio
                       ),
                     )
                   : const Icon(Icons.image, size: 100, color: Colors.grey),
-              const SizedBox(height: 16),
+              const SizedBox(height: 16), // Added more space below image
 
-              // Recipe Name
+              // Time Cooking Section
               Text(
-                'Tên món ăn: ${recipe.name}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30,
-                  color: Colors.green[700],
-                ),
-                textAlign: TextAlign.left,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Thời gian nấu: ${recipe.timeCooking} phút',
+                'Thời gian nấu: ${recipe.timeCooking}',
                 style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 20), // Space between time and ingredients
 
               // Ingredients Section
               Text(
@@ -71,7 +75,7 @@ class RecipeDetailPopup extends StatelessWidget {
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 20), // Space after ingredients
 
               // Steps Section
               Text(
@@ -87,16 +91,17 @@ class RecipeDetailPopup extends StatelessWidget {
                 recipe.steps,
                 style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 20), // Space after steps
 
-              // Close Button
+              // Close Button Section
               Center(
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12), backgroundColor: Colors.green[700],
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                    backgroundColor: Colors.green[700],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),

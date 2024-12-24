@@ -95,8 +95,14 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Danh sách mua sắm'),
-        backgroundColor: Colors.green[700],
+        title: Text(
+          'Danh sách mua sắm',
+          style:
+              TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.green[700]),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
