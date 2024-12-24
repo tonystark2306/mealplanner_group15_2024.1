@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import '../Models/recipe_model.dart';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 class RecipeProvider with ChangeNotifier {
   // Danh sách công thức của người dùng
@@ -69,10 +72,47 @@ class RecipeProvider with ChangeNotifier {
   // Lấy danh sách công thức gợi ý
   List<RecipeItem> get suggestedRecipes => _suggestedRecipes;
 
-  // Thêm công thức mới
-  void addRecipe(RecipeItem recipe) {
-    _recipes.add(recipe);
-    notifyListeners();
+  Future<void> addRecipe(RecipeItem recipe) async {
+    final url = Uri.parse(
+        'http://localhost:5000/recipe/0c30e024-677d-4891-b0d8-f49e02f55515');
+    try {
+      var request = http.MultipartRequest('POST', url)
+        ..headers['Content-Type'] = 'multipart/form-data';
+
+      // Thêm các trường vào form-data
+      request.fields['name'] = recipe.name;
+      request.fields['description'] =
+          recipe.steps; // Có thể thay bằng mô tả thực tế của bạn
+      request.fields['content_html'] =
+          recipe.steps; // Hoặc nội dung HTML công thức
+
+      // Thêm danh sách nguyên liệu
+      for (var ingredient in recipe.ingredients) {
+        request.fields['list[food_name][]'] = ingredient.name;
+        request.fields['list[quantity][]'] = ingredient.weight;
+      }
+
+      // Thêm hình ảnh vào form-data nếu có
+      if (recipe.imagePath != null) {
+        var imageFile = http.MultipartFile.fromBytes(
+            'images', recipe.imagePath!,
+            filename: 'image.jpg');
+        request.files.add(imageFile);
+      }
+
+      // Gửi yêu cầu và nhận phản hồi
+      final response = await request.send();
+
+      if (response.statusCode == 201) {
+        // Thành công, thêm vào danh sách cục bộ
+        _recipes.add(recipe);
+        notifyListeners();
+      } else {
+        throw Exception('Failed to add recipe');
+      }
+    } catch (error) {
+      rethrow;
+    }
   }
 
   // Cập nhật công thức
