@@ -19,8 +19,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   final List<Widget> _screens = [
     HomeScreen(), // Trang chủ
     const MealPlanningScreen(), // Kế hoạch bữa ăn
-    const RefrigeratorManagementScreen(), // Quản lý tủ lạnh
     const ShoppingListScreen(), // Danh sách mua sắm
+    const RefrigeratorManagementScreen(), // Quản lý tủ lạnh
     const RecipeManagementScreen(),
   ];
 
@@ -50,12 +50,12 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             label: 'Bữa ăn',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.kitchen),
-            label: 'Tủ lạnh',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
             label: 'Mua sắm',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.kitchen),
+            label: 'Tủ lạnh',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.book),
