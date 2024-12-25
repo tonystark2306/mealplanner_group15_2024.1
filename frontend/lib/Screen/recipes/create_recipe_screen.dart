@@ -145,7 +145,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
       timeCooking: time,
       ingredients: ingredients,
       steps: steps,
-      imagePath: uploadedImage, // Lưu trực tiếp ảnh dưới dạng Uint8List
+      image: uploadedImage, // Lưu trực tiếp ảnh dưới dạng Uint8List
     );
 
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);

@@ -36,7 +36,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
         .map((ingredient) => TextEditingController(text: ingredient.weight))
         .toList();
     stepsController = TextEditingController(text: widget.recipe.steps);
-    uploadedImage = widget.recipe.imagePath;
+    uploadedImage = widget.recipe.image;
   }
 
   @override
@@ -156,7 +156,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
       timeCooking: time,
       ingredients: ingredients,
       steps: steps,
-      imagePath: uploadedImage, // Lưu trực tiếp ảnh dưới dạng Uint8List
+      image: uploadedImage, // Lưu trực tiếp ảnh dưới dạng Uint8List
     );
 
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);

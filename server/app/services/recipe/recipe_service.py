@@ -43,7 +43,7 @@ class RecipeService:
         #trả về recipe đã tạo với cả danh sách thực phẩm và hình ảnh
         recipe_dict = recipe.as_dict()
         foods_dict = []
-        REMOVED_FIELDS = ['created_at', 'updated_at', 'note', 'status', 'create_by', 'group_id']
+        REMOVED_FIELDS = ['created_at', 'updated_at', 'note', 'create_by', 'group_id']
         for food in recipe.foods:
             food_dict = food.as_dict()
             for field in REMOVED_FIELDS:

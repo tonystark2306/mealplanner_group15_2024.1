@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import '../Models/recipe_model.dart';
 import 'dart:typed_data';
@@ -38,7 +37,7 @@ class RecipeProvider with ChangeNotifier {
   5. Bày bánh phở ra bát, chan nước dùng và thịt lên trên.
   6. Thêm hành lá và thưởng thức.
           ''',
-        imagePath: await loadImageAsUint8List(
+        image: await loadImageAsUint8List(
             '../../ImageRecipeSuggest/phobo.jpg'), // Thay bằng ảnh Uint8List nếu có
       ),
       RecipeItem(
@@ -59,7 +58,7 @@ class RecipeProvider with ChangeNotifier {
   4. Thêm thịt, rau và dưa leo vào trong bánh.
   5. Ép nhẹ bánh mì và thưởng thức.
           ''',
-        imagePath: await loadImageAsUint8List(
+        image: await loadImageAsUint8List(
             '../../ImageRecipeSuggest/banhmi.png'), // Thay bằng ảnh Uint8List nếu có
       ),
     ];
@@ -72,32 +71,83 @@ class RecipeProvider with ChangeNotifier {
   // Lấy danh sách công thức gợi ý
   List<RecipeItem> get suggestedRecipes => _suggestedRecipes;
 
+  final String group_id = "7b95381b-dc40-460a-981e-5c04d3053e38";
+  final String token =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWRiNDBlNDQtNmJhNS00ZWNiLWJkOGQtZWY3MjMyOGNjYTIyIiwiZXhwIjoxNzM1MTQwNzE3fQ.sgXl4tBMoa9j10f67pa3vd_X74diIHC8J450EfqpJmQ";
+  Future<void> getRecipes() async {
+    final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final List<dynamic> recipeJson = data['recipes'] ?? [];
+
+        _recipes.clear(); // Clear the previous recipes
+
+        for (var recipeData in recipeJson) {
+          print(recipeData);
+          Uint8List imageBytes = response.bodyBytes;
+          RecipeItem recipe = RecipeItem(
+              id: recipeData['id'] ?? '',
+              name: recipeData['dish_name'] ?? '',
+              timeCooking: recipeData['timeCooking'] ?? '',
+              ingredients: (recipeData['ingredients'] as List?)
+                      ?.map((ingredient) => Ingredient(
+                            name: ingredient['food_name'] ?? '',
+                            weight: ingredient['quantity'] ?? '',
+                          ))
+                      .toList() ??
+                  [],
+              steps: recipeData['description'] ?? '',
+              image: imageBytes);
+          _recipes.add(recipe);
+          notifyListeners();
+        }
+
+        notifyListeners();
+      } else {
+        throw Exception('Failed to load recipes');
+      }
+    } catch (error) {
+      print('Error: $error');
+      rethrow;
+    }
+  }
+
   Future<void> addRecipe(RecipeItem recipe) async {
-    final url = Uri.parse(
-        'http://localhost:5000/recipe/0c30e024-677d-4891-b0d8-f49e02f55515');
+    final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
     try {
       var request = http.MultipartRequest('POST', url)
-        ..headers['Content-Type'] = 'multipart/form-data';
-
+        ..headers['Content-Type'] = 'multipart/form-data'
+        ..headers['Authorization'] = 'Bearer $token';
       // Thêm các trường vào form-data
       request.fields['name'] = recipe.name;
-      request.fields['description'] =
-          recipe.steps; // Có thể thay bằng mô tả thực tế của bạn
-      request.fields['content_html'] =
-          recipe.steps; // Hoặc nội dung HTML công thức
+      request.fields['description'] = recipe.steps;
+      request.fields['content_html'] = recipe.steps;
 
       // Thêm danh sách nguyên liệu
       for (var ingredient in recipe.ingredients) {
-        request.fields['list[food_name][]'] = ingredient.name;
-        request.fields['list[quantity][]'] = ingredient.weight;
+        request.fields.addAll({
+          'list[food_name]': ingredient.name,
+          'list[quantity]': ingredient.weight,
+        });
       }
 
+      print(request.fields);
+
       // Thêm hình ảnh vào form-data nếu có
-      if (recipe.imagePath != null) {
-        var imageFile = http.MultipartFile.fromBytes(
-            'images', recipe.imagePath!,
-            filename: 'image.jpg');
-        request.files.add(imageFile);
+      if (recipe.image != null) {
+        request.files.add(http.MultipartFile.fromBytes(
+          'images',
+          recipe.image!,
+          filename: 'recipe_image.jpg',
+        ));
       }
 
       // Gửi yêu cầu và nhận phản hồi
@@ -108,9 +158,13 @@ class RecipeProvider with ChangeNotifier {
         _recipes.add(recipe);
         notifyListeners();
       } else {
+        // Đọc và in chi tiết lỗi từ response
+        final responseBody = await response.stream.bytesToString();
+        print('Error: $responseBody');
         throw Exception('Failed to add recipe');
       }
     } catch (error) {
+      print('Error: $error');
       rethrow;
     }
   }
@@ -124,10 +178,33 @@ class RecipeProvider with ChangeNotifier {
     }
   }
 
-  // Xóa công thức
-  void deleteRecipe(String id) {
-    _recipes.removeWhere((recipe) => recipe.id == id);
-    notifyListeners();
+  Future<void> deleteRecipe(String id) async {
+    final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
+
+    try {
+      var request = http.Request('DELETE', url)
+        ..headers['Content-Type'] = 'application/json'
+        ..headers['Authorization'] = 'Bearer $token';
+
+      // Thêm các trường vào form-data
+      request.body = json.encode({'recipe_id': id});
+      // Gửi yêu cầu và nhận phản hồi
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        // Xóa công thức khỏi danh sách cục bộ
+        _recipes.removeWhere((recipe) => recipe.id == id);
+        notifyListeners();
+      } else {
+        // Đọc và in chi tiết lỗi từ response
+        final responseBody = await response.stream.bytesToString();
+        print('Error: $responseBody');
+        throw Exception('Failed to delete recipe');
+      }
+    } catch (error) {
+      print('Error: $error');
+      rethrow;
+    }
   }
 
   // Lấy công thức theo ID

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../Models/recipe_model.dart';
 import '../../Providers/recipe_provider.dart';
 import 'recipe_detail_popup.dart'; // Import Popup
-import 'edit_recipe_screen.dart'; // Nhớ import màn hình Edit
+import 'edit_recipe_screen.dart'; // Import the Edit screen
 
 class RecipeManagementScreen extends StatefulWidget {
   const RecipeManagementScreen({super.key});
@@ -20,6 +20,13 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
     setState(() {
       showMyRecipes = !showMyRecipes;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch recipes from the provider (server call)
+    Provider.of<RecipeProvider>(context, listen: false).getRecipes();
   }
 
   Widget _buildSearchBar() {
@@ -101,11 +108,11 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
           ),
           elevation: 3,
           shadowColor: Colors.black.withOpacity(0.2),
-          child: GestureDetector(
+          child: InkWell(
             onTap: () {
               showDialog(
                 context: context,
-                builder: (context) => RecipeDetailPopup(recipe: recipe),
+                builder: (context) => RecipeDetailPopup(recipeItem: recipe),
               );
             },
             child: Stack(
@@ -113,11 +120,11 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
                 Column(
                   children: [
                     Expanded(
-                      child: recipe.imagePath != null
+                      child: recipe.image != null
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: Image.memory(
-                                recipe.imagePath!,
+                                recipe.image!,
                                 width: double.infinity,
                                 height: 100,
                                 fit: BoxFit.cover,
@@ -138,7 +145,7 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
                     ),
                   ],
                 ),
-                if (showMyRecipes) // Chỉ hiển thị nút "Edit" và "Delete" khi là công thức của tôi
+                if (showMyRecipes) // Only show edit and delete buttons when "My Recipes"
                   Positioned(
                     top: 8,
                     right: 8,
@@ -159,7 +166,9 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
-                            final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
+                            final recipeProvider = Provider.of<RecipeProvider>(
+                                context,
+                                listen: false);
                             recipeProvider.deleteRecipe(recipe.id);
                           },
                         ),
@@ -180,7 +189,8 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
       appBar: AppBar(
         title: Text(
           'Quản lý công thức',
-          style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
+          style:
+              TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -190,16 +200,16 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
         children: [
           _buildSearchBar(),
           _buildToggleButtons(),
-          // Thêm SizedBox để tạo khoảng cách giữa các phần
-          SizedBox(height: 20), // Bạn có thể điều chỉnh giá trị này theo ý muốn
+          // Adding some space between sections
+          SizedBox(height: 20),
           Consumer<RecipeProvider>(
             builder: (context, recipeProvider, child) {
-              // Lọc danh sách dựa trên trạng thái "showMyRecipes"
+              // Filter recipes based on showMyRecipes state
               final recipes = showMyRecipes
                   ? recipeProvider.recipes
                   : recipeProvider.suggestedRecipes;
 
-              // Lọc theo từ khóa tìm kiếm
+              // Filter by search query
               final filteredRecipes = recipes.where((recipe) {
                 return recipe.name
                     .toLowerCase()
@@ -213,7 +223,7 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
           ),
         ],
       ),
-      floatingActionButton: showMyRecipes // Kiểm tra nếu đang hiển thị "Công thức của tôi"
+      floatingActionButton: showMyRecipes // Show FAB only for "My Recipes"
           ? FloatingActionButton(
               backgroundColor: Colors.green[700],
               onPressed: () {
@@ -224,7 +234,7 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
                 color: Colors.white,
               ),
             )
-          : null, // Không hiển thị khi là "Gợi ý công thức"
+          : null, // No FAB for "Suggested Recipes"
     );
   }
 }

@@ -6,7 +6,7 @@ class RecipeItem {
   final String timeCooking;
   final List<Ingredient> ingredients;
   final String steps;
-  final Uint8List? imagePath;
+  final Uint8List? image;
 
   RecipeItem({
     required this.id,
@@ -14,7 +14,7 @@ class RecipeItem {
     required this.timeCooking,
     required this.ingredients,
     required this.steps,
-    this.imagePath,
+    this.image,
   });
 
   Map<String, dynamic> toMap() {
@@ -24,7 +24,7 @@ class RecipeItem {
       'timeCooking': timeCooking,
       'ingredients': ingredients.map((ingredient) => ingredient.toMap()).toList(),
       'steps': steps,
-      'imagePath': imagePath,
+      'image': image,
     };
   }
 
@@ -37,7 +37,7 @@ class RecipeItem {
           .map((ingredientMap) => Ingredient.fromMap(ingredientMap))
           .toList(),
       steps: map['steps'],
-      imagePath: map['imagePath'],
+      image: map['image'],
     );
   }
 }
