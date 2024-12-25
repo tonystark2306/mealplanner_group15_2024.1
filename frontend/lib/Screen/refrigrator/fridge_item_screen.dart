@@ -20,62 +20,130 @@ class FridgeItemDetailScreen extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text("Lỗi khi tải dữ liệu"));
+            return Center(child: const Text("Lỗi khi tải dữ liệu"));
           } else if (!snapshot.hasData || snapshot.data == null) {
-            return Center(child: Text("Không có dữ liệu"));
+            return Center(child: const Text("Không có dữ liệu"));
           }
 
           final fridgeItem = snapshot.data!;
-          return Padding(
+          return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (fridgeItem['image'] != null)
                   Center(
-                    child: Image.network(
-                      fridgeItem['image'],
-                      height: 200,
-                      fit: BoxFit.cover,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        fridgeItem['image'],
+                        height: 250,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  )
+                else
+                  Center(
+                    child: Icon(
+                      Icons.food_bank,
+                      size: 100,
+                      color: Colors.grey[400],
                     ),
                   ),
                 const SizedBox(height: 16),
                 Text(
                   fridgeItem['name'],
                   style: const TextStyle(
-                      fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Số lượng: ${fridgeItem['quantity']} ${fridgeItem['unit']}',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Ngày hết hạn: ${fridgeItem['expirationDate']}',
-                  style: const TextStyle(fontSize: 16, color: Colors.red),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Loại: ${fridgeItem['type']}',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Danh mục: ${fridgeItem['category']}',
-                  style: const TextStyle(fontSize: 16),
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
                 ),
                 const SizedBox(height: 16),
+                _buildDetailRow(
+                  icon: Icons.countertops,
+                  title: 'Số lượng',
+                  value: '${fridgeItem['quantity']} ${fridgeItem['unit']}',
+                ),
+                _buildDetailRow(
+                  icon: Icons.calendar_today,
+                  title: 'Ngày hết hạn',
+                  value: fridgeItem['expirationDate'],
+                  valueStyle: const TextStyle(color: Colors.red),
+                ),
+                _buildDetailRow(
+                  icon: Icons.category,
+                  title: 'Loại',
+                  value: fridgeItem['type'],
+                ),
+                _buildDetailRow(
+                  icon: Icons.label,
+                  title: 'Danh mục',
+                  value: fridgeItem['category'],
+                ),
                 if (fridgeItem['notes'] != null)
-                  Text(
-                    'Ghi chú: ${fridgeItem['notes']}',
-                    style: const TextStyle(
-                        fontSize: 16, fontStyle: FontStyle.italic),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Divider(height: 24, thickness: 1),
+                      const Text(
+                        'Ghi chú',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        fridgeItem['notes'],
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  // Widget hiển thị một hàng thông tin chi tiết
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String title,
+    required String value,
+    TextStyle? valueStyle,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Colors.green),
+          const SizedBox(width: 12),
+          Text(
+            '$title:',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              value,
+              style: valueStyle ??
+                  const TextStyle(
+                    fontSize: 16,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }

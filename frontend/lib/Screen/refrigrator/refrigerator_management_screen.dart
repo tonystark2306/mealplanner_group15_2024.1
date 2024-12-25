@@ -179,66 +179,140 @@ class _RefrigeratorManagementScreenState
     }
 
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      color: backgroundColor,
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.green[50],
-          child: Icon(Icons.food_bank, color: Colors.green[700]),
-        ),
-        title: Text(
-          fridgeItem.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: GestureDetector(
-          onTap: () {
-            // Chuyển đến màn hình chi tiết
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    FridgeItemDetailScreen(fridgeItemId: fridgeItem.id),
-              ),
-            );
-          },
-          child: Text(
-            'Hết hạn: ${fridgeItem.expirationDate.toLocal().toString().split(' ')[0]}\n'
-            'Số lượng: ${fridgeItem.quantity}', // Hiển thị thêm số lượng
-            style: TextStyle(
-              color: isExpired
-                  ? Colors.red[700]
-                  : isExpiringSoon
-                      ? Colors.red[700]
-                      : Colors.grey[600],
-            ),
-          ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            IconButton(
-              icon: Icon(Icons.edit, color: Colors.grey[1000]),
-              onPressed: () {
-                // Chuyển đến màn hình chỉnh sửa thực phẩm
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        EditFridgeItemScreen(fridgeItem: fridgeItem),
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Colors.green[50],
+                  child: Icon(Icons.food_bank, color: Colors.green[700], size: 28),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        fridgeItem.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            size: 16,
+                            color: isExpired
+                                ? Colors.red
+                                : isExpiringSoon
+                                    ? Colors.orange
+                                    : Colors.grey[600],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Hết hạn: ${fridgeItem.expirationDate.toLocal().toString().split(' ')[0]}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isExpired
+                                  ? Colors.red
+                                  : isExpiringSoon
+                                      ? Colors.orange
+                                      : Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                );
-              },
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              EditFridgeItemScreen(fridgeItem: fridgeItem),
+                        ),
+                      );
+                    } else if (value == 'delete') {
+                      _confirmDelete(context, fridgeItem);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: ListTile(
+                        leading: Icon(Icons.edit),
+                        title: Text('Chỉnh sửa'),
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        leading: Icon(Icons.delete, color: Colors.red),
+                        title: Text('Xóa'),
+                      ),
+                    ),
+                  ],
+                  icon: const Icon(Icons.more_vert),
+                ),
+              ],
             ),
-            IconButton(
-              icon: Icon(Icons.delete, color: Colors.red[300]),
-              onPressed: () {
-                _confirmDelete(context, fridgeItem);
-              },
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(Icons.storage, size: 16, color: Colors.blueGrey),
+                const SizedBox(width: 4),
+                Text(
+                  'Số lượng: ${fridgeItem.quantity}',
+                  style: const TextStyle(fontSize: 14, color: Colors.blueGrey),
+                ),
+              ],
+            ),
+            const Divider(height: 16, thickness: 1),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[700],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            FridgeItemDetailScreen(fridgeItemId: fridgeItem.id),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.info),
+                  label: const Text('Xem chi tiết'),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
+
   }
 
   // Xác nhận xóa thực phẩm
@@ -259,9 +333,8 @@ class _RefrigeratorManagementScreenState
             onPressed: () async {
               // Gọi provider để xóa thực phẩm từ API
               try {
-                await Provider.of<RefrigeratorProvider>(context, listen: false)
-                    .deleteItemFromApi('group_id',
-                        fridgeItem.id); // Thay 'group_id' bằng ID thực tế
+                Provider.of<RefrigeratorProvider>(context, listen: false)
+                    .removeItem(fridgeItem.id);
                 Navigator.of(ctx).pop(); // Đóng hộp thoại
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
