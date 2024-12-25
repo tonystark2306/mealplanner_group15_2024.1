@@ -68,6 +68,28 @@ class AuthService:
             raise
         
         
+    def verify_temp_access_token(self, token):
+        """Verify if the provided temporary access token is valid and not expired."""
+        try:
+            payload = jwt.decode(token, secret_key, algorithms=["HS256"])
+            user_id = payload.get("user_id")
+            if not user_id:
+                logging.warning("Token missing required field: user_id.")
+                return None
+
+            return user_id
+
+        except jwt.ExpiredSignatureError:
+            logging.warning("Access token expired.")
+            return None
+        except jwt.InvalidTokenError:
+            logging.warning("Invalid access token.")
+            return None
+        except Exception as e:
+            logging.error(f"Error verifying access token: {str(e)}")
+            raise
+        
+        
     def verify_refresh_token(self, token):
         """Verify if the provided refresh token is valid and not expired."""
         try:
@@ -289,4 +311,19 @@ class AuthService:
         
         except Exception as e:
             logging.error(f"Error invalidating token: {str(e)}")
+            raise
+        
+        
+    def set_password(self, user_id, new_password):
+        """Set a new password for the user."""
+        try:
+            user = self.user_repository.get_user_by_id(user_id)
+            if user is None:
+                return False
+            
+            self.user_repository.update_password(user, new_password)
+            return True
+        
+        except Exception as e: 
+            logging.error(f"Error setting password: {str(e)}")
             raise

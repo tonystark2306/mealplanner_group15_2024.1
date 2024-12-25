@@ -451,3 +451,56 @@ def validate_reset_code():
             },
             "resultCode": "00054"
         }), 400
+        
+        
+@user_api.route("/reset-password", methods=["POST"])
+# @swag_from("../../docs/user/auth/reset_password.yaml", endpoint="user_api.reset_password", methods=["POST"])
+def reset_password():
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid JSON data.",
+                "vn": "Dữ liệu JSON không hợp lệ."
+            },
+            "resultCode": "00004"
+        }), 400
+    
+    temp_access_token = data.get("tempAccessToken")
+    new_password = data.get("newPassword")
+    if not temp_access_token or not new_password:
+        return jsonify({
+            "resultMessage": {
+                "en": "Please provide all required fields!",
+                "vn": "Vui lòng cung cấp tất cả các trường bắt buộc!"
+            },
+            "resultCode": "00025"
+        }), 400
+
+    auth_service = AuthService()
+    user_id = auth_service.verify_temp_access_token(temp_access_token)
+    if not user_id:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid token. Token may have expired.",
+                "vn": "Token không hợp lệ. Token có thể đã hết hạn."
+            },
+            "resultCode": "00012"
+        }), 400
+        
+    if auth_service.set_password(user_id, new_password):
+        return jsonify({
+            "resultMessage": {
+                "en": "Your password has been reset successfully.",
+                "vn": "Mật khẩu của bạn đã được đặt lại thành công."
+            },
+            "resultCode": "00058"
+        }), 200
+    
+    return jsonify({
+        "resultMessage": {
+            "en": "Invalid token.",
+            "vn": "Token không hơp lệ."
+        },
+        "resultCode": "00012"
+    }), 400
