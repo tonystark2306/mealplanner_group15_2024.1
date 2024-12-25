@@ -4,9 +4,9 @@ import '../../Models/fridge_item_model.dart';
 import '../../Providers/refrigerator_provider.dart';
 
 class EditFridgeItemScreen extends StatefulWidget {
-  final FridgeItem foodItem; // Nhận FridgeItem cần chỉnh sửa
+  final FridgeItem fridgeItem; // Nhận FridgeItem cần chỉnh sửa
 
-  const EditFridgeItemScreen({super.key, required this.foodItem});
+  const EditFridgeItemScreen({super.key, required this.fridgeItem});
 
   @override
   _EditFridgeItemScreenState createState() => _EditFridgeItemScreenState();
@@ -22,9 +22,9 @@ class _EditFridgeItemScreenState extends State<EditFridgeItemScreen> {
   void initState() {
     super.initState();
     // Khởi tạo với thông tin của FridgeItem hiện tại
-    _name = widget.foodItem.name;
-    _quantity = widget.foodItem.quantity;
-    _expiryDate = widget.foodItem.expirationDate;
+    _name = widget.fridgeItem.name;
+    _quantity = widget.fridgeItem.quantity;
+    _expiryDate = widget.fridgeItem.expirationDate;
   }
 
   void _submitForm() {
@@ -32,7 +32,7 @@ class _EditFridgeItemScreenState extends State<EditFridgeItemScreen> {
       _formKey.currentState!.save();
 
       final updatedFridgeItem = FridgeItem(
-        id: widget.foodItem.id, // Giữ nguyên ID
+        id: widget.fridgeItem.id, // Giữ nguyên ID
         name: _name,
         quantity: _quantity,
         expirationDate: _expiryDate,

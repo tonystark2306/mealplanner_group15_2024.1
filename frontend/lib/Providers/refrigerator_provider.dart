@@ -146,9 +146,9 @@ class RefrigeratorProvider with ChangeNotifier {
     }
   }
 
-  // Hàm xóa thực phẩm khỏi danh sách local
-  void deleteFridgeItem(FridgeItem foodItem) {
-    _items.remove(foodItem);
-    notifyListeners();
-  }
+  // // Hàm xóa thực phẩm khỏi danh sách local
+  // void deleteFridgeItem(FridgeItem fridgeItem) {
+  //   _items.remove(fridgeItem);
+  //   notifyListeners();
+  // }
 }
