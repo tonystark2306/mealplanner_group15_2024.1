@@ -16,11 +16,7 @@ class Unit(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     group = db.relationship('Group', backref='units')
-
-    def __init__(self, name, typee, group_id):
-        self.name = name
-        self.type = type
-        self.group_id = group_id
+    
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}

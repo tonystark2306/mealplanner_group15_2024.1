@@ -1,0 +1,52 @@
+[
+    {
+        "email": "system-admin1@gmail.com",
+        "password": "admin123",
+        "username": "system-admin1",
+        "name": "System Admin 1",
+        "language": "en",
+        "timezone": "Asia/Vietnam",
+        "device_id": "7C6F8973-08F6-4D1F-AE57-35E2C7FDC21D",
+        "is_verified": true
+    },
+    {
+        "email": "system-admin2@gmail.com",
+        "password": "admin123",
+        "username": "system-admin2",
+        "name": "System Admin 2",
+        "language": "en",
+        "timezone": "Asia/Vietnam",
+        "device_id": "9774d56d682e549c",
+        "is_verified": true
+    },
+    {
+        "email": "system-admin3@gmail.com",
+        "password": "admin123",
+        "username": "system-admin3",
+        "name": "System Admin 3",
+        "language": "en",
+        "timezone": "Asia/Vietnam",
+        "device_id": "1234d56d682e549b",
+        "is_verified": true
+    },
+    {
+        "email": "system-admin4@gmail.com",
+        "password": "admin123",
+        "username": "system-admin4",
+        "name": "System Admin 4",
+        "language": "en",
+        "timezone": "Asia/Vietnam",
+        "device_id": "D63F5FF0-B6A4-4B14-87E0-7D22F05FE34E",
+        "is_verified": true
+    },
+    {
+        "email": "system-admin5@gmail.com",
+        "password": "admin123",
+        "username": "system-admin5",
+        "name": "System Admin 5",
+        "language": "en",
+        "timezone": "Asia/Vietnam",
+        "device_id": "389c28a7-f12d-4a63-9f55-1aef530a3e2f",
+        "is_verified": true
+    }
+]
