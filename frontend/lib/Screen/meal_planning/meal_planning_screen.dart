@@ -34,15 +34,13 @@ class _MealPlanningScreenState extends State<MealPlanningScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
         title: Text(
           'Kế hoạch bữa ăn',
           style:
               TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
         ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.green[700]),
-          onPressed: () => Navigator.pop(context),
-        ),
+        
       ),
       body: Column(
         children: [

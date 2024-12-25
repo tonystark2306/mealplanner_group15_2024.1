@@ -51,6 +51,7 @@ class _RefrigeratorManagementScreenState
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
         title: Text(
           'Quản lý tủ lạnh',
           style: TextStyle(
@@ -58,12 +59,7 @@ class _RefrigeratorManagementScreenState
             fontWeight: FontWeight.bold,
           ),
         ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.green[700]),
-          onPressed: () {
-            Navigator.pop(context); // Quay về màn hình trước đó
-          },
-        ),
+        
       ),
       body: _isLoading
           ? _buildLoadingIndicator()
@@ -174,11 +170,11 @@ class _RefrigeratorManagementScreenState
     // Xác định màu nền theo trạng thái
     Color? backgroundColor;
     if (isExpired) {
-      backgroundColor = Colors.red[100]; // Hết hạn
+      backgroundColor = Colors.red[50]; // Hết hạn
     } else if (isExpiringSoon) {
-      backgroundColor = Colors.red[50]; // Sắp hết hạn
+      backgroundColor = Colors.white; // Sắp hết hạn
     } else {
-      backgroundColor = Colors.green[50]; // Chưa hết hạn
+      backgroundColor = Colors.white; // Chưa hết hạn
     }
 
     return Card(
@@ -200,7 +196,7 @@ class _RefrigeratorManagementScreenState
             color: isExpired
                 ? Colors.red[700]
                 : isExpiringSoon
-                    ? Colors.grey[600]
+                    ? Colors.red[700]
                     : Colors.grey[600],
           ),
         ),
@@ -208,7 +204,7 @@ class _RefrigeratorManagementScreenState
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: Icon(Icons.edit, color: Colors.blue[300]),
+              icon: Icon(Icons.edit, color: Colors.grey[1000]),
               onPressed: () {
                 // Chuyển đến màn hình chỉnh sửa thực phẩm
                 Navigator.push(
