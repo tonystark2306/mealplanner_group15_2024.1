@@ -155,7 +155,11 @@ def check_recipe_ownership(f):
             data = request.json
         except:
             data = {}
-        recipe_id = kwargs.get('recipe_id') or request.view_args.get('recipe_id') or data.get('recipe_id')
+        try:
+            form_data = request.form
+        except:
+            form_data = {}
+        recipe_id = kwargs.get('recipe_id') or request.view_args.get('recipe_id') or data.get('recipe_id') or form_data.get('recipe_id')
 
         # Kiểm tra nếu thiếu recipe_id trong yêu cầu
         if not recipe_id:
