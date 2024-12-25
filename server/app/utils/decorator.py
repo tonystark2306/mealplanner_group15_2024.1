@@ -150,7 +150,7 @@ def system_admin_required(f):
     def decorated_function(user_id, *args, **kwargs):
         role_repository = RoleRepository()
         role = role_repository.get_role_of_user(user_id)
-        if role != "admin":
+        if role.role_name != "admin":
             return jsonify({
                 "resultMessage": {
                     "en": "You need to have system admin rights to access this API.",
