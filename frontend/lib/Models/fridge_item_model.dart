@@ -1,12 +1,12 @@
 // FILE: models/food_item_model.dart
 
-class FoodItem {
+class FridgeItem {
   final String id;
   final String name;
   final DateTime expirationDate; // Field for expiration date
   final int quantity; // Add this field for quantity
 
-  FoodItem({
+  FridgeItem({
     required this.id,
     required this.name,
     required this.expirationDate,
@@ -14,8 +14,8 @@ class FoodItem {
   });
 
   // Optional: Add a factory constructor if you need to parse from JSON
-  factory FoodItem.fromJson(Map<String, dynamic> json) {
-    return FoodItem(
+  factory FridgeItem.fromJson(Map<String, dynamic> json) {
+    return FridgeItem(
       id: json['id'],
       name: json['name'],
       expirationDate: DateTime.parse(json['expirationDate']),

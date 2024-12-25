@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../Models/food_item_model.dart';
+import '../../Models/fridge_item_model.dart';
 import '../../Providers/refrigerator_provider.dart';
 
-class EditFoodItemScreen extends StatefulWidget {
-  final FoodItem foodItem; // Nhận FoodItem cần chỉnh sửa
+class EditFridgeItemScreen extends StatefulWidget {
+  final FridgeItem foodItem; // Nhận FridgeItem cần chỉnh sửa
 
-  const EditFoodItemScreen({super.key, required this.foodItem});
+  const EditFridgeItemScreen({super.key, required this.foodItem});
 
   @override
-  _EditFoodItemScreenState createState() => _EditFoodItemScreenState();
+  _EditFridgeItemScreenState createState() => _EditFridgeItemScreenState();
 }
 
-class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
+class _EditFridgeItemScreenState extends State<EditFridgeItemScreen> {
   final _formKey = GlobalKey<FormState>();
   late String _name;
   late int _quantity;
@@ -21,7 +21,7 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
   @override
   void initState() {
     super.initState();
-    // Khởi tạo với thông tin của FoodItem hiện tại
+    // Khởi tạo với thông tin của FridgeItem hiện tại
     _name = widget.foodItem.name;
     _quantity = widget.foodItem.quantity;
     _expiryDate = widget.foodItem.expirationDate;
@@ -31,7 +31,7 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      final updatedFoodItem = FoodItem(
+      final updatedFridgeItem = FridgeItem(
         id: widget.foodItem.id, // Giữ nguyên ID
         name: _name,
         quantity: _quantity,
@@ -40,7 +40,7 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
 
       // Cập nhật item trong Provider
       Provider.of<RefrigeratorProvider>(context, listen: false)
-          .updateItem(updatedFoodItem);
+          .updateItem(updatedFridgeItem);
 
       Navigator.pop(context);
     }

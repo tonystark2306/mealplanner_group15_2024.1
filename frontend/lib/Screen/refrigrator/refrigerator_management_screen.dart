@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../Models/food_item_model.dart';
+import '../../Models/fridge_item_model.dart';
 import '../../Providers/refrigerator_provider.dart';
 import './add_food_item_screen.dart';
 import './edit_food_item_screen.dart';
@@ -21,14 +21,14 @@ class _RefrigeratorManagementScreenState
   @override
   void initState() {
     super.initState();
-    _loadFoodItems();
+    _loadFridgeItems();
   }
 
   // Hàm tải dữ liệu thực phẩm từ API
-  Future<void> _loadFoodItems() async {
+  Future<void> _loadFridgeItems() async {
     try {
       await Provider.of<RefrigeratorProvider>(context, listen: false)
-          .loadFoodItemsFromApi(
+          .loadFridgeItemsFromApi(
               '572ac983-195b-4029-803d-fb26e5a86b9b'); // Thay 'group_id' bằng ID nhóm thực tế
       setState(() {
         _isLoading = false;
@@ -59,7 +59,6 @@ class _RefrigeratorManagementScreenState
             fontWeight: FontWeight.bold,
           ),
         ),
-        
       ),
       body: _isLoading
           ? _buildLoadingIndicator()
@@ -108,7 +107,7 @@ class _RefrigeratorManagementScreenState
                                   itemCount: foodItems.length,
                                   itemBuilder: (context, index) {
                                     final foodItem = foodItems[index];
-                                    return _buildFoodItemTile(
+                                    return _buildFridgeItemTile(
                                         context, foodItem);
                                   },
                                 ),
@@ -126,7 +125,8 @@ class _RefrigeratorManagementScreenState
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddFoodItemScreen()),
+            MaterialPageRoute(
+                builder: (context) => const AddFridgeItemScreen()),
           );
         },
         child: const Icon(Icons.add, color: Colors.white),
@@ -160,7 +160,7 @@ class _RefrigeratorManagementScreenState
   }
 
   // Hiển thị mỗi món ăn trong danh sách
-  Widget _buildFoodItemTile(BuildContext context, FoodItem foodItem) {
+  Widget _buildFridgeItemTile(BuildContext context, FridgeItem foodItem) {
     final expirationDate = foodItem.expirationDate;
     final now = DateTime.now();
     final isExpired = expirationDate.isBefore(now);
@@ -211,7 +211,7 @@ class _RefrigeratorManagementScreenState
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        EditFoodItemScreen(foodItem: foodItem),
+                        EditFridgeItemScreen(foodItem: foodItem),
                   ),
                 );
               },
@@ -229,7 +229,7 @@ class _RefrigeratorManagementScreenState
   }
 
   // Xác nhận xóa thực phẩm
-  void _confirmDelete(BuildContext context, FoodItem foodItem) {
+  void _confirmDelete(BuildContext context, FridgeItem foodItem) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
