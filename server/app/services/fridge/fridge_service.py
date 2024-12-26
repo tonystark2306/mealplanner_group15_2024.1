@@ -5,6 +5,7 @@ from typing import Optional, Tuple
 from ...repository.fridgeItem_repository import FridgeItemRepository
 from ...repository.food_repository import FoodRepository
 from ...repository.unit_repository import UnitRepository
+from ...repository.category_repository import CategoryRepository
 
 class FridgeService:
     def __init__(self) -> None:
@@ -22,7 +23,13 @@ class FridgeService:
             food_dict = food.as_dict()
             unit_dict = self.unit_repo.get_unit_by_id(food.unit_id).as_dict()
             item_dict['Food'] = food_dict
+            categories = food.categories
+            categories_dict = []
+            for category in categories:
+                categories_dict.append(category.name)
+            food_dict['Food']['Categories'] = categories_dict
             item_dict['Food']['Unit'] = unit_dict
+
             fridge_dict.append(item_dict)
 
         return fridge_dict
