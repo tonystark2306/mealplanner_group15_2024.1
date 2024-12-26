@@ -39,7 +39,7 @@ class _RefrigeratorManagementScreenState
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi khi tải dữ liệu')),
+        const SnackBar(content: Text('Lỗi khi tải dữ liệu')),
       );
     }
   }
@@ -169,7 +169,7 @@ class _RefrigeratorManagementScreenState
     final now = DateTime.now();
     final isExpired = expirationDate.isBefore(now);
     final isExpiringSoon =
-        expirationDate.isBefore(now.add(Duration(days: 3))) && !isExpired;
+        expirationDate.isBefore(now.add(const Duration(days: 3))) && !isExpired;
 
     // Xác định màu nền theo trạng thái
     Color? backgroundColor;
@@ -237,14 +237,14 @@ class _RefrigeratorManagementScreenState
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Xác nhận xóa'),
-        content: Text('Bạn có chắc chắn muốn xóa thực phẩm này không?'),
+        title: const Text('Xác nhận xóa'),
+        content: const Text('Bạn có chắc chắn muốn xóa thực phẩm này không?'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop(); // Đóng hộp thoại
             },
-            child: Text('Hủy'),
+            child: const Text('Hủy'),
           ),
           TextButton(
             onPressed: () async {
@@ -260,11 +260,11 @@ class _RefrigeratorManagementScreenState
               } catch (error) {
                 Navigator.of(ctx).pop(); // Đóng hộp thoại
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Lỗi khi xóa thực phẩm')),
+                  const SnackBar(content: Text('Lỗi khi xóa thực phẩm')),
                 );
               }
             },
-            child: Text('Xóa'),
+            child: const Text('Xóa'),
           ),
         ],
       ),

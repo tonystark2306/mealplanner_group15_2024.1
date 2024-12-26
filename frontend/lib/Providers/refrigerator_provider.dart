@@ -13,7 +13,7 @@ class RefrigeratorProvider with ChangeNotifier {
     final url =
         'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
     try {
-      print('Loading food items from API ${url}');
+      print('Loading food items from API $url');
       final response = await http.get(
         Uri.parse(url),
         headers: {
@@ -37,7 +37,7 @@ class RefrigeratorProvider with ChangeNotifier {
       }
     } catch (error) {
       print(error);
-      throw error;
+      rethrow;
     }
   }
 
@@ -68,7 +68,7 @@ class RefrigeratorProvider with ChangeNotifier {
         throw Exception('Failed to add food item');
       }
     } catch (error) {
-      throw error;
+      rethrow;
     }
   }
 
@@ -99,7 +99,7 @@ class RefrigeratorProvider with ChangeNotifier {
         throw Exception('Failed to update food item');
       }
     } catch (error) {
-      throw error;
+      rethrow;
     }
   }
 
@@ -120,7 +120,7 @@ class RefrigeratorProvider with ChangeNotifier {
         throw Exception('Failed to delete food item');
       }
     } catch (error) {
-      throw error;
+      rethrow;
     }
   }
 

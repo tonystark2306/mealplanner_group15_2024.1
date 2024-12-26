@@ -27,7 +27,7 @@ services:
     container_name: mealplanner_database
     image: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       - POSTGRES_PASSWORD=it4788
       - POSTGRES_DB=mealplanner_db

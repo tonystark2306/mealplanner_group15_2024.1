@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'routes.dart';
 import 'Providers/refrigerator_provider.dart';
 import 'Providers/meal_planning_provider.dart';
-import 'Screen/bottom_navigation_screen.dart';
+import "Screen/auth/login.dart";
 
 void main() {
   runApp(const MyApp());
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => RecipeProvider()),
       ],
       child: MaterialApp(
-        home: const BottomNavigationScreen(),
+        home: const SimpleLoginScreen(),
         debugShowCheckedModeBanner: false,
         routes: AppRoutes.routes, // Sử dụng routes từ AppRoutes
       ),

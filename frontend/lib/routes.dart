@@ -10,6 +10,9 @@ import 'Screen/recipes/create_recipe_screen.dart';
 import 'Screen/recipes/recipe_management_screen.dart';
 import 'Screen/meal_planning/meal_planning_screen.dart';
 import 'Screen/meal_planning/edit_meal_plan_screen.dart';
+import 'Screen/auth/forgetpassword.dart';
+import 'Screen/family_group/family_group_screen.dart';
+import 'Screen/user_info/user_info_screen.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -23,7 +26,9 @@ class AppRoutes {
   static const String createRecipe = '/create-recipe';
   static const String mealPlanning = '/meal-planning';
   static const String editMealPlanning = '/edit-meal-plan';
-
+  static const String forgetPassword = '/forget-password';
+  static const String familyGroup = '/family-group';
+  static const String userInfo = '/user-info';
   static Map<String, WidgetBuilder> get routes {
     return {
       login: (context) => const SimpleLoginScreen(),
@@ -36,6 +41,9 @@ class AppRoutes {
       recipeManagement: (context) => const RecipeManagementScreen(),
       createRecipe: (context) => const CreateRecipeScreen(),
       mealPlanning: (context) => const MealPlanningScreen(),
+      forgetPassword: (context) => const ForgotPasswordScreen(),
+      familyGroup: (context) => const FamilyGroupScreen(),
+      userInfo: (context) => const ProfileScreen(),
       editMealPlanning: (context) {
       final arguments = ModalRoute.of(context)!.settings.arguments as Map;
       final mealType = arguments['mealType'];

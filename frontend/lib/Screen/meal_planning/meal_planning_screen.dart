@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../Providers/meal_planning_provider.dart';
 
 class MealPlanningScreen extends StatefulWidget {
-  const MealPlanningScreen({Key? key}) : super(key: key);
+  const MealPlanningScreen({super.key});
 
   @override
   _MealPlanningScreenState createState() => _MealPlanningScreenState();
@@ -163,11 +163,11 @@ class MealPlanSection extends StatelessWidget {
   final VoidCallback onEdit;
 
   const MealPlanSection({
-    Key? key,
+    super.key,
     required this.title,
     required this.meals,
     required this.onEdit,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -3,7 +3,7 @@ import '../Models/recipe_model.dart';
 import 'dart:collection';
 
 class RecipeProvider with ChangeNotifier {
-  List<RecipeItem> _recipes = [];
+  final List<RecipeItem> _recipes = [];
 
   List<RecipeItem> get recipes => _recipes;
 

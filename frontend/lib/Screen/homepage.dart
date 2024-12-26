@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal_planner_app/Services/logoutservice.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -161,50 +162,132 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(color: Colors.green[700]),
-            child: const Text(
-              'Have a nice day, user!',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
+Widget _buildDrawer(BuildContext context) {
+  return Drawer(
+    child: ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        DrawerHeader(
+          decoration: BoxDecoration(color: Colors.green[700]),
+          child: const Text(
+            'Have a nice day, user!',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
             ),
           ),
-          _buildDrawerItem(icon: Icons.group, text: 'Quản lý thành viên nhóm'),
-          _buildDrawerItem(icon: Icons.notifications, text: 'Cài đặt thông báo'),
-          _buildDrawerItem(icon: Icons.star, text: 'Đánh giá ứng dụng'),
-          _buildDrawerItem(icon: Icons.privacy_tip, text: 'Chính sách bảo mật'),
-          _buildDrawerItem(icon: Icons.help, text: 'Hướng dẫn sử dụng'),
-          const Divider(),
-          _buildDrawerItem(icon: Icons.analytics, text: 'Thống kê báo cáo', onTap: () {
-            Navigator.pushNamed(context, '/report');
-          }),
-          _buildDrawerItem(icon: Icons.menu_book, text: 'Quản lý công thức', onTap: () {
-            Navigator.pushNamed(context, '/recipe-management');
-          }),
-          _buildDrawerItem(icon: Icons.logout, text: 'Đăng xuất', onTap: () {
-            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-          }),
-        ],
-      ),
-    );
-  }
+        ),
+        _buildDrawerItem(icon: Icons.person, text: 'Thông tin cá nhân', onTap: (){
+            Navigator.pushNamed(context, '/user-info');
+        }),
+        _buildDrawerItem(icon: Icons.group, text: 'Quản lý thành viên nhóm', onTap: () {
+            Navigator.pushNamed(context, '/family-group');
+        }),
+        _buildDrawerItem(icon: Icons.notifications, text: 'Cài đặt thông báo'),
+        _buildDrawerItem(icon: Icons.star, text: 'Đánh giá ứng dụng'),
+        _buildDrawerItem(icon: Icons.privacy_tip, text: 'Chính sách bảo mật'),
+        
+        const Divider(),
+        _buildDrawerItem(icon: Icons.analytics, text: 'Thống kê báo cáo', onTap: () {
+          Navigator.pushNamed(context, '/report');
+        }),
+        _buildDrawerItem(icon: Icons.menu_book, text: 'Quản lý công thức', onTap: () {
+          Navigator.pushNamed(context, '/recipe-management');
+        }),
+        _buildDrawerItem(
+          icon: Icons.logout,
+          text: 'Đăng xuất',
+          onTap: ()
+          // {
+          //   Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+          // }
+           async {
+            // Hiển thị loading indicator
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => const Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
 
-  Widget _buildDrawerItem({required IconData icon, required String text, void Function()? onTap}) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.green[700]),
-      title: Text(text, style: TextStyle(color: Colors.green[700])),
-      onTap: onTap ?? () {
-        _scaffoldKey.currentState?.closeDrawer();
+            try {
+              // Gọi hàm logout
+              await logoutUser();
+              Navigator.pop(context); // Đóng loading indicator
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (route) => false,
+              );
+            } catch (error) {
+              Navigator.pop(context); // Đóng loading indicator
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(error.toString()),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+        ),
+        _buildDrawerItem(
+  icon: Icons.delete,
+  text: 'Xóa tài khoản',
+  iconColor: Colors.red, // Màu đỏ cho icon
+  textColor: Colors.red, // Màu đỏ cho text
+  onTap: () {
+    // Xử lý khi nhấn vào mục "Xóa tài khoản"
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Xác nhận'),
+          content: const Text('Bạn có chắc chắn muốn xóa tài khoản không? Hành động này không thể hoàn tác.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Hủy bỏ xóa
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () {
+                Navigator.pop(context); // Đóng dialog
+                // Thêm logic xóa tài khoản tại đây
+                print('Tài khoản đã được xóa.');
+              },
+              child: const Text('Xóa'),
+            ),
+          ],
+        );
       },
     );
-  }
+  },
+),
+
+
+      ],
+    ),
+  );
+}
+
+
+  Widget _buildDrawerItem({
+  required IconData icon,
+  required String text,
+  void Function()? onTap,
+  Color? iconColor,
+  Color? textColor,
+}) {
+  return ListTile(
+    leading: Icon(icon, color: iconColor ?? Colors.green[700]),
+    title: Text(text, style: TextStyle(color: textColor ?? Colors.green[700])),
+    onTap: onTap ?? () {
+      _scaffoldKey.currentState?.closeDrawer();
+    },
+  );
+}
+
 
   Widget _buildSectionCard({
     required String title,
