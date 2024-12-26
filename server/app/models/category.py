@@ -18,10 +18,6 @@ class Category(Base):
     foods = relationship('Food', secondary='food_categories', back_populates='categories')
     group = relationship('Group', backref='categories')
 
-    def __init__(self, name, type, group_id):
-        self.name = name
-        self.type = type
-        self.group_id = group_id
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
