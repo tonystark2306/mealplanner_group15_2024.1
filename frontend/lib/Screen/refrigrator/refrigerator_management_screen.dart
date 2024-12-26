@@ -30,7 +30,7 @@ class _RefrigeratorManagementScreenState
     try {
       await Provider.of<RefrigeratorProvider>(context, listen: false)
           .loadFridgeItemsFromApi(
-              '572ac983-195b-4029-803d-fb26e5a86b9b'); // Thay 'group_id' bằng ID nhóm thực tế
+              'a05ac307-ae58-47cb-9c0d-d90e8bf2fd36'); // Thay 'group_id' bằng ID nhóm thực tế
       setState(() {
         _isLoading = false;
       });

@@ -166,7 +166,7 @@ class FridgeItemDetailScreen extends StatelessWidget {
       'category': 'Thịt',
       'notes': 'Mua ở siêu thị A',
       'image':
-          'https://cdn.tgdd.vn/Products/Images/8783/220833/iphone-13-pro-max-xanh-duong-600x600.jpg',
+          'https://hidafoods.vn/wp-content/uploads/2023/07/thit-bo-bi-bien-chat-1.jpg',
     };
   }
 }

@@ -11,28 +11,28 @@ class RefrigeratorProvider with ChangeNotifier {
   // Hàm tải danh sách các thực phẩm từ backend
   Future<void> loadFridgeItemsFromApi(String groupId) async {
     final url =
-        'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
+        'http://localhost:5000/api/fridge/a05ac307-ae58-47cb-9c0d-d90e8bf2fd36'; // Thay thế với URL của bạn
     try {
       print('Loading food items from API ${url}');
       final response = await http.get(
         Uri.parse(url),
         headers: {
           'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTNiZGY1N2EtNjQ4NS00Y2JmLTg1ZGItNjhhNDBlOTZmYWEwIiwiZXhwIjoxNzM0NjI3NTEzfQ.4Wab4dqokbO3HKAz-60Fzegd9OjZocC9WM0G8QGRkpg'
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MTk5MDcwfQ.XlX2MMxlzgiq9K_tah67m-vhC4kYfYfrbM-q5t0eGmk'
         }, // Thay 'YOUR_TOKEN' bằng token của người dùng
       );
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final fridgeItems = (data['fridgeItems'] as List)
-            .map((item) => FridgeItem.fromJson(item))
-            .toList();
-        _items = fridgeItems;
-        notifyListeners();
-        print('Loaded food items');
-      } else {
+      final data = json.decode(response.body); // Parse JSON trả về
+      final fridgeItems = (data['fridgeItems'] as List)
+          .map((item) => FridgeItem.fromJson(item))
+          .toList(); // Chuyển đổi từng phần tử thành FridgeItem
+      _items = fridgeItems; // Gán danh sách cho _items
+      notifyListeners(); // Cập nhật UI
+      print('Loaded food items');
+    } else {
         throw Exception('Failed to load food items');
       }
     } catch (error) {
