@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../Models/food_item_model.dart';
-import '../../Providers/refrigerator_provider.dart';
+import '../../Models/fridge/fridge_item_model.dart';
+import '../../Providers/fridge_provider/refrigerator_provider.dart';
 
-class AddFoodItemScreen extends StatefulWidget {
-  const AddFoodItemScreen({super.key});
+class AddFridgeItemScreen extends StatefulWidget {
+  const AddFridgeItemScreen({super.key});
 
   @override
-  _AddFoodItemScreenState createState() => _AddFoodItemScreenState();
+  _AddFridgeItemScreenState createState() => _AddFridgeItemScreenState();
 }
 
-class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
+class _AddFridgeItemScreenState extends State<AddFridgeItemScreen> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   int _quantity = 1;
@@ -20,7 +20,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      final newFoodItem = FoodItem(
+      final newFridgeItem = FridgeItem(
         id: DateTime.now().toString(),
         name: _name,
         quantity: _quantity,
@@ -28,7 +28,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
       );
 
       Provider.of<RefrigeratorProvider>(context, listen: false)
-          .addItem(newFoodItem);
+          .addItem(newFridgeItem);
 
       Navigator.pop(context);
     }

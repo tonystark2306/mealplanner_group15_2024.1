@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../Models/food_item_model.dart';
-import '../../Providers/refrigerator_provider.dart';
+import '../../Models/fridge/fridge_item_model.dart';
+import '../../Providers/fridge_provider/refrigerator_provider.dart';
 import './add_food_item_screen.dart';
 import './edit_food_item_screen.dart';
+import './fridge_item_screen.dart';
 
 class RefrigeratorManagementScreen extends StatefulWidget {
-  const RefrigeratorManagementScreen({super.key});
+  final String groupId;
+
+  const RefrigeratorManagementScreen({super.key, required this.groupId});
 
   @override
   _RefrigeratorManagementScreenState createState() =>
@@ -14,22 +17,19 @@ class RefrigeratorManagementScreen extends StatefulWidget {
 }
 
 class _RefrigeratorManagementScreenState
-    extends State<RefrigeratorManagementScreen>
-    with SingleTickerProviderStateMixin {
+    extends State<RefrigeratorManagementScreen> {
   bool _isLoading = true;
-  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _loadFoodItems();
+    _loadFridgeItems();
   }
 
-  Future<void> _loadFoodItems() async {
+  Future<void> _loadFridgeItems() async {
     try {
       await Provider.of<RefrigeratorProvider>(context, listen: false)
-          .loadFoodItemsFromApi('572ac983-195b-4029-803d-fb26e5a86b9b');
+          .loadFridgeItemsFromApi(widget.groupId);
       setState(() {
         _isLoading = false;
       });
@@ -38,7 +38,7 @@ class _RefrigeratorManagementScreenState
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lỗi khi tải dữ liệu')),
+        SnackBar(content: Text('Lỗi khi tải dữ liệu')),
       );
     }
   }
@@ -47,53 +47,51 @@ class _RefrigeratorManagementScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green[700],
-        title: const Center(
-          child: Text(
-            'Tủ lạnh',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        backgroundColor: Colors.green[700], // Màu xanh cho AppBar
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'Thực phẩm trong tủ lạnh',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.green[700],
-          labelColor: Colors.green[700],
-          unselectedLabelColor: Colors.grey,
-          tabs: const [
-            Tab(text: 'Còn hạn'),
-            Tab(text: 'Hết hạn'),
-          ],
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white), // Màu trắng cho nút quay lại
+          onPressed: () {
+            Navigator.of(context).pop(); // Quay lại trang trước đó
+          },
         ),
       ),
       body: _isLoading
           ? _buildLoadingIndicator()
           : Consumer<RefrigeratorProvider>(
               builder: (context, refrigeratorProvider, child) {
-                final foodItems = refrigeratorProvider.items;
-                final now = DateTime.now();
+                final fridgeItems = refrigeratorProvider.items;
+                fridgeItems.sort((a, b) => a.expirationDate
+                    .compareTo(b.expirationDate));
 
-                // Phân loại thực phẩm
-                final expiringSoon = foodItems
-                    .where((item) =>
-                        item.expirationDate.isAfter(now) &&
-                        item.expirationDate
-                            .isBefore(now.add(const Duration(days: 3))))
-                    .toList();
-
-                final validItems = foodItems
-                    .where((item) => item.expirationDate.isAfter(now))
-                    .toList();
-
-                final expiredItems = foodItems
-                    .where((item) => item.expirationDate.isBefore(now))
-                    .toList();
-
-                return TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildFoodList(context, [...expiringSoon, ...validItems]),
-                    _buildFoodList(context, expiredItems, isExpired: true),
-                  ],
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (fridgeItems.isEmpty)
+                        _buildEmptyState()
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: fridgeItems.length,
+                          itemBuilder: (context, index) {
+                            final fridgeItem = fridgeItems[index];
+                            return _buildFridgeItemTile(
+                                context, fridgeItem);
+                          },
+                        ),
+                    ],
+                  ),
                 );
               },
             ),
@@ -102,7 +100,8 @@ class _RefrigeratorManagementScreenState
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddFoodItemScreen()),
+            MaterialPageRoute(
+                builder: (context) => const AddFridgeItemScreen()),
           );
         },
         child: const Icon(Icons.add, color: Colors.white),
@@ -118,117 +117,206 @@ class _RefrigeratorManagementScreenState
     );
   }
 
-  Widget _buildFoodList(BuildContext context, List<FoodItem> foodItems,
-      {bool isExpired = false}) {
-    if (foodItems.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            isExpired
-                ? 'Không có thực phẩm đã hết hạn'
-                : 'Không có thực phẩm còn hạn',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 16,
-            ),
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          'Chưa có thực phẩm nào trong tủ lạnh',
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 16,
           ),
         ),
-      );
-    }
+      ),
+    );
+  }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      itemCount: foodItems.length,
-      itemBuilder: (context, index) {
-        final foodItem = foodItems[index];
-        final now = DateTime.now();
-        final isExpiringSoon = foodItem.expirationDate
-                .isBefore(now.add(const Duration(days: 3))) &&
-            foodItem.expirationDate.isAfter(now);
+  Widget _buildFridgeItemTile(BuildContext context, FridgeItem fridgeItem) {
+    final expirationDate = fridgeItem.expirationDate;
+    final now = DateTime.now();
+    final isExpired = expirationDate.isBefore(now);
+    final isExpiringSoon =
+        expirationDate.isBefore(now.add(Duration(days: 3))) && !isExpired;
 
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          color: isExpired
-              ? Colors.red[50]
-              : (isExpiringSoon ? Colors.yellow[50] : Colors.white),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.green[50],
-              child: Icon(Icons.food_bank, color: Colors.green[700]),
-            ),
-            title: Text(
-              foodItem.name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(
-              'Hết hạn: ${foodItem.expirationDate.toLocal().toString().split(' ')[0]}\n'
-              'Số lượng: ${foodItem.quantity}',
-              style: TextStyle(
-                color: isExpired
-                    ? Colors.red[700]
-                    : (isExpiringSoon ? Colors.orange[700] : Colors.grey[600]),
-              ),
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
+    // Color? backgroundColor;
+    // if (isExpired) {
+    //   backgroundColor = Colors.red[50];
+    // } else if (isExpiringSoon) {
+    //   backgroundColor = Colors.white;
+    // } else {
+    //   backgroundColor = Colors.white;
+    // }
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 4,
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                IconButton(
-                  icon: Icon(Icons.edit, color: Colors.grey[1000]),
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Colors.green[50],
+                  child: Icon(Icons.food_bank, color: Colors.green[700], size: 28),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        fridgeItem.name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.green[700],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            size: 16,
+                            color: isExpired
+                                ? Colors.red
+                                : isExpiringSoon
+                                    ? Colors.orange
+                                    : Colors.grey[600],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Hết hạn: ${fridgeItem.expirationDate.toLocal().toString().split(' ')[0]}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isExpired
+                                  ? Colors.red
+                                  : isExpiringSoon
+                                      ? Colors.orange
+                                      : Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              EditFridgeItemScreen(fridgeItem: fridgeItem),
+                        ),
+                      );
+                    } else if (value == 'delete') {
+                      _confirmDelete(context, fridgeItem);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: ListTile(
+                        leading: Icon(Icons.edit),
+                        title: Text('Chỉnh sửa'),
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        leading: Icon(Icons.delete, color: Colors.red),
+                        title: Text('Xóa'),
+                      ),
+                    ),
+                  ],
+                  icon: const Icon(Icons.more_vert),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(Icons.storage, size: 16, color: Colors.blueGrey),
+                const SizedBox(width: 4),
+                Text(
+                  'Số lượng: ${fridgeItem.quantity}',
+                  style: const TextStyle(fontSize: 14, color: Colors.blueGrey),
+                ),
+              ],
+            ),
+            const Divider(height: 16, thickness: 1),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[700],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            EditFoodItemScreen(foodItem: foodItem),
+                            FridgeItemDetailScreen(fridgeItem: fridgeItem),
                       ),
                     );
                   },
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red[300]),
-                  onPressed: () {
-                    _confirmDelete(context, foodItem);
-                  },
+                  icon: const Icon(Icons.info),
+                  label: const Text('Xem chi tiết'),
                 ),
               ],
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 
-  void _confirmDelete(BuildContext context, FoodItem foodItem) {
+  void _confirmDelete(BuildContext context, FridgeItem fridgeItem) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: const Text('Bạn có chắc chắn muốn xóa thực phẩm này không?'),
+        title: Text('Xác nhận xóa'),
+        content: Text('Bạn có chắc chắn muốn xóa thực phẩm này không?'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
             },
-            child: const Text('Hủy'),
+            child: Text('Hủy'),
           ),
           TextButton(
             onPressed: () async {
               try {
-                await Provider.of<RefrigeratorProvider>(context, listen: false)
-                    .deleteItemFromApi('group_id', foodItem.id);
+                Provider.of<RefrigeratorProvider>(context, listen: false)
+                    .removeItem(fridgeItem.id);
                 Navigator.of(ctx).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Đã xóa thực phẩm ${foodItem.name}')),
+                  SnackBar(
+                      content: Text('Đã xóa thực phẩm ${fridgeItem.name}')),
                 );
               } catch (error) {
                 Navigator.of(ctx).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Lỗi khi xóa thực phẩm')),
+                  SnackBar(content: Text('Lỗi khi xóa thực phẩm')),
                 );
               }
             },
-            child: const Text('Xóa'),
+            child: Text('Xóa'),
           ),
         ],
       ),

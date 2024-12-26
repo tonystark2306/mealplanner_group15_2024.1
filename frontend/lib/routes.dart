@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'Screen/bottom_navigation_screen.dart';
 import 'Screen/reports/consumption_report_screen.dart';
-import 'Screen/refrigrator/refrigerator_management_screen.dart';
+// import 'Screen/refrigrator/refrigerator_management_screen.dart';
 import 'Screen/auth/login.dart';
 import 'Screen/auth/signupscreen.dart';
 import 'Screen/homepage.dart';
@@ -15,7 +15,6 @@ class AppRoutes {
   static const String login = '/login';
   static const String signup = '/signup';
   static const String home = '/home';
-  static const String refrigerator = '/refrigerator';
   static const String bottomNav = '/bottomnav';
   static const String shoppingList = '/shopping-list';
   static const String report = '/report';
@@ -29,7 +28,6 @@ class AppRoutes {
       login: (context) => const SimpleLoginScreen(),
       signup: (context) => const SignUpScreen(),
       home: (context) => HomeScreen(),
-      refrigerator: (context) => const RefrigeratorManagementScreen(),
       bottomNav: (context) => const BottomNavigationScreen(),
       shoppingList: (context) => const ShoppingListScreen(),
       report: (context) => const ReportScreen(),
