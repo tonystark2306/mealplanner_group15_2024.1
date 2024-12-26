@@ -5,6 +5,9 @@ from ...repository.recipe_repository import RecipeRepository
 from ...repository.food_repository import FoodRepository
 from ...repository.unit_repository import UnitRepository
 
+from ...services.recipe.recipe_service import RecipeService
+
+
 
 class MealPlanService:
     def __init__(self):
@@ -12,6 +15,8 @@ class MealPlanService:
         self.recipe_repo = RecipeRepository()
         self.food_repo = FoodRepository()
         self.unit_repo = UnitRepository()
+
+        self.recipe_service = RecipeService()
 
 
     def create_meal_plan(self, data):
@@ -43,8 +48,6 @@ class MealPlanService:
         if not date:
             #lấy toàn bộ meal plan của group
             meal_plans = self.meal_repo.get_meal_plan_by_group_id(group_id)
-
-
         #kiểm tra định dạng ngày
         else:
             try:
@@ -53,12 +56,26 @@ class MealPlanService:
                 return "date format is not correct"
             meal_plans = self.meal_repo.get_meal_plan_by_date(group_id, date)
             
-        meal_plans_dict = []
+        meal_plans_dicts = []
         for meal_plan in meal_plans:
             meal_plan_dict = meal_plan.as_dict()
-            meal_plans_dict.append(meal_plan_dict)
+            meal_plan_dict['dishes'] = []
+            meal_plan_dict['foods'] = []
 
-        return meal_plans_dict
+            #get recipe serving
+            meal_plan_dict['dishes'] = self.meal_repo.get_recipes_serving(meal_plan.id)
+            #get recipe detail
+            for recipe in meal_plan_dict['dishes']:
+                recipe_dict = self.recipe_service.get_recipe(recipe['recipe_id'])
+                recipe.update(recipe_dict)
+
+            #get food detail
+            meal_plan_dict['foods'] = self.meal_repo.get_foods(meal_plan.id)
+
+            meal_plans_dicts.append(meal_plan_dict)
+
+        return meal_plans_dicts
+
 
 
     def get_detail_plan(self, meal_plan_id):
@@ -70,19 +87,21 @@ class MealPlanService:
         meal_plan_dict['dishes'] = []
         meal_plan_dict['foods'] = []
 
-        for recipe in meal_plan.recipes:
-            recipe_dict = recipe.as_dict()
-            foods_dict = []
-            for food in recipe.foods:
-                food_dict = food.as_dict()
-                foods_dict.append(food_dict)
-            recipe_dict['foods'] = foods_dict
-            meal_plan_dict['dishes'].append(recipe_dict)
+        #get recipe serving
+        meal_plan_dict['dishes'] = self.meal_repo.get_recipes_serving(meal_plan_id)
+        #get recipe detail
+        for recipe in meal_plan_dict['dishes']:
+            recipe_dict = self.recipe_service.get_recipe(recipe['recipe_id'])
+            recipe.update(recipe_dict)
 
-        meal_plan_dict['foods'] = meal_plan.foods #do foods được trả về dưới dạng dict nên không cần xử lý thêm
+        #get food detail
+        meal_plan_dict['foods'] = self.meal_repo.get_foods(meal_plan_id)
 
         return meal_plan_dict
-    
+
+
+
+
 
     def update_meal_plan(self, data):
         meal_plan = self.meal_repo.get_meal_plan_by_id(data['meal_id'])

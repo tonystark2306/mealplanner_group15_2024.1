@@ -22,3 +22,13 @@ class MealPlanInterface(ABC):
     @abstractmethod
     def get_meal_plan_by_date(self, group_id, date) -> List[MealPlanModel]:
         pass
+
+
+    @abstractmethod
+    def get_recipes_serving(self, meal_plan_id) -> List:
+        pass
+
+
+    @abstractmethod
+    def get_foods(self, meal_plan_id) -> List:
+        pass

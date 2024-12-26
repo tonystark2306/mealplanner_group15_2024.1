@@ -31,6 +31,46 @@ class MealPlanRepository(MealPlanInterface):
             .all()
         )
         return meals
+    
+
+    def get_recipes_serving(self, meal_plan_id):
+        result = (
+            db.session.query(meal_plan_recipes.c.recipe_id,meal_plan_recipes.c.servings)
+            .filter(meal_plan_recipes.c.plan_id == meal_plan_id)
+            .all()
+        )
+
+        if not result:
+            return []
+        result_dict = []
+        for recipe_id, servings in result:
+            result_dict.append({
+                'recipe_id': recipe_id,
+                'servings': servings
+            })
+
+        return result_dict
+    
+
+    def get_foods(self, meal_plan_id):
+        result = (
+            db.session.query(meal_plan_foods.c.food_id, meal_plan_foods.c.food_name, meal_plan_foods.c.unit_id, meal_plan_foods.c.unit, meal_plan_foods.c.quantity)
+            .filter(meal_plan_foods.c.plan_id == meal_plan_id)
+            .all()
+        )
+        if not result:
+            return []
+        
+        food_dict = []
+        for food_id, food_name, unit_id, unit, quantity in result:
+            food_dict.append({
+                'food_id': food_id,
+                'food_name': food_name,
+                'unit_id': unit_id,
+                'unit_name': unit,
+                'quantity': quantity
+            })
+        return food_dict
 
 
     def add_meal_plan(self, data):
