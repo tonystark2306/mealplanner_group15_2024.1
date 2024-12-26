@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../Models/food_item_model.dart';
+import '../../Models/fridge/fridge_item_model.dart';
 
 class RefrigeratorProvider with ChangeNotifier {
-  List<FoodItem> _items = [];
+  List<FridgeItem> _items = [];
 
-  List<FoodItem> get items => _items;
+  List<FridgeItem> get items => _items;
 
   // Hàm tải danh sách các thực phẩm từ backend
-  Future<void> loadFoodItemsFromApi(String groupId) async {
+  Future<void> loadFridgeItemsFromApi(String groupId) async {
     final url =
         'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
     try {
@@ -18,19 +18,22 @@ class RefrigeratorProvider with ChangeNotifier {
         Uri.parse(url),
         headers: {
           'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTNiZGY1N2EtNjQ4NS00Y2JmLTg1ZGItNjhhNDBlOTZmYWEwIiwiZXhwIjoxNzM0NjI3NTEzfQ.4Wab4dqokbO3HKAz-60Fzegd9OjZocC9WM0G8QGRkpg'
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MjUzOTEwfQ.k8tA_PALC9TDSNOse9Vzsplm5FJkFSfB5uuX-nkJEOY'
         }, // Thay 'YOUR_TOKEN' bằng token của người dùng
       );
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        print('Response status: ${response.statusCode}');
+        final data = json.decode(response.body); // Parse JSON trả về
         final fridgeItems = (data['fridgeItems'] as List)
-            .map((item) => FoodItem.fromJson(item))
-            .toList();
-        _items = fridgeItems;
-        notifyListeners();
+            .map((item) => FridgeItem.fromJson(item))
+            .toList(); // Chuyển đổi từng phần tử thành FridgeItem
+        print("object");
+        print(fridgeItems);
+        _items = fridgeItems; // Gán danh sách cho _items
+        notifyListeners(); // Cập nhật UI
         print('Loaded food items');
       } else {
         throw Exception('Failed to load food items');
@@ -42,9 +45,9 @@ class RefrigeratorProvider with ChangeNotifier {
   }
 
   // Hàm thêm thực phẩm vào tủ lạnh (POST request)
-  Future<void> addItemToApi(String groupId, FoodItem item) async {
+  Future<void> addItemToApi(String groupId, FridgeItem item) async {
     final url =
-        'http://localhost:5000/fridge/$groupId'; // Thay thế với URL của bạn
+        'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -61,7 +64,7 @@ class RefrigeratorProvider with ChangeNotifier {
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final newItem = FoodItem.fromJson(data['fridge_item']);
+        final newItem = FridgeItem.fromJson(data['fridge_item']);
         _items.add(newItem);
         notifyListeners();
       } else {
@@ -73,7 +76,7 @@ class RefrigeratorProvider with ChangeNotifier {
   }
 
   // Hàm cập nhật thông tin thực phẩm trong tủ lạnh (PUT request)
-  Future<void> updateItemInApi(String groupId, FoodItem updatedItem) async {
+  Future<void> updateItemInApi(String groupId, FridgeItem updatedItem) async {
     final url =
         'http://localhost:5000/fridge/$groupId'; // Thay thế với URL của bạn
     try {
@@ -93,8 +96,9 @@ class RefrigeratorProvider with ChangeNotifier {
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final updatedFoodItem = FoodItem.fromJson(data['updated_fridge_item']);
-        updateItem(updatedFoodItem);
+        final updatedFridgeItem =
+            FridgeItem.fromJson(data['updated_fridge_item']);
+        updateItem(updatedFridgeItem);
       } else {
         throw Exception('Failed to update food item');
       }
@@ -125,7 +129,7 @@ class RefrigeratorProvider with ChangeNotifier {
   }
 
   // Hàm thêm thực phẩm vào danh sách local
-  void addItem(FoodItem item) {
+  void addItem(FridgeItem item) {
     _items.add(item);
     notifyListeners();
   }
@@ -137,7 +141,7 @@ class RefrigeratorProvider with ChangeNotifier {
   }
 
   // Hàm cập nhật thông tin thực phẩm trong danh sách local
-  void updateItem(FoodItem updatedItem) {
+  void updateItem(FridgeItem updatedItem) {
     final index = _items.indexWhere((item) => item.id == updatedItem.id);
     if (index != -1) {
       _items[index] = updatedItem;
@@ -145,9 +149,9 @@ class RefrigeratorProvider with ChangeNotifier {
     }
   }
 
-  // Hàm xóa thực phẩm khỏi danh sách local
-  void deleteFoodItem(FoodItem foodItem) {
-    _items.remove(foodItem);
-    notifyListeners();
-  }
+  // // Hàm xóa thực phẩm khỏi danh sách local
+  // void deleteFridgeItem(FridgeItem fridgeItem) {
+  //   _items.remove(fridgeItem);
+  //   notifyListeners();
+  // }
 }
