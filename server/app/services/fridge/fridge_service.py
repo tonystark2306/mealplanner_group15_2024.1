@@ -23,12 +23,12 @@ class FridgeService:
             food_dict = food.as_dict()
             unit_dict = self.unit_repo.get_unit_by_id(food.unit_id).as_dict()
             item_dict['Food'] = food_dict
-            categories = food.categories
+            categories = self.food_repo.get_food_categories(item.food_id)
             categories_dict = []
             for category in categories:
                 categories_dict.append(category.name)
-            food_dict['Food']['Categories'] = categories_dict
             item_dict['Food']['Unit'] = unit_dict
+            item_dict['Food']['Categories'] = categories_dict
 
             fridge_dict.append(item_dict)
 
