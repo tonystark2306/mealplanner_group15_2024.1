@@ -38,6 +38,7 @@ class RecipeRepository(RecipeInterface):
         try:
             new_recipe = RecipeModel(group_id=recipe['group_id'] or None,
                                     dish_name=recipe['name'],
+                                    cooking_time=recipe['cooking_time'] or None,
                                     description=recipe.get('description') or None,
                                     content_html=recipe.get('content_html') or None,
                                     )
@@ -81,6 +82,7 @@ class RecipeRepository(RecipeInterface):
             _recipe = db.session.query(RecipeModel).filter(RecipeModel.id == recipe['recipe_id'], RecipeModel.is_deleted == False).first()
             if recipe:
                 _recipe.dish_name = recipe['name'] or recipe.dish_name
+                _recipe.cooking_time = recipe['cooking_time'] or recipe.cooking_time
                 _recipe.description = recipe['description'] or recipe.description
                 _recipe.content_html = recipe['content_html'] or recipe.content_html
                 db.session.commit()

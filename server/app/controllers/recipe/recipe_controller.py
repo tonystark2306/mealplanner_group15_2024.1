@@ -17,6 +17,7 @@ def create_recipe(user_id, group_id):
     recipe = {
         'group_id': group_id,
         'name': data.get('name'),
+        'cooking_time' : data.get('cooking_time'),
         'description': data.get('description'),
         'content_html': data.get('content_html'),
         'foods': [
@@ -57,16 +58,7 @@ def create_recipe(user_id, group_id):
         "created_recipe": result
     }), 201
 
-'''recipe_id:08e1f43b-2095-47e3-95b0-ccd288fb0760
-new_name:Salad chuối táo trộn thịt đà điểu
-new_description:Tôi không ăn chay nữa
-new_content_html:<div>nấu với cơm </div>
-list[new_food_name]:
-list[new__food_name]:
-list[new_quantity]:
-list[new_quantity]:
-list[new_unit_name]:
-list[new_unit_name]:'''
+
 @recipe_api.route("/<group_id>", methods=["PUT"])
 @JWT_required
 @group_admin_required
@@ -77,6 +69,7 @@ def update_recipe(user_id, group_id):
     new_recipe = {
         'recipe_id': data.get('recipe_id'),
         'name': data.get('new_name'),
+        'cooking_time': data.get('new_cooking_time'),
         'description': data.get('new_description'),
         'content_html': data.get('new_content_html'),
         'foods': [
