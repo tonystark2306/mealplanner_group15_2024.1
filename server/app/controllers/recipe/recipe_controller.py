@@ -22,10 +22,12 @@ def create_recipe(user_id, group_id):
         'foods': [
             {
                 'food_name': food_name,
+                'unit_name': unit_name,
                 'quantity': quantity
             }
-            for food_name, quantity in zip(
+            for food_name, unit_name, quantity in zip(
                 request.form.getlist('list[food_name]'),
+                request.form.getlist('list[unit_name]'),
                 request.form.getlist('list[quantity]')
             )
         ],
@@ -54,6 +56,66 @@ def create_recipe(user_id, group_id):
         "resultCode": "00202",
         "created_recipe": result
     }), 201
+
+'''recipe_id:08e1f43b-2095-47e3-95b0-ccd288fb0760
+new_name:Salad chuối táo trộn thịt đà điểu
+new_description:Tôi không ăn chay nữa
+new_content_html:<div>nấu với cơm </div>
+list[new_food_name]:
+list[new__food_name]:
+list[new_quantity]:
+list[new_quantity]:
+list[new_unit_name]:
+list[new_unit_name]:'''
+@recipe_api.route("/<group_id>", methods=["PUT"])
+@JWT_required
+@group_admin_required
+@check_recipe_ownership
+def update_recipe(user_id, group_id):
+    '''Update recipe API'''
+    data = request.form
+    new_recipe = {
+        'recipe_id': data.get('recipe_id'),
+        'name': data.get('new_name'),
+        'description': data.get('new_description'),
+        'content_html': data.get('new_content_html'),
+        'foods': [
+            {
+                'food_name': food_name,
+                'unit_name': unit_name,
+                'quantity': quantity
+            }
+            for food_name, unit_name, quantity in zip(
+                request.form.getlist('list[new_food_name]'),
+                request.form.getlist('list[new_unit_name]'),
+                request.form.getlist('list[new_quantity]')
+            )
+        ],
+        'images': [
+            image for image in request.files.getlist('new_images') if image.filename
+        ]
+    }
+
+    recipe_service = RecipeService()
+    result = recipe_service.update_recipe(new_recipe)
+
+    if result == "recipe not found":
+        return jsonify({
+            "resultMessage": {
+                "en": "Recipe with ID not exist or deleted.",
+                "vn": "Công thức nấu ăn không tồn tại."
+        },
+        "resultCode": "00195"
+    }), 404
+    
+    return jsonify({
+        "resultMessage": {
+            "en": "Recipe updated successfully.",
+            "vn": "Công thức đã được cập nhật thành công."
+        },
+        "resultCode": "00202",
+        "updated_recipe": result
+    }), 200
 
 
 @recipe_api.route("/<group_id>", methods=["GET"])
@@ -112,8 +174,6 @@ def search_recipe(user_id, group_id):
     }), 200
     
     
-
-
 @recipe_api.route("/<group_id>/<recipe_id>", methods = ["GET"])
 @JWT_required
 @group_member_required
@@ -168,3 +228,23 @@ def delete_recipe(user_id, group_id):
             },
             "resultCode": "00250"
         }), 200
+
+@recipe_api.route("/<group_id>/list", methods = ["DELETE"])
+@JWT_required
+@group_admin_required
+def delete_list_recipe(user_id, group_id):
+    recipe_service = RecipeService()
+    recipe_ids = request.json.get("recipe_ids")
+
+    for recipe_id in recipe_ids:
+        try:
+            recipe_service.delete_recipe(recipe_id)
+        except Exception as e:
+            continue
+    return jsonify({
+        "resultMessage": {
+            "en": "Successfully delete list of recipes",
+            "vn": "Xoá thành công danh sách công thức nấu ăn"
+        },
+        "resultCode": "00250"
+    }), 200

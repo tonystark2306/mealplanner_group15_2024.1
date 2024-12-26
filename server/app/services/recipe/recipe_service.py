@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 
 from ...repository.food_repository import FoodRepository
 from ...repository.recipe_repository import RecipeRepository, RecipeImageRepository
+from ...repository.unit_repository import UnitRepository
 from ...utils.firebase_helper import FirebaseHelper
 
 
@@ -12,6 +13,7 @@ class RecipeService:
         self.recipe_repo = RecipeRepository()
         self.image_repo = RecipeImageRepository()
         self.food_repo = FoodRepository()
+        self.unit_repo = UnitRepository()
         self.firebase_helper = FirebaseHelper()
 
 
@@ -20,13 +22,15 @@ class RecipeService:
         # Handle food data
         for food_data in data['foods']:
             food = self.food_repo.get_foods_by_name(food_data['food_name'])
-            if not food:
-                return "food not found"
+            unit = self.unit_repo.get_unit_by_name(food_data['unit_name'])
+
             food_data.update({
-            'food_id': food.id,
-            'quantity': float(food_data.get('quantity', 0))
+                'food_id': food.id if food else None,
+                'food_name': food.name if food else food_data['food_name'],
+                'unit_id': unit.id if unit else None,
+                'unit_name': unit.name if unit else food_data['unit_name'],
+                'quantity': float(food_data.get('quantity', 0))
             })
-            del food_data['food_name']
         
         # Handle image data
         images = []
@@ -42,19 +46,9 @@ class RecipeService:
         
         #trả về recipe đã tạo với cả danh sách thực phẩm và hình ảnh
         recipe_dict = recipe.as_dict()
-        foods_dict = []
-        REMOVED_FIELDS = ['created_at', 'updated_at', 'note', 'status', 'create_by', 'group_id']
-        for food in recipe.foods:
-            food_dict = food.as_dict()
-            for field in REMOVED_FIELDS:
-                del food_dict[field]
-            # Get quantity from recipe_foods table
-            for food_data in data['foods']:
-                if food_data['food_id'] == food.id:
-                    food_dict['quantity'] = food_data['quantity']
-                    break
-            foods_dict.append(food_dict)
-        recipe_dict['foods'] = foods_dict
+
+
+        recipe_dict['foods'] = recipe.foods
 
         images_dict = []
         for image in recipe.images:
@@ -66,8 +60,51 @@ class RecipeService:
         recipe_dict['images'] = images_dict
 
         return recipe_dict
+    
 
+    def update_recipe(self, data):
+        recipe= self.recipe_repo.get_recipe_by_id(data['recipe_id'])
+        if not recipe:
+            return "recipe not found"
+        # Handle food data
+        for food_data in data['foods']:
+            food = self.food_repo.get_foods_by_name(food_data['food_name'])
+            unit = self.unit_repo.get_unit_by_name(food_data['unit_name'])
 
+            food_data.update({
+                'food_id': food.id if food else None,
+                'food_name': food.name if food else food_data['food_name'],
+                'unit_id': unit.id if unit else None,
+                'unit_name': unit.name if unit else food_data['unit_name'],
+                'quantity': float(food_data.get('quantity', 0.0))
+            })
+
+        # Handle image data
+        images = []
+        for idx, image in enumerate(data['images']):
+            if image.filename:
+                filename = secure_filename(image.filename)
+            image_url = self.firebase_helper.upload_image(image, f"recipe/{filename}")
+            if image_url:
+                images.append({"image_url": image_url, "order": idx})
+        data['images'] = images
+        recipe = self.recipe_repo.update_recipe(data)
+
+        #trả về recipe đã tạo với cả danh sách thực phẩm và hình ảnh
+        recipe_dict = recipe.as_dict()
+        recipe_dict['foods'] = recipe.foods
+        images_dict = []
+        for image in recipe.images:
+            REMOVED_FIELDS = ['created_at', 'updated_at', 'is_deleted']
+            image_dict = image.as_dict()
+            for field in REMOVED_FIELDS:
+                del image_dict[field]
+            images_dict.append(image_dict)
+        recipe_dict['images'] = images_dict
+
+        return recipe_dict
+
+            
     def get_list_recipes(self, group_id):
         recipes = self.recipe_repo.get_recipes_by_group_id(group_id) + self.recipe_repo.get_system_recipes()
 
@@ -99,13 +136,7 @@ class RecipeService:
         #     del recipe_dict[field]
 
         # Get foods
-        foods_dict = []
-        for food in recipe.foods:
-            food_dict = food.as_dict()
-            del food_dict['created_at']
-            del food_dict['updated_at']
-            foods_dict.append(food_dict)
-        recipe_dict['foods'] = foods_dict
+        recipe_dict['foods'] = recipe.foods
 
         # Get images
         images_dict = []

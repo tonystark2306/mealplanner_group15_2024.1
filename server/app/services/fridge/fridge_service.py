@@ -30,6 +30,8 @@ class FridgeService:
 
         #tìm item có group_id:
         item = self.fridge_repo.get_item_by_id(item_id)
+        if not item:
+            return "item not found"
 
         item_dict = item.as_dict()
 
