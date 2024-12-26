@@ -33,6 +33,7 @@ class RecipeDetailPopup extends StatelessWidget {
                   ?.map((ingredient) => Ingredient(
                         name: ingredient['name'] ?? '',
                         weight: ingredient['weight'] ?? '',
+                        unitName: ingredient['unitName'],
                       ))
                   .toList() ??
               [],

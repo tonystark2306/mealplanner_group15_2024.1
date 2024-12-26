@@ -23,11 +23,11 @@ class RecipeProvider with ChangeNotifier {
         name: 'Phở bò',
         timeCooking: '45 phút',
         ingredients: [
-          Ingredient(name: 'Bánh phở', weight: '200g'),
-          Ingredient(name: 'Thịt bò', weight: '300g'),
-          Ingredient(name: 'Hành lá', weight: '50g'),
-          Ingredient(name: 'Gia vị phở', weight: '1 gói'),
-          Ingredient(name: 'Nước dùng', weight: '1.5L'),
+          Ingredient(name: 'Bánh phở', unitName: 'g', weight: '200'),
+          Ingredient(name: 'Thịt bò', unitName: 'g', weight: '300'),
+          Ingredient(name: 'Hành lá', unitName: 'g', weight: '50g'),
+          Ingredient(name: 'Gia vị phở', unitName: 'gói', weight: '1'),
+          Ingredient(name: 'Nước dùng', unitName: 'L',weight: '1.5'),
         ],
         steps: '''
   1. Chuẩn bị nguyên liệu: rửa sạch rau thơm và hành lá.
@@ -45,11 +45,11 @@ class RecipeProvider with ChangeNotifier {
         name: 'Bánh mì thịt nướng',
         timeCooking: '30 phút',
         ingredients: [
-          Ingredient(name: 'Bánh mì', weight: '1 ổ'),
-          Ingredient(name: 'Thịt heo nướng', weight: '150g'),
-          Ingredient(name: 'Dưa leo', weight: '50g'),
-          Ingredient(name: 'Rau thơm', weight: '10g'),
-          Ingredient(name: 'Tương ớt', weight: '20ml'),
+          Ingredient(name: 'Bánh mì', unitName: 'cái', weight: '1'),
+          Ingredient(name: 'Thịt heo nướng', unitName: 'g', weight: '150'),
+          Ingredient(name: 'Dưa leo', unitName: 'g', weight: '50'),
+          Ingredient(name: 'Rau thơm', unitName: 'g', weight: '10'),
+          Ingredient(name: 'Tương ớt', unitName: 'ml', weight: '20ml'),
         ],
         steps: '''
   1. Chuẩn bị nguyên liệu: rửa rau và thái dưa leo.
@@ -73,7 +73,7 @@ class RecipeProvider with ChangeNotifier {
 
   final String group_id = "7b95381b-dc40-460a-981e-5c04d3053e38";
   final String token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWRiNDBlNDQtNmJhNS00ZWNiLWJkOGQtZWY3MjMyOGNjYTIyIiwiZXhwIjoxNzM1MTQwNzE3fQ.sgXl4tBMoa9j10f67pa3vd_X74diIHC8J450EfqpJmQ";
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTlhMDZlOWItNzE2ZC00ODc4LThjZTEtMDdiM2RjYjY4YTdmIiwiZXhwIjoxNzM1MTk3ODE1fQ.LhZW6Uj686Iq58AupB5hyPrLVjOIIdR0rzatW4omo20";
   Future<void> getRecipes() async {
     final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
     try {
@@ -101,6 +101,7 @@ class RecipeProvider with ChangeNotifier {
                       ?.map((ingredient) => Ingredient(
                             name: ingredient['food_name'] ?? '',
                             weight: ingredient['quantity'] ?? '',
+                            unitName: ingredient['unit_name'] ?? '',
                           ))
                       .toList() ??
                   [],

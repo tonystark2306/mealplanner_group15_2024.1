@@ -44,9 +44,9 @@ class RecipeItem {
 
 class Ingredient {
   final String name;
+  final String unitName;
   final String weight;
-
-  Ingredient({required this.name, required this.weight});
+  Ingredient({required this.name, required this.unitName, required this.weight});
 
   Map<String, dynamic> toMap() {
     return {
@@ -58,6 +58,7 @@ class Ingredient {
   factory Ingredient.fromMap(Map<String, dynamic> map) {
     return Ingredient(
       name: map['name'],
+      unitName: map['unitName'],
       weight: map['weight'],
     );
   }

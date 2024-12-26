@@ -18,6 +18,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
   final TextEditingController timeController = TextEditingController();
   final List<TextEditingController> ingredientNameControllers = [];
   final List<TextEditingController> ingredientWeightControllers = [];
+  final List<TextEditingController> ingredientUnitControllers = [];
   final TextEditingController stepsController = TextEditingController();
   Uint8List? uploadedImage;
 
@@ -31,6 +32,9 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     for (var controller in ingredientWeightControllers) {
       controller.dispose();
     }
+    for (var controller in ingredientUnitControllers) {
+      controller.dispose();
+    }
     stepsController.dispose();
     super.dispose();
   }
@@ -39,6 +43,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     setState(() {
       ingredientNameControllers.add(TextEditingController());
       ingredientWeightControllers.add(TextEditingController());
+      ingredientUnitControllers.add(TextEditingController());
     });
   }
 
@@ -65,12 +70,21 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                   keyboardType: TextInputType.number,
                 ),
               ),
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 1,
+                child: buildTextField(
+                  controller: ingredientUnitControllers[index],
+                  label: 'Đơn vị',
+                ),
+              ),
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
                 onPressed: () {
                   setState(() {
                     ingredientNameControllers.removeAt(index);
                     ingredientWeightControllers.removeAt(index);
+                    ingredientUnitControllers.removeAt(index);
                   });
                 },
               ),
@@ -128,6 +142,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
       ingredientNameControllers.length,
       (index) => Ingredient(
         name: ingredientNameControllers[index].text,
+        unitName: ingredientUnitControllers[index].text,
         weight: ingredientWeightControllers[index].text,
       ),
     );
