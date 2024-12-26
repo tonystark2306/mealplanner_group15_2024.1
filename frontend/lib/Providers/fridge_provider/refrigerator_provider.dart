@@ -44,29 +44,60 @@ class RefrigeratorProvider with ChangeNotifier {
     }
   }
 
+  // Hàm thêm thông tin thực phẩm chỉ định vào local
+  Future<FridgeItem> addFridgeToLocal(String groupId, String fridgeId) async{
+    final url =
+        'http://localhost:5000/api/fridge/$groupId/$fridgeId'; // Thay thế với URL của bạn
+    try {
+      print('Loading food items from API ${url}');
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization':
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MjUzOTEwfQ.k8tA_PALC9TDSNOse9Vzsplm5FJkFSfB5uuX-nkJEOY'
+        }, // Thay 'YOUR_TOKEN' bằng token của người dùng
+      );
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        print('Response status: ${response.statusCode}');
+        final data = json.decode(response.body); // Parse JSON trả về
+        final item = FridgeItem.fromJson(data['fridgeItem']); // Chuyển đổi từng phần tử thành FridgeItem
+        return item;
+      } else {
+        throw Exception('Failed to load food items');
+      }
+    } catch (error) {
+      print(error);
+      throw error;
+    }
+  }
+
   // Hàm thêm thực phẩm vào tủ lạnh (POST request)
   Future<void> addItemToApi(String groupId, FridgeItem item) async {
     final url =
         'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
     try {
+      print("item $item");
+
       final response = await http.post(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
           'Authorization':
-              'Bearer YOUR_TOKEN', // Thay 'YOUR_TOKEN' bằng token của người dùng
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MjgwOTI3fQ.T_08nBTPupJM4PIlQ8z2cBSU8992SZ-fMF3lTDP3K3o', // Thay 'YOUR_TOKEN' bằng token của người dùng
         },
-        body: json.encode({
-          'foodName': item.name,
-          'quantity': item.quantity.toString(),
-          'expiration_date': item.expirationDate,
-        }),
+        body: json.encode(item.toJson()),
       );
-      if (response.statusCode == 200) {
+      print("body ${item.toJson()}");
+      print('Response status: ${response.statusCode}');
+      if (response.statusCode == 201) {
         final data = json.decode(response.body);
-        final newItem = FridgeItem.fromJson(data['fridge_item']);
-        _items.add(newItem);
-        notifyListeners();
+        final newItemId = data['fridge_item']['id'];
+        print("newItemId $newItemId");
+        FridgeItem item = await addFridgeToLocal(groupId, newItemId);
+        addItem(item);
       } else {
         throw Exception('Failed to add food item');
       }
@@ -78,31 +109,29 @@ class RefrigeratorProvider with ChangeNotifier {
   // Hàm cập nhật thông tin thực phẩm trong tủ lạnh (PUT request)
   Future<void> updateItemInApi(String groupId, FridgeItem updatedItem) async {
     final url =
-        'http://localhost:5000/fridge/$groupId'; // Thay thế với URL của bạn
+        'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
+    print('updateItem ${updatedItem.toDataForPut()}');
     try {
       final response = await http.put(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
           'Authorization':
-              'Bearer YOUR_TOKEN', // Thay 'YOUR_TOKEN' bằng token của người dùng
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MjUzOTEwfQ.k8tA_PALC9TDSNOse9Vzsplm5FJkFSfB5uuX-nkJEOY', // Thay 'YOUR_TOKEN' bằng token của người dùng
         },
-        body: json.encode({
-          'itemId': updatedItem.id,
-          'newQuantity': updatedItem.quantity,
-          'newExpiration_date': updatedItem.expirationDate,
-          'newFoodName': updatedItem.name,
-        }),
+        body: json.encode(updatedItem.toDataForPut()),
       );
+      print('updateItem ${updatedItem.toDataForPut()}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final updatedFridgeItem =
-            FridgeItem.fromJson(data['updated_fridge_item']);
-        updateItem(updatedFridgeItem);
+        final updatedFridgeItemId = data['updated_fridge_item']['id'];
+        final FridgeItem item = await addFridgeToLocal(groupId, updatedFridgeItemId);
+        updateItem(item);
       } else {
         throw Exception('Failed to update food item');
       }
     } catch (error) {
+      print('error $error');
       throw error;
     }
   }

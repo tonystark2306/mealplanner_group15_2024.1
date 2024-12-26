@@ -4,7 +4,9 @@ import '../../Models/fridge/fridge_item_model.dart';
 import '../../Providers/fridge_provider/refrigerator_provider.dart';
 
 class AddFridgeItemScreen extends StatefulWidget {
-  const AddFridgeItemScreen({super.key});
+  final String groupId;
+
+  const AddFridgeItemScreen({super.key, required this.groupId});
 
   @override
   _AddFridgeItemScreenState createState() => _AddFridgeItemScreenState();
@@ -36,7 +38,8 @@ class _AddFridgeItemScreenState extends State<AddFridgeItemScreen> {
       );
 
       Provider.of<RefrigeratorProvider>(context, listen: false)
-          .addItem(newFridgeItem);
+          // .addItem(newFridgeItem);
+          .addItemToApi(widget.groupId, newFridgeItem);
 
       Navigator.pop(context);
     }
@@ -53,6 +56,7 @@ class _AddFridgeItemScreenState extends State<AddFridgeItemScreen> {
     if (pickedDate != null) {
       setState(() {
         _expiryDate = pickedDate;
+        print(_expiryDate?.toIso8601String());
       });
     }
   }

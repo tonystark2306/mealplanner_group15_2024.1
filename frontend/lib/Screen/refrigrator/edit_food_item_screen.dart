@@ -5,8 +5,8 @@ import '../../Providers/fridge_provider/refrigerator_provider.dart';
 
 class EditFridgeItemScreen extends StatefulWidget {
   final FridgeItem fridgeItem; // Nhận FridgeItem cần chỉnh sửa
-
-  const EditFridgeItemScreen({super.key, required this.fridgeItem});
+  final String groupId;
+  const EditFridgeItemScreen({super.key, required this.fridgeItem, required this.groupId});
 
   @override
   _EditFridgeItemScreenState createState() => _EditFridgeItemScreenState();
@@ -40,7 +40,7 @@ class _EditFridgeItemScreenState extends State<EditFridgeItemScreen> {
 
       // Cập nhật item trong Provider
       Provider.of<RefrigeratorProvider>(context, listen: false)
-          .updateItem(updatedFridgeItem);
+          .updateItemInApi(widget.groupId, updatedFridgeItem);
 
       Navigator.pop(context);
     }

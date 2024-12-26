@@ -274,8 +274,9 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
       ),
     );
     if (confirmed == true) {
-      await Provider.of<MealPlanProvider>(context, listen: false)
-          .deleteMealPlan(mealId, token);
+      Provider.of<MealPlanProvider>(context, listen: false)
+          // .deleteMealPlan(mealId, token);
+          .deleteMealPlanState(mealId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đã xóa bữa ăn')),
       );

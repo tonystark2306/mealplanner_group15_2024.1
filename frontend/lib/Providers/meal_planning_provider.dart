@@ -123,6 +123,12 @@ class MealPlanProvider with ChangeNotifier {
       rethrow;
     }
   }
+
+  //Delete a meal plan state
+  void deleteMealPlanState(String id) {
+    _mealPlans.removeWhere((meal) => meal.id == id);
+    notifyListeners();
+  }
 }
 
 List<MealPlanModel> sampleMealPlans = [
