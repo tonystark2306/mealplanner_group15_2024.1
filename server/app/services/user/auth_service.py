@@ -29,7 +29,7 @@ class AuthService:
         return user, role.role_name
 
 
-    def generate_access_token(self, user_id, expires_in=600):
+    def generate_access_token(self, user_id, expires_in=7200):
         """Generate a new access token for the user."""
         try:
             payload = {
