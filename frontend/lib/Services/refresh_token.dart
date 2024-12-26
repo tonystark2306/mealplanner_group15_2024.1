@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:meal_planner_app/Providers/token_storage.dart';
 
 class TokenRefresher {
-  static const int refreshInterval =  30; // 8 phút (tính bằng giây)
+  static const int refreshInterval =  480; // 8 phút (tính bằng giây)
   static Timer? _timer;
 
   /// Khởi động quá trình tự động refresh token
