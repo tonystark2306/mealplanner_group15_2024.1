@@ -14,17 +14,25 @@ class _AddFridgeItemScreenState extends State<AddFridgeItemScreen> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   int _quantity = 1;
-  DateTime _expiryDate = DateTime.now();
+  DateTime? _expiryDate;  // Khởi tạo là null
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
+      // Kiểm tra nếu ngày hết hạn chưa được chọn
+      if (_expiryDate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Vui lòng chọn ngày hết hạn')),
+        );
+        return;
+      }
+
       final newFridgeItem = FridgeItem(
         id: DateTime.now().toString(),
         name: _name,
         quantity: _quantity,
-        expirationDate: _expiryDate,
+        expirationDate: _expiryDate!,
       );
 
       Provider.of<RefrigeratorProvider>(context, listen: false)
@@ -37,7 +45,7 @@ class _AddFridgeItemScreenState extends State<AddFridgeItemScreen> {
   void _pickExpiryDate() async {
     final pickedDate = await showDatePicker(
       context: context,
-      initialDate: _expiryDate,
+      initialDate: _expiryDate ?? DateTime.now(),  // Nếu chưa chọn thì không mặc định là ngày hôm nay
       firstDate: DateTime(2024),
       lastDate: DateTime(2100),
     );
@@ -99,7 +107,9 @@ class _AddFridgeItemScreenState extends State<AddFridgeItemScreen> {
               Row(
                 children: [
                   Text(
-                    'Ngày hết hạn: ${_expiryDate.toLocal().toString().split(' ')[0]}',
+                    _expiryDate == null
+                        ? 'Chưa chọn ngày'
+                        : 'Ngày hết hạn: ${_expiryDate!.toLocal().toString().split(' ')[0]}',
                   ),
                   const Spacer(),
                   TextButton(
