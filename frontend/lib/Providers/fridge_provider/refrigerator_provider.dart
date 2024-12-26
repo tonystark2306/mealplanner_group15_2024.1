@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../Models/fridge_item_model.dart';
+import '../../Models/fridge/fridge_item_model.dart';
 
 class RefrigeratorProvider with ChangeNotifier {
   List<FridgeItem> _items = [];
@@ -18,7 +18,7 @@ class RefrigeratorProvider with ChangeNotifier {
         Uri.parse(url),
         headers: {
           'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MjQ4ODc5fQ.yiCu9g-odEF_tGXOS-rWKWwzJomVe9XNSa2SSoc0Kao'
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MjUzOTEwfQ.k8tA_PALC9TDSNOse9Vzsplm5FJkFSfB5uuX-nkJEOY'
         }, // Thay 'YOUR_TOKEN' bằng token của người dùng
       );
       print('Response status: ${response.statusCode}');
@@ -47,7 +47,7 @@ class RefrigeratorProvider with ChangeNotifier {
   // Hàm thêm thực phẩm vào tủ lạnh (POST request)
   Future<void> addItemToApi(String groupId, FridgeItem item) async {
     final url =
-        'http://localhost:5000/fridge/$groupId'; // Thay thế với URL của bạn
+        'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
     try {
       final response = await http.post(
         Uri.parse(url),

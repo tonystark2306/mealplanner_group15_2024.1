@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../Models/fridge_item_model.dart';
-import '../../Providers/refrigerator_provider.dart';
+import '../../Models/fridge/fridge_item_model.dart';
+import '../../Providers/fridge_provider/refrigerator_provider.dart';
 
 class EditFridgeItemScreen extends StatefulWidget {
   final FridgeItem fridgeItem; // Nhận FridgeItem cần chỉnh sửa
