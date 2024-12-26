@@ -18,6 +18,7 @@ class RefrigeratorManagementScreen extends StatefulWidget {
 
 class _RefrigeratorManagementScreenState
     extends State<RefrigeratorManagementScreen> {
+  late final String groupId = widget.groupId;
   bool _isLoading = true;
 
   @override
@@ -29,7 +30,7 @@ class _RefrigeratorManagementScreenState
   Future<void> _loadFridgeItems() async {
     try {
       await Provider.of<RefrigeratorProvider>(context, listen: false)
-          .loadFridgeItemsFromApi(widget.groupId);
+          .loadFridgeItemsFromApi(groupId);
       setState(() {
         _isLoading = false;
       });
@@ -101,7 +102,7 @@ class _RefrigeratorManagementScreenState
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const AddFridgeItemScreen()),
+                builder: (context) => AddFridgeItemScreen(groupId: groupId,)),
           );
         },
         child: const Icon(Icons.add, color: Colors.white),
@@ -216,7 +217,7 @@ class _RefrigeratorManagementScreenState
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              EditFridgeItemScreen(fridgeItem: fridgeItem),
+                              EditFridgeItemScreen(groupId: groupId, fridgeItem: fridgeItem),
                         ),
                       );
                     } else if (value == 'delete') {

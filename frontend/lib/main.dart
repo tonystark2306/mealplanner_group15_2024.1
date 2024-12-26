@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => GroupFridgeProvider()),
         ChangeNotifierProvider(create: (_) => RefrigeratorProvider()),
-        ChangeNotifierProvider(create: (_) => MealPlanningProvider()),
+        ChangeNotifierProvider(create: (_) => MealPlanProvider()),
         ChangeNotifierProvider(create: (_) => RecipeProvider()),
       ],
       child: MaterialApp(
