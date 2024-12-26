@@ -20,7 +20,9 @@ class FridgeService:
             item_dict = item.as_dict()
             food = self.food_repo.get_food_by_id(item.food_id)
             food_dict = food.as_dict()
+            unit_dict = self.unit_repo.get_unit_by_id(food.unit_id).as_dict()
             item_dict['Food'] = food_dict
+            item_dict['Food']['Unit'] = unit_dict
             fridge_dict.append(item_dict)
 
         return fridge_dict
