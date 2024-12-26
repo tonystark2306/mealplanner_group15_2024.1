@@ -66,8 +66,8 @@ class _RefrigeratorManagementScreenState
           : Consumer<RefrigeratorProvider>(
               builder: (context, refrigeratorProvider, child) {
                 final fridgeItems = refrigeratorProvider.items;
-                fridgeItems.sort((a, b) => a.expirationDate
-                    .compareTo(b.expirationDate)); // Sắp xếp theo ngày hết hạn
+                fridgeItems.sort((a, b) =>
+                    a.expirationDate.compareTo(b.expirationDate)); // Sắp xếp theo ngày hết hạn
 
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
