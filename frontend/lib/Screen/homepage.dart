@@ -180,7 +180,7 @@ Widget _buildDrawer(BuildContext context) {
         _buildDrawerItem(icon: Icons.person, text: 'Thông tin cá nhân', onTap: (){
             Navigator.pushNamed(context, '/user-info');
         }),
-        _buildDrawerItem(icon: Icons.group, text: 'Quản lý thành viên nhóm', onTap: () {
+        _buildDrawerItem(icon: Icons.group, text: 'Quản lý nhóm', onTap: () {
             Navigator.pushNamed(context, '/family-group');
         }),
         _buildDrawerItem(icon: Icons.notifications, text: 'Cài đặt thông báo'),
