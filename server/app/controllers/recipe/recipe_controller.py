@@ -149,7 +149,8 @@ def get_list_recipes(user_id, group_id):
 @group_member_required
 def search_recipe(user_id, group_id):
     '''search recipe by keyword'''
-    keyword = request.json.get("keyword")
+    # Lấy từ khóa tìm kiếm từ parameter
+    keyword = request.args.get("keyword")
     recipe_service = RecipeService()
 
     # Tìm kiếm công thức
