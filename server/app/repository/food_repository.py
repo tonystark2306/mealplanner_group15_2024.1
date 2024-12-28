@@ -38,18 +38,13 @@ class FoodRepository(FoodInterface):
     
     def create_food(self, user_id, group_id, image_url, data) -> FoodModel:
         try:
-            categories = []
-            for name in data["foodCategoryNames"]:
-                category = self.category_repository.get_category_by_name(name)
-                if not category:
-                    return None
-                categories.append(category)
-                
+            category = self.category_repository.get_category_by_name(data["categoryName"])
             unit = self.unit_repository.get_unit_by_name(data["unitName"])
-            if not unit:
+            if not category or not unit:
                 return None
             
-            new_food = FoodModel(user_id, data["name"], data["type"], group_id, categories, unit.id, image_url, data["note"])
+            new_food = FoodModel(user_id, data["name"], data["type"], group_id, category, unit.id, image_url, data["note"])
+            logging.error(new_food)
             db.session.add(new_food)
             db.session.commit()
             return new_food

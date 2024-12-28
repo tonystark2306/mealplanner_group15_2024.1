@@ -69,7 +69,25 @@ class FridgeService:
             return "food item not found"
 
         convert_date = datetime.strptime(data['expiration_date'], "%Y-%m-%d %H:%M:%S")
-        return self.fridge_repo.add_item(data['owner_id'], data['added_by'], food.id, data['quantity'], convert_date)
+
+        frigde_item = self.fridge_repo.add_item(data['owner_id'], data['added_by'], food.id, data['quantity'], convert_date)
+        if not frigde_item:
+            return "error adding item to fridge"
+        
+        food_dict = food.as_dict()
+        unit = self.unit_repo.get_unit_by_id(food.unit_id)
+        unit_dict = unit.as_dict()
+        categories = self.food_repo.get_food_categories(food.id)
+        categories_dict = []
+        for category in categories:
+            categories_dict.append(category.name)
+        food_dict['Unit'] = unit_dict
+        food_dict['Categories'] = categories_dict
+
+        frigde_item_dict = frigde_item.as_dict()
+        frigde_item_dict['Food'] = food_dict
+
+        return frigde_item_dict
     
 
     def update_fridge_item(self, data: dict) -> Tuple[str, Optional[str]]:

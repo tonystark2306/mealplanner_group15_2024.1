@@ -27,6 +27,7 @@ class Recipe(Base):
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     dish_name: Mapped[str] = mapped_column(String(100), nullable=False)  # Name of the recipe
+    cooking_time: Mapped[Optional[float]] = mapped_column(Float, nullable=True)  # Cooking time of the recipe, tính bằng phút
     content_html: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # HTML content of the recipe
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # Description of the recipe
     type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, default='custom')  # Type of the recipe: custom, system
@@ -39,8 +40,9 @@ class Recipe(Base):
     images = relationship('RecipeImage', back_populates='recipe')
     meal_plans = relationship('MealPlan', secondary=meal_plan_recipes, back_populates='recipes', cascade='all, delete')
 
-    def __init__(self, group_id, dish_name, content_html, description, **kwargs):
+    def __init__(self, group_id, dish_name, cooking_time, content_html, description, **kwargs):
         self.dish_name = dish_name
+        self.cooking_time = cooking_time
         self.content_html = content_html
         self.description = description
         self.group_id = group_id

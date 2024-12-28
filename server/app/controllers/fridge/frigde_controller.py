@@ -48,7 +48,7 @@ def create_fridge_item(user_id, group_id):
             "vn": "Thêm thực phẩm vào tủ lạnh thành công."
         },
         "resultCode": "00202",
-        "fridge_item": result.to_json()
+        "fridge_item": result
     }), 201
 
 

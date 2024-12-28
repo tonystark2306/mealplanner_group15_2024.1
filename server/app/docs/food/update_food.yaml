@@ -25,27 +25,25 @@ parameters:
     type: string
     description: Name of the food item to update
     example: "Apple"
-  - name: newType
+  - name: type
     in: formData
     required: false
     type: string
     description: New type of the food item
     example: "ingredient"
-  - name: newUnitName
+  - name: unitName
     in: formData
     required: false
     type: string
     description: New unit name for the food
     example: "kg"
-  - name: newFoodCategoryNames
+  - name: categoryName
     in: formData
     required: false
-    type: array
-    description: New list of food category names
-    items:
-      type: string
-    example: ["Fruit", "Healthy"]
-  - name: newNote
+    type: string
+    description: New category name for the food
+    example: "Fruit"
+  - name: note
     in: formData
     required: false
     type: string

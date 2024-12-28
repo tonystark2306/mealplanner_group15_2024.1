@@ -125,6 +125,23 @@ class RecipeService:
         return recipes_dict
 
 
+    def search_by_keyword(self, group_id, keyword):
+        if not keyword:
+            recipes = self.get_list_recipes(group_id)
+        recipes = self.recipe_repo.search_by_keyword(group_id, keyword)
+        if not recipes:
+            return None
+        
+        recipes_dict = []
+        REMOVED_FIELDS = ['content_html', 'created_at', 'updated_at', 'is_deleted', 'group_id', 'type', 'description', 'cooking_time']
+        for recipe in recipes:
+            recipe_dict = recipe.as_dict()
+            for field in REMOVED_FIELDS:
+                del recipe_dict[field]  
+            recipes_dict.append(recipe_dict)
+        return recipes_dict
+
+
     def get_recipe(self, recipe_id):
         recipe = self.recipe_repo.get_recipe_by_id(recipe_id)
         if not recipe:

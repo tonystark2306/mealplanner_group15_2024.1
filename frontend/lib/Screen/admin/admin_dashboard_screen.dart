@@ -34,7 +34,7 @@ class AdminDashboardScreen extends StatelessWidget {
             context,
             'Quản lý danh mục',
             Icons.category,
-            () => Navigator.pushNamed(context, '/admin/categories'),
+            () => Navigator.pushNamed(context, '/admin-categories'),
           ),
           _buildAdminTile(
             context,

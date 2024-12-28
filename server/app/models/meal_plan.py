@@ -75,18 +75,26 @@ class MealPlan(Base):
     def foods(self):
         from app import db  # Import db nếu cần
         result = (
-            db.session.query(meal_plan_foods.c.food_id, meal_plan_foods.c.food_name, meal_plan_foods.c.unit_id, meal_plan_foods.c.unit, meal_plan_foods.c.quantity)
+            db.session.query(meal_plan_foods.c.id,meal_plan_foods.c.food_id, meal_plan_foods.c.food_name, meal_plan_foods.c.unit_id, meal_plan_foods.c.unit, meal_plan_foods.c.quantity)
             .filter(meal_plan_foods.c.plan_id == self.id)
             .all()
         )
-        return [dict(
-            id=r.id,
-            meal_plan_id=r.plan_id,
-            food_id=r.food_id, food_name=r.food_name,
-            unit_id=r.unit_id, unit_name=r.unit,
-            quantity=r.quantity) for r in result]
+        if not result:
+            return []
         
-         
+        food_dict = []
+        for id, plan_id, food_id, food_name, unit_id, unit, quantity in result:
+            food_dict.append({
+                'id': id,
+                'plan_id': plan_id,
+                'food_id': food_id,
+                'food_name': food_name,
+                'unit_id': unit_id,
+                'unit': unit,
+                'quantity': quantity
+            })
+        return food_dict
+
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
