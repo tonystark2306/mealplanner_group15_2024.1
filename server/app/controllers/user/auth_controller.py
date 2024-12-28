@@ -345,7 +345,7 @@ def verify_email():
         
         
 @user_api.route("/request-reset-password", methods=["POST"])
-# @swag_from("../../docs/user/auth/request_reset_password.yaml", endpoint="user_api.request_reset_password", methods=["POST"])
+@swag_from("../../docs/user/auth/request_reset_password.yaml", endpoint="user_api.request_reset_password", methods=["POST"])
 def request_reset_password():
     data = request.get_json()
     if data is None:
@@ -408,7 +408,7 @@ def request_reset_password():
     
     
 @user_api.route("/validate-reset-code", methods=["POST"])
-# @swag_from("../../docs/user/auth/validate_reset_code.yaml", endpoint="user_api.validate_reset_code", methods=["POST"])
+@swag_from("../../docs/user/auth/validate_reset_code.yaml", endpoint="user_api.validate_reset_code", methods=["POST"])
 def validate_reset_code():
     data = request.get_json()
     if not data:
@@ -420,8 +420,8 @@ def validate_reset_code():
             "resultCode": "00004"
         }), 400
     
-    reset_token = data.get("confirm_token")
-    reset_code = data.get("verification_code")
+    reset_token = data.get("resetToken")
+    reset_code = data.get("resetCode")
     if not reset_token or not reset_code:
         return jsonify({
             "resultMessage": {
@@ -454,7 +454,7 @@ def validate_reset_code():
         
         
 @user_api.route("/reset-password", methods=["POST"])
-# @swag_from("../../docs/user/auth/reset_password.yaml", endpoint="user_api.reset_password", methods=["POST"])
+@swag_from("../../docs/user/auth/reset_password.yaml", endpoint="user_api.reset_password", methods=["POST"])
 def reset_password():
     data = request.get_json()
     if not data:
