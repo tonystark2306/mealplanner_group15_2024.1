@@ -5,7 +5,7 @@ import 'Screen/reports/consumption_report_screen.dart';
 import 'Screen/auth/login.dart';
 import 'Screen/auth/signupscreen.dart';
 import 'Screen/homepage.dart';
-import 'Screen/shopping_list/shopping_list_screen.dart';
+import 'Screen/shopping/shopping_screen.dart';
 import 'Screen/recipes/create_recipe_screen.dart';
 import 'Screen/recipes/recipe_management_screen.dart';
 import 'Screen/meal_planning/meal_planning_screen.dart';
@@ -40,7 +40,7 @@ class AppRoutes {
       signup: (context) => const SignUpScreen(),
       home: (context) => HomeScreen(),
       bottomNav: (context) => const BottomNavigationScreen(),
-      shoppingList: (context) => const ShoppingListScreen(),
+      shoppingList: (context) => ShoppingListScreen(),
       report: (context) => const ReportScreen(),
       recipeManagement: (context) => const RecipeManagementScreen(),
       createRecipe: (context) => const CreateRecipeScreen(),
