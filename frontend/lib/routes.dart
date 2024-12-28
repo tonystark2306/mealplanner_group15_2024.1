@@ -14,6 +14,8 @@ import 'Screen/auth/forgetpassword.dart';
 import 'Screen/family_group/family_group_screen.dart';
 import 'Screen/user_info/user_info_screen.dart';
 import 'Screen/meal_planning/add_meal_plan_screen.dart';
+import 'Screen/admin/admin_dashboard_screen.dart';
+import 'Screen/admin/category_management_screen.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -29,6 +31,9 @@ class AppRoutes {
   static const String forgetPassword = '/forget-password';
   static const String familyGroup = '/family-group';
   static const String userInfo = '/user-info';
+  static const String adminDashboard = '/admin-dashboard';
+  static const String adminCategories = '/admin-categories';
+
   static Map<String, WidgetBuilder> get routes {
     return {
       login: (context) => const SimpleLoginScreen(),
@@ -43,8 +48,8 @@ class AppRoutes {
       forgetPassword: (context) => const ForgotPasswordScreen(),
       familyGroup: (context) => const FamilyGroupScreen(),
       userInfo: (context) => const ProfileScreen(),
-      
-
+      adminDashboard: (context) => const AdminDashboardScreen(),
+      adminCategories: (context) => const CategoryManagementScreen(),
     };
   }
 }

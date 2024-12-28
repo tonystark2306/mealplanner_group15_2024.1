@@ -5,7 +5,6 @@ import 'routes.dart';
 import 'Providers/fridge_provider/refrigerator_provider.dart';
 import 'Providers/meal_planning_provider.dart';
 import "Screen/auth/login.dart";
-
 import 'Screen/bottom_navigation_screen.dart';
 import 'Providers/fridge_provider/list_group_provider.dart';
 void main() {

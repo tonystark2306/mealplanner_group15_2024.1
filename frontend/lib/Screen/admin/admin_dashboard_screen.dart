@@ -1,29 +1,24 @@
+// screens/admin/admin_dashboard_screen.dart
 import 'package:flutter/material.dart';
-import 'package:meal_planner_app/Screen/admin/units.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
 
-  @override
+  @override 
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Admin Dashboard',
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Colors.white, // Màu chữ
+            fontSize: 20, // Kích thước chữ (tuỳ chỉnh)
+            fontWeight: FontWeight.bold, // Kiểu chữ đậm (tuỳ chọn)
+            
           ),
         ),
         centerTitle: true,
         backgroundColor: Colors.green[700],
-        elevation: 4,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
-          ),
-        ),
       ),
       body: GridView.count(
         padding: const EdgeInsets.all(16),
@@ -39,18 +34,13 @@ class AdminDashboardScreen extends StatelessWidget {
             context,
             'Quản lý danh mục',
             Icons.category,
-            () => Navigator.pushNamed(context, '/admin/categories'),
+            () => Navigator.pushNamed(context, '/admin-categories'),
           ),
           _buildAdminTile(
             context,
             'Quản lý đơn vị',
             Icons.straighten,
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const UnitsManagementScreen(),
-              ),
-            ),
+            () => Navigator.pushNamed(context, '/admin/units'),
           ),
         ],
       ),
@@ -58,7 +48,7 @@ class AdminDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildAdminTile(
-    BuildContext context,
+    BuildContext context, 
     String title,
     IconData icon,
     VoidCallback onTap,
