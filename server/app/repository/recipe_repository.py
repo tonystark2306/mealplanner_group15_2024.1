@@ -32,11 +32,11 @@ class RecipeRepository(RecipeInterface):
 
 
     def get_system_recipe_by_name(self, recipe_name) -> RecipeModel:
-        return db.session.query(RecipeModel).filter(RecipeModel.name == recipe_name, RecipeModel.type == 'system', RecipeModel.is_deleted == False).first()
+        return db.session.query(RecipeModel).filter(RecipeModel.dish_name == recipe_name, RecipeModel.type == 'system', RecipeModel.is_deleted == False).first()
     
 
     def get_group_recipe_by_name(self, recipe_name, group_id) -> RecipeModel:
-        return db.session.query(RecipeModel).filter(RecipeModel.name == recipe_name, RecipeModel.group_id == group_id, RecipeModel.is_deleted == False).first()
+        return db.session.query(RecipeModel).filter(RecipeModel.dish_name == recipe_name, RecipeModel.group_id == group_id, RecipeModel.is_deleted == False).first()
 
     def add_recipe(self, recipe):
         try:
