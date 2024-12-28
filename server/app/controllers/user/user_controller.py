@@ -20,16 +20,16 @@ def get_user(user):
     })
     
     
-@user_api.route("/", methods=["PUT"])
+@user_api.route("/", methods=["DELETE"])
 @JWT_required
-@swag_from("../../docs/user/deactivate_user.yaml", endpoint="user_api.deactivate_user", methods=["PUT"])
-def deactivate_user(user):
+@swag_from("../../docs/user/delete_user.yaml", endpoint="user_api.delete_user", methods=["DELETE"])
+def delete_user(user):
     user_service = UserService()
-    user_service.deactivate_user_account(user)
+    user_service.delete_user_account(user)
     return jsonify({
         "resultMessage": {
-            "en": "The user account has been deactivated successfully.",
-            "vn": "Tài khoản người dùng đã được vô hiệu hóa thành công."
+            "en": "The user account has been deleted successfully.",
+            "vn": "Tài khoản người dùng đã được xóa thành công."
         },
         "resultCode": "00092"
     }), 200
