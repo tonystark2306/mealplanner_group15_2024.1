@@ -7,9 +7,9 @@ class UserService:
         self.user_repository = UserRepository()
         
         
-    def delete_user_from_db(self, user):
+    def deactivate_user_account(self, user):
         try:
-            self.user_repository.delete_user(user)
+            self.user_repository.deactivated_user(user)
         except Exception as e:
-            logging.error(f"Error deleting user from the database: {str(e)}")
+            logging.error(f"Error deactivating account user: {str(e)}")
             raise

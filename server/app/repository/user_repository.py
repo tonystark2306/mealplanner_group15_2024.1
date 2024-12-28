@@ -1,5 +1,8 @@
 import logging
+
+from sqlalchemy import and_
 from werkzeug.security import generate_password_hash
+
 from .interface.user_interface import UserInterface
 from ..models.user import User as UserModel
 from .. import db
@@ -12,19 +15,34 @@ class UserRepository(UserInterface):
     
     def get_user_by_id(self, id) -> UserModel:
         return db.session.execute(
-            db.select(UserModel).where(UserModel.id == id)
+            db.select(UserModel).where(
+                and_(
+                    UserModel.id == id,
+                    UserModel.is_active == True
+                )
+            )
         ).scalar()
 
 
     def get_user_by_email(self, email) -> UserModel:
         return db.session.execute(
-            db.select(UserModel).where(UserModel.email == email)
+            db.select(UserModel).where(
+                and_(
+                    UserModel.email == email,
+                    UserModel.is_active == True
+                )
+            )
         ).scalar()
         
         
     def get_user_by_username(self, username) -> UserModel:
         return db.session.execute(
-            db.select(UserModel).where(UserModel.username == username)
+            db.select(UserModel).where(
+                and_(
+                    UserModel.username == username,
+                    UserModel.is_active == True
+                )
+            )
         ).scalar()
         
         
@@ -88,12 +106,12 @@ class UserRepository(UserInterface):
             raise
         
         
-    def delete_user(self, user):
+    def deactivated_user(self, user):
         try:
-            db.session.delete(user)
+            user.is_active = False
             db.session.commit()
         
         except Exception as e:
             db.session.rollback()
-            logging.error(f"Error deleting user: {str(e)}")
+            logging.error(f"Error deactivating user: {str(e)}")
             raise
