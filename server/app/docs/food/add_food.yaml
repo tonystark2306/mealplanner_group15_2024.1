@@ -31,14 +31,12 @@ parameters:
     type: string
     description: Type of the food item
     example: "ingredient"
-  - name: foodCategoryNames
+  - name: categoryName
     in: formData
     required: true
-    type: array
-    description: List of food category names
-    items:
-      type: string
-    example: ["Fruit", "Healthy"]
+    type: string
+    description: Category name for the food item
+    example: "Fruit"
   - name: unitName
     in: formData
     required: true

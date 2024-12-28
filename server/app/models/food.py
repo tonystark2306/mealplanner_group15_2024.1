@@ -33,12 +33,12 @@ class Food(Base):
     creator = relationship('User', backref='foods', lazy=True)
 
 
-    def __init__(self, user_id, name, type, group_id, categories, unit_id, image_url, note):
+    def __init__(self, user_id, name, type, group_id, category, unit_id, image_url, note):
         self.create_by = user_id
         self.name = name
         self.type = type
         self.group_id = group_id
-        self.categories.append(categories)
+        self.categories = [category]
         self.unit_id = unit_id
         self.image_url = image_url
         self.note = note

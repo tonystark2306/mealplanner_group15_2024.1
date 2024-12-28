@@ -36,7 +36,7 @@ def add_food(user_id, group_id):
         }), 400
     
     image_file = request.files.get("image")
-    REQUIRED_FIELDS = {"name", "type", "foodCategoryNames", "unitName", "note"}
+    REQUIRED_FIELDS = {"name", "type", "categoryName", "unitName", "note"}
     missing_fields = [field for field in REQUIRED_FIELDS if field not in data]
     if not image_file or missing_fields:
         return jsonify({
