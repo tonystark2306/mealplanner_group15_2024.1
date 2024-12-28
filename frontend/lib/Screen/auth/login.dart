@@ -2,9 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:meal_planner_app/Services/auth_service.dart';
 import 'package:meal_planner_app/Providers/token_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:meal_planner_app/Models/user_model.dart'; // Adjust the path as necessary
-import 'package:meal_planner_app/Services/refresh_token.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:meal_planner_app/Models/user_model.dart'; // Adjust the path as necessary
+// import 'package:meal_planner_app/Services/refresh_token.dart';
+// import 'package:meal_planner_app/Models/admin_model.dart';
 
 class SimpleLoginScreen extends StatefulWidget {
   const SimpleLoginScreen({super.key});
@@ -31,6 +32,7 @@ void handleLogin() async {
         emailController.text,
         passwordController.text,
       );
+      //print("Response: $response");
 
       if (response['resultCode'] == '00047') {
         setState(() {
@@ -42,15 +44,20 @@ void handleLogin() async {
         String refreshToken = response['refresh_token'] ?? '';
 
         TokenStorage.saveTokens(accessToken, refreshToken);
-        // print('accessToken: $accessToken');
-        // print('refreshToken: $refreshToken');
-        // TokenRefresher.startAutoRefresh();
-        
-        // Tạo đối tượng User từ response
-        User user = User.fromJson(response['user'] ?? {});
 
-        // Chuyển hướng đến dashboard hoặc nơi cần thiết
-        Navigator.pushReplacementNamed(context, '/bottomnav');
+        // Tạo đối tượng User từ response
+        //User user = User.fromJson(response['user'] ?? {});
+
+        // Kiểm tra nếu là admin'
+        if (response['role'] == 'admin') {
+          //Admin admin = Admin.fromJson(response['admin'] ?? {});
+
+          // Chuyển hướng đến dashboard admin
+          Navigator.pushReplacementNamed(context, '/admin-dashboard');
+        } else {
+          // Chuyển hướng đến dashboard người dùng thông thường
+          Navigator.pushReplacementNamed(context, '/bottomnav');
+        }
       } else {
         setState(() {
           _isLoading = false;
@@ -69,6 +76,7 @@ void handleLogin() async {
     }
   }
 }
+
 
   @override
   Widget build(BuildContext context) {

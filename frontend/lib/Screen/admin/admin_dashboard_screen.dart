@@ -8,7 +8,16 @@ class AdminDashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        title: const Text(
+          'Admin Dashboard',
+          style: TextStyle(
+            color: Colors.white, // Màu chữ
+            fontSize: 20, // Kích thước chữ (tuỳ chỉnh)
+            fontWeight: FontWeight.bold, // Kiểu chữ đậm (tuỳ chọn)
+            
+          ),
+        ),
+        centerTitle: true,
         backgroundColor: Colors.green[700],
       ),
       body: GridView.count(

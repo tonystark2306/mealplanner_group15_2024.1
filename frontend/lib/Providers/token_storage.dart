@@ -7,14 +7,14 @@ class TokenStorage {
     await prefs.setString('access_token', accessToken);
     await prefs.setString('refresh_token', refreshToken);
     TokenRefresher.startAutoRefresh();
-    print('local storage: $refreshToken');
+    //print('local storage: $refreshToken');
   }
 
   static Future<Map<String, String>> getTokens() async {
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('access_token') ?? '';
     final refreshToken = prefs.getString('refresh_token') ?? '';
-    print('local storage 22: $refreshToken');
+    //print('local storage 22: $refreshToken');
     return {'accessToken': accessToken, 'refreshToken': refreshToken};
   }
 
