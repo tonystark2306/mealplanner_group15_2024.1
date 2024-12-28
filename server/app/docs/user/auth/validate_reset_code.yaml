@@ -1,0 +1,44 @@
+Validate Reset Code
+This API validates the reset code sent to the user's email and returns a temporary access token if the reset code is valid.
+
+---
+tags:
+  - User - Auth
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        resetToken:
+          type: string
+          description: Token to confirm the reset code
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        resetCode:
+          type: string
+          description: Reset verification code sent to the user's email
+          example: "123456"
+
+responses:
+  200:
+    description: Reset code is valid
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Reset code is valid."
+            vn:
+              type: string
+              example: "Mã reset hợp lệ."
+        resultCode:
+          type: string
+          example: "00048"
+        tempAccessToken:
+          type: string
+          description: Temporary access token for password reset
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
