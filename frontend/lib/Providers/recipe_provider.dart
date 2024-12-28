@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../Models/recipe_model.dart';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-
+import 'token_storage.dart'; // Đảm bảo bạn đã import đúng nơi chứa hàm getTokens
 
 class RecipeProvider with ChangeNotifier {
   // Danh sách công thức của người dùng
@@ -73,15 +73,22 @@ class RecipeProvider with ChangeNotifier {
   List<RecipeItem> get suggestedRecipes => _suggestedRecipes;
 
   final String group_id = "aa67b8a7-2608-4125-9676-9ba340bd5deb";
-  final String token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTlhMDZlOWItNzE2ZC00ODc4LThjZTEtMDdiM2RjYjY4YTdmIiwiZXhwIjoxNzM1MzkzMjE1fQ.R5sA-Ky9HnW3jrh4CN2I-aMLKjpkCpsu9S1gYX6ehII";
+
+  // Lấy access token từ TokenStorage
+  Future<String> _getAccessToken() async {
+    final tokens = await TokenStorage.getTokens();
+    return tokens['accessToken'] ?? ''; // Trả về access token
+  }
+
+  // Lấy công thức
   Future<void> getRecipes() async {
     final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
     try {
+      final accessToken = await _getAccessToken(); // Lấy access token từ TokenStorage
       final response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $accessToken', // Dùng access token trong header
         },
       );
 
@@ -89,31 +96,30 @@ class RecipeProvider with ChangeNotifier {
         final Map<String, dynamic> data = json.decode(response.body);
         final List<dynamic> recipeJson = data['recipes'] ?? [];
 
-        _recipes.clear(); // Clear the previous recipes
+        _recipes.clear();
 
         for (var recipeData in recipeJson) {
           Uint8List imageBytes = response.bodyBytes;
           RecipeItem recipe = RecipeItem(
-              id: recipeData['id'] ?? '',
-              name: recipeData['dish_name'] ?? '',
-              timeCooking: recipeData['cooking_time'] ?? '',
-              ingredients: (recipeData['ingredients'] as List?)
-                      ?.map((ingredient) => Ingredient(
-                            name: ingredient['food_name'] ?? '',
-                            weight: ingredient['quantity'] ?? '',
-                            unitName: ingredient['unit_name'] ?? '',
-                          ))
-                      .toList() ??
-                  [],
-              steps: recipeData['description'] ?? '',
-              image: imageBytes);
+            id: recipeData['id'] ?? '',
+            name: recipeData['dish_name'] ?? '',
+            timeCooking: recipeData['cooking_time'] ?? '',
+            ingredients: (recipeData['ingredients'] as List?)
+                ?.map((ingredient) => Ingredient(
+                      name: ingredient['food_name'] ?? '',
+                      weight: ingredient['quantity'] ?? '',
+                      unitName: ingredient['unit_name'] ?? '',
+                    ))
+                .toList() ??
+                [],
+            steps: recipeData['description'] ?? '',
+            image: imageBytes,
+          );
           _recipes.add(recipe);
-          notifyListeners();
+          
         }
-
         notifyListeners();
       } else {
-        print(response.body);
         throw Exception('Failed to load recipes');
       }
     } catch (error) {
@@ -122,16 +128,18 @@ class RecipeProvider with ChangeNotifier {
     }
   }
 
+  // Thêm công thức
   Future<void> addRecipe(RecipeItem recipe) async {
     final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
     var request = http.MultipartRequest('POST', url)
       ..headers['Content-Type'] = 'multipart/form-data'
-      ..headers['Authorization'] = 'Bearer $token';
+      ..headers['Authorization'] = 'Bearer ${await _getAccessToken()}'; // Dùng token từ _getAccessToken
 
     request.fields['name'] = recipe.name;
     request.fields['description'] = recipe.steps;
     request.fields['content_html'] = recipe.steps;
     request.fields['cooking_time'] = recipe.timeCooking;
+    print(recipe.timeCooking);
     List<String> foodNames = [];
     List<String> quantities = [];
     List<String> unitNames = [];
@@ -146,6 +154,7 @@ class RecipeProvider with ChangeNotifier {
     request.fields['list[quanity]'] = json.encode(quantities);
     request.fields['list[unit_name]'] = json.encode(unitNames);
 
+    print(request.fields['list[food_name]']);
     if (recipe.image != null) {
       request.files.add(http.MultipartFile.fromBytes(
         'images',
@@ -153,11 +162,11 @@ class RecipeProvider with ChangeNotifier {
         filename: 'recipe_image.jpg',
       ));
     }
-
+    print(request.fields);
     try {
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-
+      print(response.body); 
       if (response.statusCode == 201) {
         final Map<String, dynamic> responseData = json.decode(response.body);
         final String serverId =
@@ -180,60 +189,60 @@ class RecipeProvider with ChangeNotifier {
     final index = _recipes.indexWhere((recipe) => recipe.id == id);
     if (index != -1) {
       final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
-    var request = http.MultipartRequest('PUT', url)
-      ..headers['Content-Type'] = 'multipart/form-data'
-      ..headers['Authorization'] = 'Bearer $token';
+      var request = http.MultipartRequest('PUT', url)
+        ..headers['Content-Type'] = 'multipart/form-data'
+        ..headers['Authorization'] = 'Bearer ${await _getAccessToken()}'; // Dùng token từ _getAccessToken
 
-    request.fields['recipe_id'] = id;
-    request.fields['new_name'] = updatedRecipe.name;
-    request.fields['new_description'] = updatedRecipe.steps;
-    request.fields['new_content_html'] = updatedRecipe.steps;
+      request.fields['recipe_id'] = id;
+      request.fields['new_name'] = updatedRecipe.name;
+      request.fields['new_description'] = updatedRecipe.steps;
+      request.fields['new_content_html'] = updatedRecipe.steps;
 
-    List<String> foodNames = [];
-    List<String> quantities = [];
-    List<String> unitNames = [];
+      List<String> foodNames = [];
+      List<String> quantities = [];
+      List<String> unitNames = [];
 
-    for (var ingredient in updatedRecipe.ingredients) {
-      foodNames.add(ingredient.name);
-      quantities.add(ingredient.weight.toString());
-      unitNames.add(ingredient.unitName);
-    }
-
-    request.fields['list[new_food_name]'] = json.encode(foodNames);
-    request.fields['list[new_quanity]'] = json.encode(quantities);
-    request.fields['list[new_unit_name]'] = json.encode(unitNames);
-
-    if (updatedRecipe.image != null) {
-      request.files.add(http.MultipartFile.fromBytes(
-        'new_images',
-        updatedRecipe.image!,
-        filename: 'recipe_image.jpg',
-      ));
-    }
-    try {
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
-
-      if (response.statusCode == 200) {
-        _recipes[index] = updatedRecipe;
-        notifyListeners();
-      } else {
-        print('Failed to update recipe: ${response.statusCode}');
+      for (var ingredient in updatedRecipe.ingredients) {
+        foodNames.add(ingredient.name);
+        quantities.add(ingredient.weight.toString());
+        unitNames.add(ingredient.unitName);
       }
-    } catch (e) {
-      print('Error occurred: $e');
-    }
-      
+
+      request.fields['list[new_food_name]'] = json.encode(foodNames);
+      request.fields['list[new_quanity]'] = json.encode(quantities);
+      request.fields['list[new_unit_name]'] = json.encode(unitNames);
+
+      if (updatedRecipe.image != null) {
+        request.files.add(http.MultipartFile.fromBytes(
+          'new_images',
+          updatedRecipe.image!,
+          filename: 'recipe_image.jpg',
+        ));
+      }
+      try {
+        var streamedResponse = await request.send();
+        var response = await http.Response.fromStream(streamedResponse);
+
+        if (response.statusCode == 200) {
+          _recipes[index] = updatedRecipe;
+          notifyListeners();
+        } else {
+          print('Failed to update recipe: ${response.statusCode}');
+        }
+      } catch (e) {
+        print('Error occurred: $e');
+      }
     }
   }
 
+  // Xóa công thức
   Future<void> deleteRecipe(String id) async {
     final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
 
     try {
       var request = http.Request('DELETE', url)
         ..headers['Content-Type'] = 'application/json'
-        ..headers['Authorization'] = 'Bearer $token';
+        ..headers['Authorization'] = 'Bearer ${await _getAccessToken()}'; // Dùng token từ _getAccessToken
 
       // Thêm các trường vào form-data
       request.body = json.encode({'recipe_id': id});
@@ -266,6 +275,7 @@ class RecipeProvider with ChangeNotifier {
     return _suggestedRecipes.firstWhere((recipe) => recipe.id == id);
   }
 
+  // Hàm tải ảnh từ tài nguyên
   Future<Uint8List> loadImageAsUint8List(String assetPath) async {
     final ByteData imageData = await rootBundle.load(assetPath);
     return imageData.buffer.asUint8List();

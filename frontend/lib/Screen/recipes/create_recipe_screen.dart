@@ -6,7 +6,7 @@ import 'dart:typed_data';
 
 import '../../Models/recipe_model.dart';
 import '../../Providers/recipe_provider.dart';
-
+import '../../../Providers/token_storage.dart'; // Import TokenStorage
 class CreateRecipeScreen extends StatefulWidget {
   const CreateRecipeScreen({super.key});
 
@@ -30,9 +30,14 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     fetchUnits();
   }
 
+Future<String> _getAccessToken() async {
+    final tokens = await TokenStorage.getTokens();
+    return tokens['accessToken'] ?? ''; // Trả về access token
+  }
+
+
   Future<void> fetchUnits() async {
-    final String token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTlhMDZlOWItNzE2ZC00ODc4LThjZTEtMDdiM2RjYjY4YTdmIiwiZXhwIjoxNzM1Mzg4NjYwfQ.uGs_YvLiNZfdzq6FJafhO9b9qKIFeYmqvV4qMVNP3Xo";
+    final token = await _getAccessToken(); // Use the dynamic token
 
     try {
       final response = await http.get(

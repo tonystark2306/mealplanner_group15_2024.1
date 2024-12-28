@@ -1,18 +1,26 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import '../../Models/recipe_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../../Providers/token_storage.dart'; // Import TokenStorage
 
 class RecipeDetailPopup extends StatelessWidget {
-  final String groupId = "c83fca65-8e79-472a-bd06-b6753c7a3843";
+  final String groupId = "aa67b8a7-2608-4125-9676-9ba340bd5deb";
   final RecipeItem recipeItem;
   const RecipeDetailPopup({super.key, required this.recipeItem});
+
+  // Lấy token từ TokenStorage
+  Future<String> _getAccessToken() async {
+    final tokens = await TokenStorage.getTokens();
+    return tokens['accessToken'] ?? ''; // Trả về access token
+  }
+
   Future<RecipeItem> fetchRecipeDetail() async {
     final id = recipeItem.id;
     final url = 'http://127.0.0.1:5000/api/recipe/$groupId/$id';
-    final String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTlhMDZlOWItNzE2ZC00ODc4LThjZTEtMDdiM2RjYjY4YTdmIiwiZXhwIjoxNzM1Mzg4NjYwfQ.uGs_YvLiNZfdzq6FJafhO9b9qKIFeYmqvV4qMVNP3Xo";
+    final token = await _getAccessToken(); // Lấy token từ TokenStorage
+
     final response = await http.get(
       Uri.parse(url),
       headers: {
@@ -26,23 +34,23 @@ class RecipeDetailPopup extends StatelessWidget {
       var field = recipeData['detail_recipe'];
       print(field);
       return RecipeItem(
-          id: field['id'] ?? '',
-          name: field['dish_name'] ?? '',
-          timeCooking: field['timeCooking'] ?? '',
-          ingredients: (field['foods'] as List?)
-                  ?.map((ingredient) => Ingredient(
-                        name: ingredient['food_name'] ?? '',
-                        weight: ingredient['quantity'].toString() ?? '',
-                        unitName: ingredient['unit_name'] ?? '',
-                      ))
-                  .toList() ??
-              [],
-          steps: field['description'] ?? '',
-          image:
-              imageBytes); // Assuming RecipeItem has a fromJson factory constructor.
+        id: field['id'] ?? '',
+        name: field['dish_name'] ?? '',
+        timeCooking: field['cooking_time'] ?? '',
+        ingredients: (field['foods'] as List?)
+                ?.map((ingredient) => Ingredient(
+                      name: ingredient['food_name'] ?? '',
+                      weight: ingredient['quantity'].toString() ?? '',
+                      unitName: ingredient['unit_name'] ?? '',
+                    ))
+                .toList() ??
+            [],
+        steps: field['description'] ?? '',
+        image: imageBytes, // Assuming RecipeItem has a fromJson factory constructor.
+      );
     } else {
       final responseBody = await response.body;
-        print('Error: $responseBody');
+      print('Error: $responseBody');
       throw Exception('Failed to load recipe details');
     }
   }
