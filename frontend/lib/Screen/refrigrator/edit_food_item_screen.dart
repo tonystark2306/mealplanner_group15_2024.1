@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../Models/food_item_model.dart';
-import '../../Providers/refrigerator_provider.dart';
+import '../../Models/fridge/fridge_item_model.dart';
+import '../../Providers/fridge_provider/refrigerator_provider.dart';
 
-class EditFoodItemScreen extends StatefulWidget {
-  final FoodItem foodItem; // Nhận FoodItem cần chỉnh sửa
-
-  const EditFoodItemScreen({super.key, required this.foodItem});
+class EditFridgeItemScreen extends StatefulWidget {
+  final FridgeItem fridgeItem; // Nhận FridgeItem cần chỉnh sửa
+  final String groupId;
+  const EditFridgeItemScreen({super.key, required this.fridgeItem, required this.groupId});
 
   @override
-  _EditFoodItemScreenState createState() => _EditFoodItemScreenState();
+  _EditFridgeItemScreenState createState() => _EditFridgeItemScreenState();
 }
 
-class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
+class _EditFridgeItemScreenState extends State<EditFridgeItemScreen> {
   final _formKey = GlobalKey<FormState>();
   late String _name;
   late int _quantity;
@@ -21,18 +21,18 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
   @override
   void initState() {
     super.initState();
-    // Khởi tạo với thông tin của FoodItem hiện tại
-    _name = widget.foodItem.name;
-    _quantity = widget.foodItem.quantity;
-    _expiryDate = widget.foodItem.expirationDate;
+    // Khởi tạo với thông tin của FridgeItem hiện tại
+    _name = widget.fridgeItem.name;
+    _quantity = widget.fridgeItem.quantity;
+    _expiryDate = widget.fridgeItem.expirationDate;
   }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      final updatedFoodItem = FoodItem(
-        id: widget.foodItem.id, // Giữ nguyên ID
+      final updatedFridgeItem = FridgeItem(
+        id: widget.fridgeItem.id, // Giữ nguyên ID
         name: _name,
         quantity: _quantity,
         expirationDate: _expiryDate,
@@ -40,7 +40,7 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
 
       // Cập nhật item trong Provider
       Provider.of<RefrigeratorProvider>(context, listen: false)
-          .updateItem(updatedFoodItem);
+          .updateItemInApi(widget.groupId, updatedFridgeItem);
 
       Navigator.pop(context);
     }

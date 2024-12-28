@@ -1,4 +1,5 @@
 from flask import request, jsonify
+import json
 
 from . import recipe_api
 
@@ -14,23 +15,37 @@ from ...services.recipe.recipe_service import RecipeService
 def create_recipe(user_id, group_id):
     '''Create recipe API'''
     data = request.form
+
+    try:
+        # Giải mã các danh sách từ JSON
+        food_names = json.loads(data.get('list[food_name]', '[]'))
+        quantities = json.loads(data.get('list[quantity]', '[]'))
+        unit_names = json.loads(data.get('list[unit_name]', '[]'))
+
+        # Tạo danh sách các thực phẩm
+        foods=[]
+        for food_name, quantity, unit_name in zip(food_names, quantities, unit_names):
+            foods.append({
+                'food_name': food_name,
+                'quantity': quantity,
+                'unit_name': unit_name
+            })
+    except Exception as e:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid data format.",
+                "vn": "Dữ liệu không hợp lệ."
+            },
+            "resultCode": "00194"
+        }), 400
+    
     recipe = {
         'group_id': group_id,
         'name': data.get('name'),
+        'cooking_time' : data.get('cooking_time'),
         'description': data.get('description'),
         'content_html': data.get('content_html'),
-        'foods': [
-            {
-                'food_name': food_name,
-                'unit_name': unit_name,
-                'quantity': quantity
-            }
-            for food_name, unit_name, quantity in zip(
-                request.form.getlist('list[food_name]'),
-                request.form.getlist('list[unit_name]'),
-                request.form.getlist('list[quantity]')
-            )
-        ],
+        'foods': foods,
         'images': [
             image for image in request.files.getlist('images') if image.filename
         ]
@@ -57,16 +72,7 @@ def create_recipe(user_id, group_id):
         "created_recipe": result
     }), 201
 
-'''recipe_id:08e1f43b-2095-47e3-95b0-ccd288fb0760
-new_name:Salad chuối táo trộn thịt đà điểu
-new_description:Tôi không ăn chay nữa
-new_content_html:<div>nấu với cơm </div>
-list[new_food_name]:
-list[new__food_name]:
-list[new_quantity]:
-list[new_quantity]:
-list[new_unit_name]:
-list[new_unit_name]:'''
+
 @recipe_api.route("/<group_id>", methods=["PUT"])
 @JWT_required
 @group_admin_required
@@ -77,6 +83,7 @@ def update_recipe(user_id, group_id):
     new_recipe = {
         'recipe_id': data.get('recipe_id'),
         'name': data.get('new_name'),
+        'cooking_time': data.get('new_cooking_time'),
         'description': data.get('new_description'),
         'content_html': data.get('new_content_html'),
         'foods': [
@@ -144,14 +151,6 @@ def search_recipe(user_id, group_id):
     '''search recipe by keyword'''
     keyword = request.json.get("keyword")
     recipe_service = RecipeService()
-    if not keyword:
-        return jsonify({
-            "resultMessage": {
-                "en": "Keyword is required.",
-                "vn": "Từ khóa là bắt buộc."
-        },
-        "resultCode": "00194"
-    }), 400
 
     # Tìm kiếm công thức
     recipes = recipe_service.search_by_keyword(group_id, keyword)

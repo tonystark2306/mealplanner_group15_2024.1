@@ -54,6 +54,11 @@ class RecipeInterface(ABC):
         pass
 
 
+    @abstractmethod
+    def get_recipes_by_keywords(self, keywords) -> list[RecipeModel]:
+        pass
+
+
 
 class RecipeImageInterface(ABC):
     
