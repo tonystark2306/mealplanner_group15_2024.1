@@ -14,7 +14,7 @@ class EditService:
     
     
     def verify_old_password(self, user, old_password):
-        if not check_password_hash(user.password, old_password):
+        if not check_password_hash(user.password_hash, old_password):
             return False
             
         return True
