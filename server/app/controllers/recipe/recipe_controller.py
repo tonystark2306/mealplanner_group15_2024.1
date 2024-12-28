@@ -137,14 +137,6 @@ def search_recipe(user_id, group_id):
     '''search recipe by keyword'''
     keyword = request.json.get("keyword")
     recipe_service = RecipeService()
-    if not keyword:
-        return jsonify({
-            "resultMessage": {
-                "en": "Keyword is required.",
-                "vn": "Từ khóa là bắt buộc."
-        },
-        "resultCode": "00194"
-    }), 400
 
     # Tìm kiếm công thức
     recipes = recipe_service.search_by_keyword(group_id, keyword)
