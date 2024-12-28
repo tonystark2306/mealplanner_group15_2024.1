@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:typed_data';
-import 'package:image_picker/image_picker.dart';  // Thêm thư viện image_picker
-
+import 'package:image_picker/image_picker.dart';
 import '../../Models/recipe_model.dart';
 import '../../Providers/recipe_provider.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../../Providers/token_storage.dart'; // Import TokenStorage
 
 class EditRecipeScreen extends StatefulWidget {
   final RecipeItem recipe;
@@ -20,13 +22,14 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
   late TextEditingController timeController;
   late List<TextEditingController> ingredientNameControllers;
   late List<TextEditingController> ingredientWeightControllers;
+  late List<String> selectedUnits;
   late TextEditingController stepsController;
   Uint8List? uploadedImage;
+  List<String> unitOptions = [];
 
   @override
   void initState() {
     super.initState();
-    // Khởi tạo các controller với dữ liệu hiện tại của công thức
     nameController = TextEditingController(text: widget.recipe.name);
     timeController = TextEditingController(text: widget.recipe.timeCooking);
     ingredientNameControllers = widget.recipe.ingredients
@@ -35,9 +38,43 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     ingredientWeightControllers = widget.recipe.ingredients
         .map((ingredient) => TextEditingController(text: ingredient.weight))
         .toList();
+    selectedUnits = widget.recipe.ingredients
+        .map((ingredient) => ingredient.unitName)
+        .toList();
     stepsController = TextEditingController(text: widget.recipe.steps);
-    uploadedImage = widget.recipe.imagePath;
+    uploadedImage = widget.recipe.image;
+    fetchUnits();
   }
+
+  Future<String> _getAccessToken() async {
+    final tokens = await TokenStorage.getTokens();
+    return tokens['accessToken'] ?? ''; // Trả về access token
+  }
+
+ Future<void> fetchUnits() async {
+   final token = await _getAccessToken();
+    final response = await http.get(
+      Uri.parse('http://127.0.0.1:5000/api/admin/unit'),
+      headers: {'Authorization': 'Bearer $token'}, // Thay <your-token> bằng token của bạn.
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      if (jsonResponse.containsKey('units')) {
+        setState(() {
+          unitOptions = (jsonResponse['units'] as List<dynamic>)
+              .map((unit) => unit['name'] as String)
+              .toList();
+        });
+      } else {
+        throw Exception('Invalid response format: missing "units" key');
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể tải danh sách đơn vị')),
+      );
+    }
+}
 
   @override
   void dispose() {
@@ -57,6 +94,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     setState(() {
       ingredientNameControllers.add(TextEditingController());
       ingredientWeightControllers.add(TextEditingController());
+      selectedUnits.add('');
     });
   }
 
@@ -83,12 +121,39 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                   keyboardType: TextInputType.number,
                 ),
               ),
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 1,
+                child: DropdownButtonFormField<String>(
+                  value: selectedUnits[index].isNotEmpty
+                      ? selectedUnits[index]
+                      : null,
+                  items: unitOptions
+                      .map((unit) => DropdownMenuItem(
+                            value: unit,
+                            child: Text(unit),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedUnits[index] = value!;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Đơn vị',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                ),
+              ),
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
                 onPressed: () {
                   setState(() {
                     ingredientNameControllers.removeAt(index);
                     ingredientWeightControllers.removeAt(index);
+                    selectedUnits.removeAt(index);
                   });
                 },
               ),
@@ -117,15 +182,13 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     );
   }
 
-  // Sửa lại hàm pickImage để sử dụng image_picker
   Future<void> pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);  // Chọn ảnh từ thư viện
-
-    if (pickedFile != null) {
-      final imageBytes = await pickedFile.readAsBytes();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      final bytes = await image.readAsBytes();
       setState(() {
-        uploadedImage = imageBytes;  // Cập nhật ảnh chọn
+        uploadedImage = Uint8List.fromList(bytes);
       });
     }
   }
@@ -140,10 +203,17 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
       (index) => Ingredient(
         name: ingredientNameControllers[index].text,
         weight: ingredientWeightControllers[index].text,
+        unitName: selectedUnits[index],
       ),
     );
 
-    if (name.isEmpty || time.isEmpty || steps.isEmpty || ingredients.isEmpty) {
+    if (name.isEmpty ||
+        time.isEmpty ||
+        steps.isEmpty ||
+        ingredients.any((ingredient) =>
+            ingredient.name.isEmpty ||
+            ingredient.weight.isEmpty ||
+            ingredient.unitName.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Vui lòng điền đầy đủ thông tin!')),
       );
@@ -156,11 +226,11 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
       timeCooking: time,
       ingredients: ingredients,
       steps: steps,
-      imagePath: uploadedImage, // Lưu trực tiếp ảnh dưới dạng Uint8List
+      image: uploadedImage,
     );
 
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
-    recipeProvider.updateRecipe(updatedRecipe.id, updatedRecipe);  // Cập nhật công thức
+    recipeProvider.updateRecipe(updatedRecipe.id, updatedRecipe);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Đã chỉnh sửa công thức thành công!')),
@@ -209,17 +279,11 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
             Center(
               child: ElevatedButton.icon(
                 onPressed: addIngredientField,
-                icon: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                ),
-                label: const Text('Thêm nguyên liệu'),
+                icon: const Icon(Icons.add, color: Colors.white),
+                label: const Text('Thêm nguyên liệu',
+                    style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[700],
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
                 ),
               ),
             ),
@@ -258,34 +322,22 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               ),
             ElevatedButton.icon(
               onPressed: pickImage,
-              icon: const Icon(
-                Icons.upload_file,
-                color: Colors.white,
-              ),
-              label: const Text('Chọn ảnh'),
+              icon: const Icon(Icons.upload_file, color: Colors.white),
+              label:
+                  const Text('Chọn ảnh', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[700],
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
               ),
             ),
             const SizedBox(height: 20),
             Center(
               child: ElevatedButton.icon(
                 onPressed: saveRecipe,
-                icon: const Icon(
-                  Icons.save_alt, // Đây là icon save file
-                  color: Colors.white,
-                ),
-                label: const Text('Lưu công thức'),
+                icon: const Icon(Icons.save_alt, color: Colors.white),
+                label: const Text('Lưu công thức',
+                    style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[700],
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
                 ),
               ),
             ),
