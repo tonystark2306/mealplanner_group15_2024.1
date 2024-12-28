@@ -36,12 +36,16 @@ class FoodService:
     def update_food_info(self, food, data, image_file):
         try:
             if data:
-                self.food_repository.update_food(food, data)
+                is_updated = self.food_repository.update_food(food, data)
+                if not is_updated:
+                    return None
                 
             if image_file:
                 filename = secure_filename(image_file.filename)
                 image_url = self.firebase_helper.upload_image(image_file, f"food_images/{filename}")
-                self.food_repository.update_food(food, {"image_url": image_url})
+                is_updated = self.food_repository.update_food(food, {"image_url": image_url})
+                if not is_updated:
+                    return None
                
             return food
         

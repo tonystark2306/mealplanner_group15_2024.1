@@ -50,7 +50,7 @@ class Dish {
   factory Dish.fromJson(Map<String, dynamic> json) {
     return Dish(
       recipeId: json['recipe_id'],
-      recipeName: json['recipe_name'],
+      recipeName: json['dish_name'],
       servings: json['servings'],
     );
   }

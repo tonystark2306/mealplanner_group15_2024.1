@@ -93,19 +93,25 @@ responses:
               type: string
               description: Unique identifier of the user who created the food
               example: "123e4567-e89b-12d3-a456-426614174000"
+            creator_username:
+              type: string
+              description: Username of the user who created the food
+              example: "johndoe"
             group_id:
               type: string
               description: Unique identifier of the group
               example: "123e4567-e89b-12d3-a456-426614174000"
-            categories:
-              type: array
-              description: List of categories the food belongs to
-              items:
-                type: string
-                example: "Fruit"
-            unit:
+            category_name:
               type: string
-              description: Unit of the food
+              description: Category name of the food
+              example: "Fruit"
+            unit_id:
+              type: string
+              description: Unique identifier of the unit
+              example: "123e4567-e89b-12d3-a456-426614174000"
+            unit_name:
+              type: string
+              description: Unit name of the food
               example: "kg"
             image_url:
               type: string

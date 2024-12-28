@@ -13,8 +13,7 @@ class MealPlanManagementScreen extends StatefulWidget {
 
 class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
   DateTime _selectedDate = DateTime.now();
-  final String groupId = "a05ac307-ae58-47cb-9c0d-d90e8bf2fd36";
-  final String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MjY1Mjk1fQ.dPCZzsbJBS0oO-ky5NajGn1vRMNmllzVT6p7_vZJ92w";
+  final String groupId = "f340fd65-0457-4e98-993f-5666fcbf115d";
 
   @override
   void didChangeDependencies() {
@@ -33,7 +32,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
     );
 
     try {
-      await provider.fetchMealPlansByDate(_selectedDate, groupId, token);
+      await provider.fetchMealPlansByDate(_selectedDate, groupId);
       // Sau khi tải thành công, thông báo "Tải dữ liệu thành công"
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Tải dữ liệu thành công!')),
