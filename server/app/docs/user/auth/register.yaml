@@ -82,6 +82,15 @@ responses:
             deviceId:
               type: string
               example: "e6b3562f-6cc5-4e2c-95d2-b7ac8ec478cc"
+            avatar_url:
+              type: string
+              example: null
+            is_verified:
+              type: boolean
+              example: false
+            is_deleted:
+              type: boolean
+              example: false
         role:
           type: string
           example: "user"

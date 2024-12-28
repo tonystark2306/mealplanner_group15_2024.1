@@ -85,7 +85,7 @@ class UserRepository(UserInterface):
         
     def update_password(self, user, new_password):
         try:
-            user.password = generate_password_hash(new_password)
+            user.password_hash = generate_password_hash(new_password)
             db.session.commit()
         
         except Exception as e:
