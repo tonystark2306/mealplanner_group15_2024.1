@@ -4,7 +4,7 @@ import '../Models/recipe_model.dart';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart';
+
 
 class RecipeProvider with ChangeNotifier {
   // Danh sách công thức của người dùng
@@ -72,9 +72,9 @@ class RecipeProvider with ChangeNotifier {
   // Lấy danh sách công thức gợi ý
   List<RecipeItem> get suggestedRecipes => _suggestedRecipes;
 
-  final String group_id = "c83fca65-8e79-472a-bd06-b6753c7a3843";
+  final String group_id = "aa67b8a7-2608-4125-9676-9ba340bd5deb";
   final String token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTlhMDZlOWItNzE2ZC00ODc4LThjZTEtMDdiM2RjYjY4YTdmIiwiZXhwIjoxNzM1Mzg4NjYwfQ.uGs_YvLiNZfdzq6FJafhO9b9qKIFeYmqvV4qMVNP3Xo";
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTlhMDZlOWItNzE2ZC00ODc4LThjZTEtMDdiM2RjYjY4YTdmIiwiZXhwIjoxNzM1MzkzMjE1fQ.R5sA-Ky9HnW3jrh4CN2I-aMLKjpkCpsu9S1gYX6ehII";
   Future<void> getRecipes() async {
     final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
     try {
@@ -96,7 +96,7 @@ class RecipeProvider with ChangeNotifier {
           RecipeItem recipe = RecipeItem(
               id: recipeData['id'] ?? '',
               name: recipeData['dish_name'] ?? '',
-              timeCooking: recipeData['timeCooking'] ?? '',
+              timeCooking: recipeData['cooking_time'] ?? '',
               ingredients: (recipeData['ingredients'] as List?)
                       ?.map((ingredient) => Ingredient(
                             name: ingredient['food_name'] ?? '',
@@ -113,6 +113,7 @@ class RecipeProvider with ChangeNotifier {
 
         notifyListeners();
       } else {
+        print(response.body);
         throw Exception('Failed to load recipes');
       }
     } catch (error) {
@@ -130,7 +131,7 @@ class RecipeProvider with ChangeNotifier {
     request.fields['name'] = recipe.name;
     request.fields['description'] = recipe.steps;
     request.fields['content_html'] = recipe.steps;
-
+    request.fields['cooking_time'] = recipe.timeCooking;
     List<String> foodNames = [];
     List<String> quantities = [];
     List<String> unitNames = [];
