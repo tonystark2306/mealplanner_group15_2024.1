@@ -183,6 +183,9 @@ Widget _buildDrawer(BuildContext context) {
         _buildDrawerItem(icon: Icons.group, text: 'Quản lý thành viên nhóm', onTap: () {
             Navigator.pushNamed(context, '/family-group');
         }),
+        _buildDrawerItem(icon: Icons.food_bank, text: 'Quản lý thực phẩm', onTap: () {
+            Navigator.pushNamed(context, '/food-management');
+        }),
         _buildDrawerItem(icon: Icons.notifications, text: 'Cài đặt thông báo'),
         _buildDrawerItem(icon: Icons.star, text: 'Đánh giá ứng dụng'),
         _buildDrawerItem(icon: Icons.privacy_tip, text: 'Chính sách bảo mật'),

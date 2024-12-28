@@ -1,3 +1,4 @@
+import './dish_model.dart';
 class MealPlanModel {
   final String id;
   final String name;
@@ -34,32 +35,9 @@ class MealPlanModel {
       'dishes': dishes.map((dish) => dish.toJson()).toList(),
     };
   }
-}
 
-class Dish {
-  final String recipeId;
-  final String recipeName;
-  final int servings;
-
-  Dish({
-    required this.recipeId,
-    required this.recipeName,
-    required this.servings,
-  });
-
-  factory Dish.fromJson(Map<String, dynamic> json) {
-    return Dish(
-      recipeId: json['recipe_id'],
-      recipeName: json['dish_name'],
-      servings: json['servings'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'recipe_id': recipeId,
-      'recipe_name': recipeName,
-      'servings': servings,
-    };
+  static List<MealPlanModel> listFromJson(List<dynamic> json) {
+    return json.map((e) => MealPlanModel.fromJson(e)).toList();
   }
 }
+

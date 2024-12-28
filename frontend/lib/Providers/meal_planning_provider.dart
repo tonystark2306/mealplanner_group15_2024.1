@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../Models/meal_plan_model.dart';
+import '../Models/meal_plan/meal_plan_model.dart';
+import '../Models/meal_plan/dish_model.dart';
 import './token_storage.dart';
 
 class MealPlanProvider with ChangeNotifier {
   final String apiBaseUrl = 'http://localhost:5000/api';
   List<MealPlanModel> _mealPlans = [];
   bool _isLoading = false;
+  bool hasFetched = false;
 
   // Getter for mealPlans
   List<MealPlanModel> get mealPlans => [..._mealPlans];
@@ -32,18 +34,32 @@ class MealPlanProvider with ChangeNotifier {
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${tokenObject['accessToken']}', // Thêm token vào header
+          'Authorization': 'Bearer ${tokenObject['accessToken']}',
         },
       );
       print(response.statusCode);
       print(response.body);
       print("status code ${response.statusCode}");
+      
       if (response.statusCode == 200) {
-        // _mealPlans =sampleMealPlans;
-        final List<dynamic> data = json.decode(response.body);
-        print("data$data");
-        _mealPlans = data.map((json) => MealPlanModel.fromJson(json)).toList();
-        print("mealPlans$_mealPlans");
+        final Map<String, dynamic> data = json.decode(response.body);
+        print("data: $data");
+
+        if (data.containsKey('meal_plan')) {
+          final List<dynamic> mealPlansData = data['meal_plan'];
+          
+          // Xóa dữ liệu cũ trước khi cập nhật
+          _mealPlans.clear();
+          
+          _mealPlans = mealPlansData
+              .map((json) => MealPlanModel.fromJson(json))
+              .toList();
+          print("mealPlans: $_mealPlans");
+          hasFetched = true;
+        } else {
+          throw Exception('Meal plan not found in response');
+        }
+
         notifyListeners();
       } else {
         throw Exception('Failed to load meal plans');
@@ -51,22 +67,30 @@ class MealPlanProvider with ChangeNotifier {
     } catch (error) {
       print(error);
       rethrow;
-      
     }
   }
 
+
+
   // Add a new meal plan
-  Future<void> addMealPlan(MealPlanModel mealPlan, String token, String groupId) async {
+  Future<void> addMealPlan(MealPlanModel mealPlan, String groupId) async {
     final url = Uri.parse('$apiBaseUrl/meal/$groupId');
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
+    print('Adding meal plan...');
+     // Lặp qua từng món ăn và lấy recipeId
+    for (var dish in mealPlan.dishes) {
+      dish.recipeId = await getRecipeId(groupId, dish.recipeName);
+    }
     try {
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // Thêm token vào header
+          'Authorization': 'Bearer ${tokenObject['accessToken']}', // Thêm token vào header
         },
         body: json.encode(mealPlan.toJson()),
       );
+      print('response.statusCode: ${response.statusCode}');
       if (response.statusCode == 201) {
         final newMealPlan = MealPlanModel.fromJson(json.decode(response.body));
         _mealPlans.add(newMealPlan);
@@ -78,6 +102,46 @@ class MealPlanProvider with ChangeNotifier {
       rethrow;
     }
   }
+
+  Future<String> getRecipeId(String groupId, String keyword) async {
+
+  final url = Uri.parse('$apiBaseUrl/recipe/$groupId/search?keyword=$keyword');
+  Map<String, String> tokenObject = await TokenStorage.getTokens();
+  
+  try {
+    print('getRecipeId...');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${tokenObject['accessToken']}',
+      },
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      
+      // Duyệt qua mảng recipes và tìm kiếm tên món ăn khớp với keyword
+      final recipes = data['recipes'] as List;
+      final recipe = recipes.firstWhere(
+        (recipe) => recipe['dish_name'] == keyword,
+        orElse: () => null,
+      );
+
+      if (recipe != null) {
+        return recipe['id'];  // Trả về id của món ăn tìm được
+      } else {
+        throw Exception('Không tìm thấy món ăn với tên $keyword');
+      }
+    } else {
+      throw Exception('Failed to get recipe id');
+    }
+  } catch (error) {
+    print(error);
+    rethrow;
+  }
+}
+
 
   // Update an existing meal plan
   Future<void> updateMealPlan(String id, MealPlanModel updatedMealPlan, String token) async {

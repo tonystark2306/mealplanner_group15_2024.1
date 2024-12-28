@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import './add_meal_plan_screen.dart';
 import 'package:provider/provider.dart';
 import '../../Providers/meal_planning_provider.dart';
-import '../../Models/meal_plan_model.dart';
+import '../../Models/meal_plan/meal_plan_model.dart';
+import 'package:flutter/scheduler.dart';
 
 class MealPlanManagementScreen extends StatefulWidget {
   const MealPlanManagementScreen({Key? key}) : super(key: key);
@@ -13,35 +14,43 @@ class MealPlanManagementScreen extends StatefulWidget {
 
 class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
   DateTime _selectedDate = DateTime.now();
-  final String groupId = "f340fd65-0457-4e98-993f-5666fcbf115d";
+  final String groupId = "1366e289-e787-459f-896e-5c2a5df5c69f";
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Chỉ gọi _fetchMealPlans() sau khi BuildContext sẵn sàng
-    _fetchMealPlans();
+    final provider = Provider.of<MealPlanProvider>(context);
+    
+    // Chỉ gọi _fetchMealPlans khi mealPlans trống và không đang tải
+    if (provider.mealPlans.isEmpty && !provider.isLoading && !provider.hasFetched) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _fetchMealPlans();
+      });
+    }
   }
 
+
   Future<void> _fetchMealPlans() async {
-    
     final provider = Provider.of<MealPlanProvider>(context, listen: false);
-    
-    // Hiển thị thông báo "Đang tải"
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Đang tải bữa ăn...')),
-    );
+
+    if (provider.isLoading) return; // Tránh gọi API nếu đang tải dữ liệu
+
+    provider.setLoading(true); // Đặt trạng thái loading
 
     try {
+      // Gọi API với ngày mới đã chọn
       await provider.fetchMealPlansByDate(_selectedDate, groupId);
-      // Sau khi tải thành công, thông báo "Tải dữ liệu thành công"
+      // Sau khi tải thành công, thông báo thành công
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Tải dữ liệu thành công!')),
       );
     } catch (error) {
-      // Nếu có lỗi, thông báo "Lỗi khi tải dữ liệu"
+      // Hiển thị lỗi nếu có
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Lỗi khi tải dữ liệu!')),
       );
+    } finally {
+      provider.setLoading(false); // Hủy trạng thái loading khi hoàn tất
     }
   }
 
@@ -63,41 +72,42 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
         ),
       ),
       body: isLoading
-          ? _buildLoadingIndicator()
-          : RefreshIndicator(
-              onRefresh: _fetchMealPlans,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildDatePicker(),
-                    const SizedBox(height: 16),
-                    mealPlans.isEmpty
-                        ? Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                'Chưa có bữa ăn nào trong ngày',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
-                                ),
+        ? _buildLoadingIndicator()
+        : RefreshIndicator(
+            onRefresh: _fetchMealPlans,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDatePicker(),
+                  const SizedBox(height: 16),
+                  mealPlans.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              'Chưa có bữa ăn nào trong ngày',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
                               ),
                             ),
-                          )
-                        : _buildMealList(mealPlans),
-                  ],
-                ),
+                          ),
+                        )
+                      : _buildMealList(mealPlans),
+                ],
               ),
             ),
+          ),
+
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green[700],
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const AddMealScreen()),
+                builder: (context) => AddMealScreen(groupId: groupId)),
           );
         },
         child: const Icon(Icons.add, color: Colors.white),
@@ -137,6 +147,8 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
               setState(() {
                 _selectedDate = pickedDate;
               });
+
+              // Gọi lại API để tải dữ liệu cho ngày mới
               await _fetchMealPlans();
             }
           },
