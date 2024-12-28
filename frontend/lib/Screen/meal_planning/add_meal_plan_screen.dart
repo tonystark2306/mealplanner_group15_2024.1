@@ -11,7 +11,7 @@ class AddMealScreen extends StatefulWidget {
 }
 
 class _AddMealScreenState extends State<AddMealScreen> {
-  final String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MjY1Mjk1fQ.dPCZzsbJBS0oO-ky5NajGn1vRMNmllzVT6p7_vZJ92w";
+  final String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTU3NWIwM2UtYzYxYS00OGUyLThlYzQtNjhkMTk4ZTAyMTYxIiwiZXhwIjoxNzM1Mzg3MDc1fQ.Hrt68VjgbqUNhGAz0Mus8p99trLOw4DDaRwzR1W_DbM";
   final String groupId = "a05ac307-ae58-47cb-9c0d-d90e8bf2fd36";
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();

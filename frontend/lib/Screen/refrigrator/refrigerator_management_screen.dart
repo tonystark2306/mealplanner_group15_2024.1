@@ -304,7 +304,7 @@ class _RefrigeratorManagementScreenState
             onPressed: () async {
               try {
                 Provider.of<RefrigeratorProvider>(context, listen: false)
-                    .removeItem(fridgeItem.id);
+                    .deleteItemFromApi(widget.groupId, fridgeItem.id);
                 Navigator.of(ctx).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

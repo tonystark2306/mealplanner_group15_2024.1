@@ -40,7 +40,7 @@ class _EditFridgeItemScreenState extends State<EditFridgeItemScreen> {
 
       // Cập nhật item trong Provider
       Provider.of<RefrigeratorProvider>(context, listen: false)
-          .updateItemInApi(widget.groupId, updatedFridgeItem);
+          .updateItemInApi(context, widget.groupId, updatedFridgeItem);
 
       Navigator.pop(context);
     }
