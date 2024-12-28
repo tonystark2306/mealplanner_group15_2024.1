@@ -67,6 +67,9 @@ responses:
             is_verified:
               type: boolean
               example: true
+            is_deleted:
+              type: boolean
+              example: false
         role:
           type: string
           example: "user"

@@ -342,3 +342,165 @@ def verify_email():
             },
             "resultCode": "00054"
         }), 400
+        
+        
+@user_api.route("/request-reset-password", methods=["POST"])
+@swag_from("../../docs/user/auth/request_reset_password.yaml", endpoint="user_api.request_reset_password", methods=["POST"])
+def request_reset_password():
+    data = request.get_json()
+    if data is None:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid JSON data.",
+                "vn": "Dữ liệu JSON không hợp lệ."
+            },
+            "resultCode": "00004"
+        }), 400
+    
+    email = data.get("email")
+    if not email:
+        return jsonify({
+            "resultMessage": {
+                "en": "Please provide all required fields!",
+                "vn": "Vui lòng cung cấp tất cả các trường bắt buộc!"
+            },
+            "resultCode": "00025"
+        }), 400
+        
+    if not validate_email(email):
+        return jsonify({
+            "resultMessage": {
+                "en": "Please provide a valid email address!",
+                "vn": "Vui lòng cung cấp một địa chỉ email hợp lệ!"
+            },
+            "resultCode": "00026"
+        }), 400
+
+    auth_service = AuthService()
+    registered_user = auth_service.check_email_registered(email)
+    if not registered_user:
+        return jsonify({
+            "resultMessage": {
+                "en": "Your email has not been registered, please register first.",
+                "vn": "Email của bạn chưa được đăng ký, vui lòng đăng ký trước."
+            },
+            "resultCode": "00043"
+        }), 400
+        
+    reset_code = auth_service.generate_reset_code(email)
+    reset_token = auth_service.generate_reset_token(email)
+    send_email(
+        to=email, 
+        subject="Reset Your Password from Meal Planner",
+        template="reset-password",
+        user=registered_user,
+        code=reset_code
+    )
+
+    return jsonify({
+        "resultMessage": {
+            "en": "Reset code has been sent to your email successfully.",
+            "vn": "Mã reset đã được gửi đến email của bạn thành công."
+        },
+        "resultCode": "00048",
+        "resetToken": reset_token
+    }), 200
+    
+    
+@user_api.route("/validate-reset-code", methods=["POST"])
+@swag_from("../../docs/user/auth/validate_reset_code.yaml", endpoint="user_api.validate_reset_code", methods=["POST"])
+def validate_reset_code():
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid JSON data.",
+                "vn": "Dữ liệu JSON không hợp lệ."
+            },
+            "resultCode": "00004"
+        }), 400
+    
+    reset_token = data.get("resetToken")
+    reset_code = data.get("resetCode")
+    if not reset_token or not reset_code:
+        return jsonify({
+            "resultMessage": {
+                "en": "Please provide all required fields!",
+                "vn": "Vui lòng cung cấp tất cả các trường bắt buộc!"
+            },
+            "resultCode": "00025"
+        }), 400
+
+    auth_service = AuthService()
+    user = auth_service.verify_reset_code(reset_token, reset_code)
+    if user:
+        temp_access_token = auth_service.generate_access_token(user.id)
+        return jsonify({
+            "resultMessage": {
+                "en": "Reset code is valid.",
+                "vn": "Mã reset hợp lệ."
+            },
+            "resultCode": "00048",
+            "tempAccessToken": temp_access_token
+        }), 200
+    else:
+        return jsonify({
+            "resultMessage": {
+                "en": "The code you entered does not match the code we sent to your email. Please check again.",
+                "vn": "Mã bạn nhập không khớp với mã chúng tôi đã gửi đến email của bạn. Vui lòng kiểm tra lại."
+            },
+            "resultCode": "00054"
+        }), 400
+        
+        
+@user_api.route("/reset-password", methods=["POST"])
+@swag_from("../../docs/user/auth/reset_password.yaml", endpoint="user_api.reset_password", methods=["POST"])
+def reset_password():
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid JSON data.",
+                "vn": "Dữ liệu JSON không hợp lệ."
+            },
+            "resultCode": "00004"
+        }), 400
+    
+    temp_access_token = data.get("tempAccessToken")
+    new_password = data.get("newPassword")
+    if not temp_access_token or not new_password:
+        return jsonify({
+            "resultMessage": {
+                "en": "Please provide all required fields!",
+                "vn": "Vui lòng cung cấp tất cả các trường bắt buộc!"
+            },
+            "resultCode": "00025"
+        }), 400
+
+    auth_service = AuthService()
+    user_id = auth_service.verify_temp_access_token(temp_access_token)
+    if not user_id:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid token. Token may have expired.",
+                "vn": "Token không hợp lệ. Token có thể đã hết hạn."
+            },
+            "resultCode": "00012"
+        }), 400
+        
+    if auth_service.set_password(user_id, new_password):
+        return jsonify({
+            "resultMessage": {
+                "en": "Your password has been reset successfully.",
+                "vn": "Mật khẩu của bạn đã được đặt lại thành công."
+            },
+            "resultCode": "00058"
+        }), 200
+    
+    return jsonify({
+        "resultMessage": {
+            "en": "Invalid token.",
+            "vn": "Token không hơp lệ."
+        },
+        "resultCode": "00012"
+    }), 400

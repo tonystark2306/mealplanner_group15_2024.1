@@ -68,6 +68,28 @@ class AuthService:
             raise
         
         
+    def verify_temp_access_token(self, token):
+        """Verify if the provided temporary access token is valid and not expired."""
+        try:
+            payload = jwt.decode(token, secret_key, algorithms=["HS256"])
+            user_id = payload.get("user_id")
+            if not user_id:
+                logging.warning("Token missing required field: user_id.")
+                return None
+
+            return user_id
+
+        except jwt.ExpiredSignatureError:
+            logging.warning("Access token expired.")
+            return None
+        except jwt.InvalidTokenError:
+            logging.warning("Invalid access token.")
+            return None
+        except Exception as e:
+            logging.error(f"Error verifying access token: {str(e)}")
+            raise
+        
+        
     def verify_refresh_token(self, token):
         """Verify if the provided refresh token is valid and not expired."""
         try:
@@ -140,6 +162,19 @@ class AuthService:
         except Exception as e:
             logging.error(f"Error generating verification code: {str(e)}")
             raise
+        
+        
+    def generate_reset_code(self, email):
+        """Generates a reset password code for a user."""
+        try:
+            reset_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
+            user = self.user_repository.get_user_by_email(email)
+            self.token_repository.save_reset_code(user.id, reset_code)
+            return reset_code
+        
+        except Exception as e:
+            logging.error(f"Error generating reset code: {str(e)}")
+            raise
 
 
     def verify_verification_code(self, confirm_token, verification_code):
@@ -173,6 +208,36 @@ class AuthService:
             raise
         
         
+    def verify_reset_code(self, reset_token, reset_code):
+        """Verifies the reset password token and reset password code."""
+        try:
+            payload = jwt.decode(reset_token, secret_key, algorithms=["HS256"])
+            user_id = payload.get("user_id")
+            if not user_id:
+                logging.warning("Token missing required field: user_id.")
+                return None
+
+            token = self.token_repository.get_token_by_user_id(user_id)
+            if (
+                token is None or token.reset_token != reset_token or
+                token.reset_code != reset_code or
+                token.reset_code_expires_at < datetime.now(tz=timezone.utc)
+            ):
+                return None
+            
+            return self.user_repository.get_user_by_id(user_id)
+        
+        except jwt.ExpiredSignatureError:
+            logging.warning("Reset token expired.")
+            return None
+        except jwt.InvalidTokenError:
+            logging.warning("Invalid reset token.")
+            return None
+        except Exception as e:
+            logging.error(f"Error verifying reset code: {str(e)}")
+            raise
+        
+        
     def generate_confirm_token(self, email, expires_in=1800):
         """Generates a confirmation token for the user."""
         try:
@@ -191,6 +256,27 @@ class AuthService:
 
         except Exception as e:
             logging.error(f"Error generating confirm token: {str(e)}")
+            raise
+        
+        
+    def generate_reset_token(self, email, expires_in=1800):
+        """Generates a reset password token for the user."""
+        try:
+            user_id = self.user_repository.get_user_by_email(email).id
+            payload = {
+                "user_id": user_id,
+                "exp":  datetime.now(tz=timezone.utc) + timedelta(seconds=expires_in)
+            }
+            new_reset_token = jwt.encode(payload, secret_key, algorithm="HS256")
+            self.token_repository.save_reset_token(user_id, new_reset_token)
+            return new_reset_token
+        
+        except jwt.PyJWTError as e:
+            logging.error(f"JWT Error: {str(e)}")
+            raise
+
+        except Exception as e: 
+            logging.error(f"Error generating reset token: {str(e)}")
             raise
         
         
@@ -225,4 +311,19 @@ class AuthService:
         
         except Exception as e:
             logging.error(f"Error invalidating token: {str(e)}")
+            raise
+        
+        
+    def set_password(self, user_id, new_password):
+        """Set a new password for the user."""
+        try:
+            user = self.user_repository.get_user_by_id(user_id)
+            if user is None:
+                return False
+            
+            self.user_repository.update_password(user, new_password)
+            return True
+        
+        except Exception as e: 
+            logging.error(f"Error setting password: {str(e)}")
             raise
