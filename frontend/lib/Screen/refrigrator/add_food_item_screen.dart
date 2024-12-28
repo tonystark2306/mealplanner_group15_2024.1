@@ -1,34 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../Models/food_item_model.dart';
-import '../../Providers/refrigerator_provider.dart';
+import '../../Models/fridge/fridge_item_model.dart';
+import '../../Providers/fridge_provider/refrigerator_provider.dart';
 
-class AddFoodItemScreen extends StatefulWidget {
-  const AddFoodItemScreen({super.key});
+class AddFridgeItemScreen extends StatefulWidget {
+  final String groupId;
+
+  const AddFridgeItemScreen({super.key, required this.groupId});
 
   @override
-  _AddFoodItemScreenState createState() => _AddFoodItemScreenState();
+  _AddFridgeItemScreenState createState() => _AddFridgeItemScreenState();
 }
 
-class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
+class _AddFridgeItemScreenState extends State<AddFridgeItemScreen> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   int _quantity = 1;
-  DateTime _expiryDate = DateTime.now();
+  DateTime? _expiryDate;  // Khởi tạo là null
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      final newFoodItem = FoodItem(
+      // Kiểm tra nếu ngày hết hạn chưa được chọn
+      if (_expiryDate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Vui lòng chọn ngày hết hạn')),
+        );
+        return;
+      }
+
+      final newFridgeItem = FridgeItem(
         id: DateTime.now().toString(),
         name: _name,
         quantity: _quantity,
-        expirationDate: _expiryDate,
+        expirationDate: _expiryDate!,
       );
 
       Provider.of<RefrigeratorProvider>(context, listen: false)
-          .addItem(newFoodItem);
+          // .addItem(newFridgeItem);
+          .addItemToApi(widget.groupId, newFridgeItem);
 
       Navigator.pop(context);
     }
@@ -37,7 +48,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
   void _pickExpiryDate() async {
     final pickedDate = await showDatePicker(
       context: context,
-      initialDate: _expiryDate,
+      initialDate: _expiryDate ?? DateTime.now(),  // Nếu chưa chọn thì không mặc định là ngày hôm nay
       firstDate: DateTime(2024),
       lastDate: DateTime(2100),
     );
@@ -45,6 +56,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
     if (pickedDate != null) {
       setState(() {
         _expiryDate = pickedDate;
+        print(_expiryDate?.toIso8601String());
       });
     }
   }
@@ -99,7 +111,9 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
               Row(
                 children: [
                   Text(
-                    'Ngày hết hạn: ${_expiryDate.toLocal().toString().split(' ')[0]}',
+                    _expiryDate == null
+                        ? 'Chưa chọn ngày'
+                        : 'Ngày hết hạn: ${_expiryDate!.toLocal().toString().split(' ')[0]}',
                   ),
                   const Spacer(),
                   TextButton(
