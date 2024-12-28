@@ -32,7 +32,7 @@ class FoodInterface(ABC):
         pass
 
     @abstractmethod
-    def update_food(self, food, data):
+    def update_food(self, food, data) -> bool:
         pass
     
     @abstractmethod

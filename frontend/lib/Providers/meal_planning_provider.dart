@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../Models/meal_plan_model.dart';
+import './token_storage.dart';
 
 class MealPlanProvider with ChangeNotifier {
   final String apiBaseUrl = 'http://localhost:5000/api';
@@ -21,26 +22,27 @@ class MealPlanProvider with ChangeNotifier {
   }
 
   // Fetch meal plans by date
-  Future<void> fetchMealPlansByDate(DateTime date, String groupId, String token) async {
+  Future<void> fetchMealPlansByDate(DateTime date, String groupId) async {
     final formattedDate = date.toIso8601String().split('T')[0];
     final url = Uri.parse('$apiBaseUrl/meal/$groupId?date=$formattedDate');
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
 
     try {
       final response = await http.get(
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // Thêm token vào header
+          'Authorization': 'Bearer ${tokenObject['accessToken']}', // Thêm token vào header
         },
       );
       print(response.statusCode);
       print(response.body);
       print("status code ${response.statusCode}");
       if (response.statusCode == 200) {
-        _mealPlans =sampleMealPlans;
-        // final List<dynamic> data = json.decode(response.body);
-        // print("data$data");
-        // _mealPlans = data.map((json) => MealPlanModel.fromJson(json)).toList();
+        // _mealPlans =sampleMealPlans;
+        final List<dynamic> data = json.decode(response.body);
+        print("data$data");
+        _mealPlans = data.map((json) => MealPlanModel.fromJson(json)).toList();
         print("mealPlans$_mealPlans");
         notifyListeners();
       } else {

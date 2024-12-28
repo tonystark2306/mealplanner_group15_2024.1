@@ -18,7 +18,7 @@ class RefrigeratorProvider with ChangeNotifier {
         Uri.parse(url),
         headers: {
           'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MjUzOTEwfQ.k8tA_PALC9TDSNOse9Vzsplm5FJkFSfB5uuX-nkJEOY'
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTU3NWIwM2UtYzYxYS00OGUyLThlYzQtNjhkMTk4ZTAyMTYxIiwiZXhwIjoxNzM1Mzg3MDc1fQ.Hrt68VjgbqUNhGAz0Mus8p99trLOw4DDaRwzR1W_DbM'
         }, // Thay 'YOUR_TOKEN' bằng token của người dùng
       );
       print('Response status: ${response.statusCode}');
@@ -54,7 +54,7 @@ class RefrigeratorProvider with ChangeNotifier {
         Uri.parse(url),
         headers: {
           'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MjUzOTEwfQ.k8tA_PALC9TDSNOse9Vzsplm5FJkFSfB5uuX-nkJEOY'
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTU3NWIwM2UtYzYxYS00OGUyLThlYzQtNjhkMTk4ZTAyMTYxIiwiZXhwIjoxNzM1Mzg3MDc1fQ.Hrt68VjgbqUNhGAz0Mus8p99trLOw4DDaRwzR1W_DbM'
         }, // Thay 'YOUR_TOKEN' bằng token của người dùng
       );
       print('Response status: ${response.statusCode}');
@@ -75,7 +75,7 @@ class RefrigeratorProvider with ChangeNotifier {
   }
 
   // Hàm thêm thực phẩm vào tủ lạnh (POST request)
-  Future<void> addItemToApi(String groupId, FridgeItem item) async {
+  Future<void> addItemToApi(BuildContext context, String groupId, FridgeItem item) async {
     final url =
         'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
     try {
@@ -86,7 +86,7 @@ class RefrigeratorProvider with ChangeNotifier {
         headers: {
           'Content-Type': 'application/json',
           'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MjgwOTI3fQ.T_08nBTPupJM4PIlQ8z2cBSU8992SZ-fMF3lTDP3K3o', // Thay 'YOUR_TOKEN' bằng token của người dùng
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTU3NWIwM2UtYzYxYS00OGUyLThlYzQtNjhkMTk4ZTAyMTYxIiwiZXhwIjoxNzM1Mzg3MDc1fQ.Hrt68VjgbqUNhGAz0Mus8p99trLOw4DDaRwzR1W_DbM', // Thay 'YOUR_TOKEN' bằng token của người dùng
         },
         body: json.encode(item.toJson()),
       );
@@ -102,12 +102,16 @@ class RefrigeratorProvider with ChangeNotifier {
         throw Exception('Failed to add food item');
       }
     } catch (error) {
-      throw error;
+      print('Error: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tên thực phẩm chưa tồn tại')),
+      );
+      rethrow;
     }
   }
 
   // Hàm cập nhật thông tin thực phẩm trong tủ lạnh (PUT request)
-  Future<void> updateItemInApi(String groupId, FridgeItem updatedItem) async {
+  Future<void> updateItemInApi(BuildContext context, String groupId, FridgeItem updatedItem) async {
     final url =
         'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
     print('updateItem ${updatedItem.toDataForPut()}');
@@ -117,7 +121,7 @@ class RefrigeratorProvider with ChangeNotifier {
         headers: {
           'Content-Type': 'application/json',
           'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDQ1MDFhZDgtNWE0ZS00OTI5LWE3YzItYjhhMjU1OTU2NDE1IiwiZXhwIjoxNzM1MjUzOTEwfQ.k8tA_PALC9TDSNOse9Vzsplm5FJkFSfB5uuX-nkJEOY', // Thay 'YOUR_TOKEN' bằng token của người dùng
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTU3NWIwM2UtYzYxYS00OGUyLThlYzQtNjhkMTk4ZTAyMTYxIiwiZXhwIjoxNzM1Mzg3MDc1fQ.Hrt68VjgbqUNhGAz0Mus8p99trLOw4DDaRwzR1W_DbM', // Thay 'YOUR_TOKEN' bằng token của người dùng
         },
         body: json.encode(updatedItem.toDataForPut()),
       );
@@ -131,7 +135,9 @@ class RefrigeratorProvider with ChangeNotifier {
         throw Exception('Failed to update food item');
       }
     } catch (error) {
-      print('error $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tên thực phẩm chưa tồn tại')),
+      );
       throw error;
     }
   }
@@ -139,12 +145,12 @@ class RefrigeratorProvider with ChangeNotifier {
   // Hàm xóa thực phẩm trong tủ lạnh (DELETE request)
   Future<void> deleteItemFromApi(String groupId, String itemId) async {
     final url =
-        'http://localhost:5000/$groupId/$itemId'; // Thay thế với URL của bạn
+        'http://localhost:5000/api/fridge/$groupId/$itemId'; // Thay thế với URL của bạn
     try {
       final response = await http.delete(
         Uri.parse(url),
         headers: {
-          'Authorization': 'Bearer YOUR_TOKEN'
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTU3NWIwM2UtYzYxYS00OGUyLThlYzQtNjhkMTk4ZTAyMTYxIiwiZXhwIjoxNzM1Mzg3MDc1fQ.Hrt68VjgbqUNhGAz0Mus8p99trLOw4DDaRwzR1W_DbM'
         }, // Thay 'YOUR_TOKEN' bằng token của người dùng
       );
       if (response.statusCode == 200) {

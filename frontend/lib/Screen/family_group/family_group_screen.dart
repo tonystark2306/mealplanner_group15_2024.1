@@ -1,5 +1,9 @@
 // family_group_screen.dart
 import 'package:flutter/material.dart';
+import 'group_detail_screen.dart';
+import 'create_group_dialog.dart';
+import 'package:meal_planner_app/Services/get_all_group.dart';
+import 'package:meal_planner_app/Providers/token_storage.dart';
 
 class FamilyGroupScreen extends StatefulWidget {
   const FamilyGroupScreen({super.key});
@@ -9,24 +13,30 @@ class FamilyGroupScreen extends StatefulWidget {
 }
 
 class _FamilyGroupScreenState extends State<FamilyGroupScreen> {
-  final List<Map<String, dynamic>> _groups = [
-    {
-      'id': '1',
-      'name': 'Nhóm Gia đình Nguyễn',
-      'members': [
-        {'id': '1', 'name': 'Nguyễn Văn A', 'username': 'nguyenvana', 'role': 'Trưởng nhóm'},
-        {'id': '2', 'name': 'Nguyễn Thị B', 'username': 'nguyenthb', 'role': 'Thành viên'},
-      ],
-    },
-    {
-      'id': '2',
-      'name': 'Nhóm Gia đình Trần',
-      'members': [
-        {'id': '1', 'name': 'Trần Văn C', 'username': 'tranvanc', 'role': 'Trưởng nhóm'},
-        {'id': '2', 'name': 'Trần Thị D', 'username': 'tranthid', 'role': 'Thành viên'},
-      ],
-    },
-  ];
+  late Future<List<Map<String, dynamic>>> _groupsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _groupsFuture = _fetchGroups(); // Khởi tạo ngay lập tức
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchGroups() async {
+    try {
+      final tokens = await TokenStorage.getTokens();
+      final accessToken = tokens['accessToken'];
+      final data = await ApiGetAllGroup.getFamilyGroups(accessToken ?? '');
+      if (data.containsKey('groups')) {
+        return List<Map<String, dynamic>>.from(data['groups']);
+      } else {
+        throw Exception('Dữ liệu từ API không hợp lệ.');
+      }
+    } catch (e) {
+      print('Lỗi khi tải nhóm: $e');
+      return []; // Trả về danh sách trống nếu có lỗi
+    }
+  }
+
 
   void _navigateToGroupDetails(Map<String, dynamic> group) {
     Navigator.push(
@@ -44,10 +54,13 @@ class _FamilyGroupScreenState extends State<FamilyGroupScreen> {
     ).then((result) {
       if (result != null) {
         setState(() {
-          _groups.add({
-            'id': DateTime.now().toString(),
-            'name': result['name'],
-            'members': [],
+          _groupsFuture = _groupsFuture.then((groups) {
+            groups.add({
+              'id': DateTime.now().toString(),
+              'groupName': result['name'], // Đảm bảo sử dụng đúng key 'groupName'
+              'members': [],
+            });
+            return groups;
           });
         });
       }
@@ -69,228 +82,45 @@ class _FamilyGroupScreenState extends State<FamilyGroupScreen> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: _groups.length,
-          itemBuilder: (context, index) {
-            final group = _groups[index];
-            return Card(
-              elevation: 4,
-              margin: const EdgeInsets.only(bottom: 16.0),
-              child: ListTile(
-                title: Text(
-                  group['name'],
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _groupsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Lỗi khi tải danh sách nhóm: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Không có nhóm nào.'));
+          }
+
+          final groups = snapshot.data!;
+          return ListView.builder(
+            itemCount: groups.length,
+            itemBuilder: (context, index) {
+              final group = groups[index];
+              final groupName = group['groupName'] ?? 'Tên nhóm không xác định';
+              return Card(
+                elevation: 4,
+                margin: const EdgeInsets.only(bottom: 16.0),
+                child: ListTile(
+                  title: Text(
+                    groupName,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, color: Colors.green),
+                  onTap: () => _navigateToGroupDetails(group),
                 ),
-                trailing: const Icon(Icons.arrow_forward_ios, color: Colors.green),
-                onTap: () => _navigateToGroupDetails(group),
-              ),
-            );
-          },
-        ),
+              );
+            },
+          );
+        },
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: _createGroup,
         backgroundColor: Colors.green[700],
         child: const Icon(Icons.add),
       ),
-    );
-  }
-}
-
-class GroupDetailScreen extends StatelessWidget {
-  final Map<String, dynamic> group;
-
-  const GroupDetailScreen({required this.group, super.key});
-
-  void _showInputDialog(BuildContext context, String title, Function(String) onSubmit) {
-    final TextEditingController controller = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title),
-          content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(hintText: 'Nhập username'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Hủy'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final input = controller.text.trim();
-                if (input.isNotEmpty) {
-                  onSubmit(input);
-                  Navigator.pop(context);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green[700],
-              ),
-              child: const Text('Xác nhận'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final members = group['members'] as List<Map<String, dynamic>>;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          group['name'],
-          style: TextStyle(color: Colors.green[700]),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.green[700]),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Thành viên:',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.green[700],
-              ),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: members.length,
-                itemBuilder: (context, index) {
-                  final member = members[index];
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.green[100],
-                      child: Text(
-                        member['name'][0],
-                        style: TextStyle(color: Colors.green[700]),
-                      ),
-                    ),
-                    title: Text(member['name']),
-                    subtitle: Text('${member['role']} - username: ${member['username']}'),
-                  );
-                },
-              ),
-            ),
-            if (members.any((member) => member['role'] == 'Trưởng nhóm'))
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => _showInputDialog(
-                      context,
-                      'Thêm thành viên',
-                      (input) {
-                        // Add member logic here
-                        print('Thêm thành viên: $input');
-                      },
-                    ),
-                    icon: const Icon(Icons.person_add),
-                    label: const Text('Thêm thành viên'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[700],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton.icon(
-                    onPressed: () => _showInputDialog(
-                      context,
-                      'Xóa thành viên',
-                      (input) {
-                        // Remove member logic here
-                        print('Xóa thành viên: $input');
-                      },
-                    ),
-                    icon: const Icon(Icons.person_remove),
-                    label: const Text('Xóa thành viên'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red[700],
-                    ),
-                  ),
-                ],
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class CreateGroupDialog extends StatefulWidget {
-  const CreateGroupDialog({super.key});
-
-  @override
-  State<CreateGroupDialog> createState() => _CreateGroupDialogState();
-}
-
-class _CreateGroupDialogState extends State<CreateGroupDialog> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        'Tạo nhóm mới',
-        style: TextStyle(color: Colors.green[700]),
-      ),
-      content: Form(
-        key: _formKey,
-        child: TextFormField(
-          controller: _nameController,
-          decoration: const InputDecoration(
-            labelText: 'Tên nhóm',
-            hintText: 'Nhập tên nhóm gia đình',
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Vui lòng nhập tên nhóm';
-            }
-            return null;
-          },
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Hủy'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              Navigator.pop(
-                context,
-                {'name': _nameController.text},
-              );
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green[700],
-          ),
-          child: const Text('Tạo'),
-        ),
-      ],
     );
   }
 }

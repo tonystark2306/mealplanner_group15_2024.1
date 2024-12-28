@@ -141,6 +141,15 @@ def update_food(user_id, group_id):
             }), 400
             
     updated_food = food_service.update_food_info(food_to_update, data, new_image_file)
+    if not updated_food:
+        return jsonify({
+            "resultMessage": {
+                "en": "Category or unit with provided name not found.",
+                "vn": "Không tìm thấy category hoặc unit với tên cung cấp."
+            },
+            "resultCode": "00032"
+        }), 404
+
     return jsonify({
         "resultMessage": {
             "en": "Successful",

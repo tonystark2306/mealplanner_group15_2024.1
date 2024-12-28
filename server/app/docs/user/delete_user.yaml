@@ -23,10 +23,10 @@ responses:
           properties:
             en:
               type: string
-              example: "Your account has been deleted successfully."
+              example: "The user account has been deleted successfully."
             vn:
               type: string
-              example: "Tài khoản của bạn đã bị xóa thành công."
+              example: "Tài khoản người dùng đã được xóa thành công."
         resultCode:
           type: string
           example: "00092"

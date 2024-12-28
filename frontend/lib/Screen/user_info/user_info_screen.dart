@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:meal_planner_app/Providers/token_storage.dart';
+import 'package:meal_planner_app/Services/get_user_info.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -11,20 +13,38 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _isLoading = false;
-  final _formKey = GlobalKey<FormState>();
   
+  //bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = true;
+  Map<String, dynamic>? _userData; // Để lưu thông tin người dùng
   // Mock data - replace with actual user data
-  final Map<String, dynamic> _userData = {
-    'username': 'user123',
-    'fullName': 'Nguyễn Văn A',
-    'language': 'Tiếng Việt',
-    'timezone': 'GMT+7',
-    'avatarUrl': null,
-  };
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAndSetUserInfo(); // Gọi hàm lấy thông tin người dùng khi màn hình mở
+  }
 
   final List<String> _languages = ['Tiếng Việt', 'English'];
   final List<String> _timezones = ['GMT+7'];
+
+  Future<void> _fetchAndSetUserInfo() async {
+    setState(() => _isLoading = true);
+    final userInfo = await fetchUserInfo(); // Gọi hàm API
+    if (userInfo != null) {
+      setState(() {
+        _userData = userInfo;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể lấy thông tin người dùng')),
+      );
+    }
+  }
+
 
   Future<void> _pickImage() async {
     try {
@@ -63,7 +83,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         // TODO: Implement API call to update field
         // await updateUserField(field, result);
         setState(() {
-          _userData[field] = result;
+          if (_userData != null) {
+            _userData![field] = result;
+          }
         });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -89,7 +111,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  @override
+Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -110,52 +133,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  _buildAvatarSection(),
-                  const SizedBox(height: 20),
-                  _buildInfoCard(),
-                  const SizedBox(height: 20),
-                  _buildPreferencesCard(),
-                  const SizedBox(height: 20),
-                  _buildSecurityCard(),
-                ],
-              ),
-            ),
+          : _userData == null
+              ? const Center(child: Text('Không thể tải thông tin người dùng'))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      _buildAvatarSection(),
+                      const SizedBox(height: 20),
+                      _buildInfoCard(),
+                    ],
+                  ),
+                ),
     );
   }
 
+
   Widget _buildAvatarSection() {
     return Center(
-      child: Stack(
-        children: [
-          CircleAvatar(
-            radius: 60,
-            backgroundColor: Colors.green[100],
-            backgroundImage: _userData['avatarUrl'] != null
-                ? NetworkImage(_userData['avatarUrl'])
-                : null,
-            child: _userData['avatarUrl'] == null
-                ? Icon(Icons.person, size: 60, color: Colors.green[700])
-                : null,
-          ),
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: CircleAvatar(
-              backgroundColor: Colors.green[700],
-              child: IconButton(
-                icon: const Icon(Icons.camera_alt, color: Colors.white),
-                onPressed: _pickImage,
-              ),
-            ),
-          ),
-        ],
+      child: CircleAvatar(
+        radius: 60,
+        backgroundColor: Colors.green[100],
+        backgroundImage: _userData!['avatar_url'] != null
+            ? NetworkImage(_userData!['avatar_url'])
+            : null,
+        child: _userData!['avatar_url'] == null
+            ? Icon(Icons.person, size: 60, color: Colors.green[700])
+            : null,
       ),
     );
   }
+
 
   Widget _buildInfoCard() {
     return Card(
@@ -181,22 +189,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            _buildInfoRow(
-              'Tên đăng nhập',
-              _userData['username'],
-              onEdit: () => _editField('username', _userData['username']),
-            ),
+            _buildInfoRow('Tên đăng nhập', _userData!['username']),
             const Divider(),
-            _buildInfoRow(
-              'Họ và tên',
-              _userData['fullName'],
-              onEdit: () => _editField('fullName', _userData['fullName']),
-            ),
+            _buildInfoRow('Họ và tên', _userData!['name']),
           ],
         ),
       ),
     );
   }
+
 
   Widget _buildPreferencesCard() {
     return Card(
@@ -224,22 +225,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 20),
             _buildDropdownRow(
               'Ngôn ngữ',
-              _userData['language'],
+              _userData != null ? _userData!['language'] : '',
               _languages,
               (value) {
                 if (value != null) {
-                  setState(() => _userData['language'] = value);
+                  setState(() {
+                    if (_userData != null) {
+                      _userData!['language'] = value;
+                    }
+                  });
                 }
               },
             ),
             const Divider(),
             _buildDropdownRow(
               'Múi giờ',
-              _userData['timezone'],
+              _userData != null ? _userData!['timezone'] : '',
               _timezones,
               (value) {
                 if (value != null) {
-                  setState(() => _userData['timezone'] = value);
+                  setState(() {
+                    if (_userData != null) {
+                      _userData!['timezone'] = value;
+                    }
+                  });
                 }
               },
             ),
@@ -291,33 +300,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {VoidCallback? onEdit}) {
+  Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: TextStyle(color: Colors.green[700])),
-          Row(
-            children: [
-              Text(
-                value,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              if (onEdit != null) ...[
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.edit, size: 20),
-                  onPressed: onEdit,
-                  color: Colors.green[700],
-                ),
-              ],
-            ],
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
+
 
   Widget _buildDropdownRow(
     String label,

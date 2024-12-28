@@ -22,8 +22,7 @@ def generate_admin_accounts_data():
             name=account["name"],
             language=account["language"],
             timezone=account["timezone"],
-            device_id=account["device_id"],
-            is_verified=account["is_verified"]
+            device_id=account["device_id"]
         )
         admin_account.avatar_url = "https://cdn-icons-png.flaticon.com/512/2942/2942813.png"
         data.append(admin_account)

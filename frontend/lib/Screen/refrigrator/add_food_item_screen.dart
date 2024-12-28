@@ -18,11 +18,10 @@ class _AddFridgeItemScreenState extends State<AddFridgeItemScreen> {
   int _quantity = 1;
   DateTime? _expiryDate;  // Khởi tạo là null
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      // Kiểm tra nếu ngày hết hạn chưa được chọn
       if (_expiryDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Vui lòng chọn ngày hết hạn')),
@@ -37,11 +36,14 @@ class _AddFridgeItemScreenState extends State<AddFridgeItemScreen> {
         expirationDate: _expiryDate!,
       );
 
-      Provider.of<RefrigeratorProvider>(context, listen: false)
-          // .addItem(newFridgeItem);
-          .addItemToApi(widget.groupId, newFridgeItem);
+      try {
+        await Provider.of<RefrigeratorProvider>(context, listen: false)
+            .addItemToApi(context, widget.groupId, newFridgeItem);
 
-      Navigator.pop(context);
+        Navigator.pop(context);
+      } catch (error) {
+        print('Error: $error');
+      }
     }
   }
 
