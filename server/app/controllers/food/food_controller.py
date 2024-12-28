@@ -129,7 +129,7 @@ def update_food(user_id, group_id):
         }), 404
         
     if data:
-        ALLOW_FIELDS = {"name", "newType", "newUnitName", "newFoodCategoryNames", "newNote"}
+        ALLOW_FIELDS = {"name", "type", "categoryName", "unitName", "note"}
         unknown_fields = {field for field in data if field not in ALLOW_FIELDS}
         if unknown_fields:
             return jsonify({
