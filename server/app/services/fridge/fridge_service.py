@@ -5,6 +5,7 @@ from typing import Optional, Tuple
 from ...repository.fridgeItem_repository import FridgeItemRepository
 from ...repository.food_repository import FoodRepository
 from ...repository.unit_repository import UnitRepository
+from ...repository.category_repository import CategoryRepository
 
 class FridgeService:
     def __init__(self) -> None:
@@ -20,7 +21,15 @@ class FridgeService:
             item_dict = item.as_dict()
             food = self.food_repo.get_food_by_id(item.food_id)
             food_dict = food.as_dict()
+            unit_dict = self.unit_repo.get_unit_by_id(food.unit_id).as_dict()
             item_dict['Food'] = food_dict
+            categories = self.food_repo.get_food_categories(item.food_id)
+            categories_dict = []
+            for category in categories:
+                categories_dict.append(category.name)
+            item_dict['Food']['Unit'] = unit_dict
+            item_dict['Food']['Categories'] = categories_dict
+
             fridge_dict.append(item_dict)
 
         return fridge_dict
@@ -30,6 +39,8 @@ class FridgeService:
 
         #tìm item có group_id:
         item = self.fridge_repo.get_item_by_id(item_id)
+        if not item:
+            return "item not found"
 
         item_dict = item.as_dict()
 
@@ -58,7 +69,25 @@ class FridgeService:
             return "food item not found"
 
         convert_date = datetime.strptime(data['expiration_date'], "%Y-%m-%d %H:%M:%S")
-        return self.fridge_repo.add_item(data['owner_id'], data['added_by'], food.id, data['quantity'], convert_date)
+
+        frigde_item = self.fridge_repo.add_item(data['owner_id'], data['added_by'], food.id, data['quantity'], convert_date)
+        if not frigde_item:
+            return "error adding item to fridge"
+        
+        food_dict = food.as_dict()
+        unit = self.unit_repo.get_unit_by_id(food.unit_id)
+        unit_dict = unit.as_dict()
+        categories = self.food_repo.get_food_categories(food.id)
+        categories_dict = []
+        for category in categories:
+            categories_dict.append(category.name)
+        food_dict['Unit'] = unit_dict
+        food_dict['Categories'] = categories_dict
+
+        frigde_item_dict = frigde_item.as_dict()
+        frigde_item_dict['Food'] = food_dict
+
+        return frigde_item_dict
     
 
     def update_fridge_item(self, data: dict) -> Tuple[str, Optional[str]]:

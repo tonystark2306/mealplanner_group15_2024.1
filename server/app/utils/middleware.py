@@ -41,8 +41,11 @@ def check_item_ownership(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         group_id = kwargs.get('group_id') or request.view_args.get('group_id')
-        data = request.json
-        item_id = data.get("itemId") or kwargs.get('item_id')
+        try:
+            data = request.json
+        except:
+            data = {}
+        item_id = data.get("itemId") or kwargs.get('item_id') or request.view_args.get('item_id')
 
         # Kiểm tra nếu thiếu thông tin cần thiết
         if not item_id:
@@ -155,7 +158,11 @@ def check_recipe_ownership(f):
             data = request.json
         except:
             data = {}
-        recipe_id = kwargs.get('recipe_id') or request.view_args.get('recipe_id') or data.get('recipe_id')
+        try:
+            form_data = request.form
+        except:
+            form_data = {}
+        recipe_id = kwargs.get('recipe_id') or request.view_args.get('recipe_id') or data.get('recipe_id') or form_data.get('recipe_id')
 
         # Kiểm tra nếu thiếu recipe_id trong yêu cầu
         if not recipe_id:

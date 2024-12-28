@@ -25,27 +25,25 @@ parameters:
     type: string
     description: Name of the food item to update
     example: "Apple"
-  - name: newType
+  - name: type
     in: formData
     required: false
     type: string
     description: New type of the food item
     example: "ingredient"
-  - name: newUnitName
+  - name: unitName
     in: formData
     required: false
     type: string
     description: New unit name for the food
     example: "kg"
-  - name: newFoodCategoryNames
+  - name: categoryName
     in: formData
     required: false
-    type: array
-    description: New list of food category names
-    items:
-      type: string
-    example: ["Fruit", "Healthy"]
-  - name: newNote
+    type: string
+    description: New category name for the food
+    example: "Fruit"
+  - name: note
     in: formData
     required: false
     type: string
@@ -95,28 +93,34 @@ responses:
               type: string
               description: Unique identifier of the user who created the food
               example: "123e4567-e89b-12d3-a456-426614174000"
+            creator_username:
+              type: string
+              description: Username of the user who created the food
+              example: "johndoe"
             group_id:
               type: string
               description: Unique identifier of the group
               example: "123e4567-e89b-12d3-a456-426614174000"
-            categories:
-              type: array
-              description: List of updated categories the food belongs to
-              items:
-                type: string
-                example: "Fruit"
-            unit:
+            category_name:
               type: string
-              description: Updated unit of the food
+              description: Category name of the food
+              example: "Fruit"
+            unit_id:
+              type: string
+              description: Unique identifier of the unit
+              example: "123e4567-e89b-12d3-a456-426614174000"
+            unit_name:
+              type: string
+              description: Unit name of the food
               example: "kg"
             image_url:
               type: string
-              description: URL of the updated food image
-              example: "https://example.com/images/apple_updated.jpg"
+              description: URL of the food image
+              example: "https://example.com/images/apple.jpg"
             note:
               type: string
-              description: Updated notes about the food
-              example: "Updated note for the food"
+              description: Additional notes about the food
+              example: "Fresh and organic"
             created_at:
               type: string
               format: date-time
@@ -126,4 +130,4 @@ responses:
               type: string
               format: date-time
               description: Date and time when the food was last updated
-              example: "2023-12-20T00:00:00.000Z"
+              example: "2021-07-01T00:00:00.000Z"

@@ -1,10 +1,16 @@
+// lib/screens/login.dart
 import 'package:flutter/material.dart';
+import 'package:meal_planner_app/Services/auth_service.dart';
+import 'package:meal_planner_app/Providers/token_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:meal_planner_app/Models/user_model.dart'; // Adjust the path as necessary
+import 'package:meal_planner_app/Services/refresh_token.dart';
 
 class SimpleLoginScreen extends StatefulWidget {
   const SimpleLoginScreen({super.key});
 
   @override
-  State<SimpleLoginScreen> createState() => _SimpleLoginScreenState();
+  _SimpleLoginScreenState createState() => _SimpleLoginScreenState();
 }
 
 class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
@@ -13,23 +19,56 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
   final passwordController = TextEditingController();
   bool _isLoading = false;
 
-  void handleLogin() {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+void handleLogin() async {
+  if (_formKey.currentState!.validate()) {
+    setState(() {
+      _isLoading = true;
+    });
 
-      Future.delayed(const Duration(seconds: 2), () {
+    try {
+      final authApi = AuthApi();
+      final response = await authApi.login(
+        emailController.text,
+        passwordController.text,
+      );
+
+      if (response['resultCode'] == '00047') {
         setState(() {
           _isLoading = false;
         });
 
+        // Kiểm tra trước khi lấy dữ liệu
+        String accessToken = response['access_token'] ?? '';
+        String refreshToken = response['refresh_token'] ?? '';
+
+        TokenStorage.saveTokens(accessToken, refreshToken);
+        // print('accessToken: $accessToken');
+        // print('refreshToken: $refreshToken');
+        // TokenRefresher.startAutoRefresh();
+        
+        // Tạo đối tượng User từ response
+        User user = User.fromJson(response['user'] ?? {});
+
+        // Chuyển hướng đến dashboard hoặc nơi cần thiết
+        Navigator.pushReplacementNamed(context, '/bottomnav');
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Đăng nhập thành công!")),
+          SnackBar(content: Text(response['resultMessage']?['vn'] ?? 'Lỗi không xác định')),
         );
+      }
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Đã xảy ra lỗi: $error")),
+      );
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +82,10 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Image.asset(
-                  'assets/login_icon.png',
-                  height: 120,
-                ),
+                // Image.asset(
+                //   'assets/login_icon.png',
+                //   height: 120,
+                // ),
                 const SizedBox(height: 20),
                 Text(
                   "Chào mừng trở lại!",
@@ -105,7 +144,7 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/forgot-password');
+                      Navigator.pushNamed(context, '/forget-password');
                     },
                     child: Text(
                       "Quên mật khẩu?",

@@ -19,8 +19,9 @@ meal_plan_foods = Table(
     Base.metadata,
     Column('id', String(36), primary_key=True, default=lambda: str(uuid4())),
     Column('plan_id', String(36), ForeignKey('meal_plans.id'), nullable=False),
-    Column('food_id', String(36), nullable=False),
+    Column('food_id', String(36), nullable=True),
     Column('food_name', String(255), nullable=False),
+    Column('unit_id', String(36), nullable=True),
     Column('unit', String(50), nullable=True),
     Column('quantity', Float, nullable=False, default=0.0),
     UniqueConstraint('plan_id', 'food_name', name='uq_plan_food')
@@ -74,13 +75,26 @@ class MealPlan(Base):
     def foods(self):
         from app import db  # Import db nếu cần
         result = (
-            db.session.query(meal_plan_foods.c.food_id, meal_plan_foods.c.food_name, meal_plan_foods.c.unit, meal_plan_foods.c.quantity)
+            db.session.query(meal_plan_foods.c.id,meal_plan_foods.c.food_id, meal_plan_foods.c.food_name, meal_plan_foods.c.unit_id, meal_plan_foods.c.unit, meal_plan_foods.c.quantity)
             .filter(meal_plan_foods.c.plan_id == self.id)
             .all()
         )
-        return [dict(food_id=r.food_id, food_name=r.food_name, unit=r.unit, quantity=r.quantity) for r in result]
+        if not result:
+            return []
         
-         
+        food_dict = []
+        for id, plan_id, food_id, food_name, unit_id, unit, quantity in result:
+            food_dict.append({
+                'id': id,
+                'plan_id': plan_id,
+                'food_id': food_id,
+                'food_name': food_name,
+                'unit_id': unit_id,
+                'unit': unit,
+                'quantity': quantity
+            })
+        return food_dict
+
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}

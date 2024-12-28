@@ -5,10 +5,10 @@ class EditMealPlanScreen extends StatefulWidget {
   final List<String> initialMeals; // Danh sách món ăn ban đầu
 
   const EditMealPlanScreen({
-    Key? key,
+    super.key,
     required this.mealType,
     required this.initialMeals,
-  }) : super(key: key);
+  });
 
   @override
   State<EditMealPlanScreen> createState() => _EditMealPlanScreenState();

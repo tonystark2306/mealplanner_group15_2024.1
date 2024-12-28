@@ -1,9 +1,10 @@
+from typing import Optional
 from uuid import uuid4
 from sqlalchemy import String, DateTime, ForeignKey, Column, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from app import Base
-from typing import Optional
+
 
 food_categories = Table(
     'food_categories',
@@ -12,34 +13,37 @@ food_categories = Table(
     Column('category_id', String(36), ForeignKey('categories.id'), primary_key=True)
 )
 
+
 class Food(Base):
     __tablename__ = 'foods'
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
-    create_by: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=True)
+    create_by: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=False)
+    creator_username: Mapped[str] = mapped_column(String(100), nullable=False)
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     type: Mapped[str] = mapped_column(String(50), nullable=False, default='ingredient')
     group_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey('groups.id'), nullable=True)
+    category_name: Mapped[str] = mapped_column(String, nullable=False)
     unit_id: Mapped[str] = mapped_column(String(36), ForeignKey('units.id'), nullable=False)
+    unit_name: Mapped[str] = mapped_column(String, nullable=False)
     image_url: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    note: Mapped[str] = mapped_column(String(255))
+    note: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     # Update relationships - remove recipes relationship
     categories = relationship('Category', secondary=food_categories, back_populates='foods')
     group = relationship('Group', backref='foods')
     unit = relationship('Unit', backref='foods')
     creator = relationship('User', backref='foods', lazy=True)
-    recipes = relationship('Recipe', secondary='recipe_foods', back_populates='foods', lazy=True, cascade='all, delete')
 
 
-    def __init__(self, user_id, name, type, group_id, categories, unit_id, image_url, note):
+    def __init__(self, user_id, name, type, group_id, category, unit_id, image_url, note):
         self.create_by = user_id
         self.name = name
         self.type = type
         self.group_id = group_id
-        self.categories.append(categories)
+        self.categories = [category]
         self.unit_id = unit_id
         self.image_url = image_url
         self.note = note

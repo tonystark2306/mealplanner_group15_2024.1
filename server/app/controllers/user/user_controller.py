@@ -25,11 +25,11 @@ def get_user(user):
 @swag_from("../../docs/user/delete_user.yaml", endpoint="user_api.delete_user", methods=["DELETE"])
 def delete_user(user):
     user_service = UserService()
-    user_service.delete_user_from_db(user)
+    user_service.delete_user_account(user)
     return jsonify({
         "resultMessage": {
-            "en": "Your account has been deleted successfully.",
-            "vn": "Tài khoản của bạn đã bị xóa thành công."
+            "en": "The user account has been deleted successfully.",
+            "vn": "Tài khoản người dùng đã được xóa thành công."
         },
         "resultCode": "00092"
     }), 200

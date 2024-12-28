@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import './homepage.dart';
-import './refrigrator/refrigerator_management_screen.dart';
+import './refrigrator/list_fridge.dart';
 import './meal_planning/meal_planning_screen.dart';
 import './recipes/recipe_management_screen.dart';
 import './shopping_list/shopping_list_screen.dart';
@@ -18,9 +18,9 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   // Danh sách các màn hình cho từng tab
   final List<Widget> _screens = [
     HomeScreen(), // Trang chủ
-    const MealPlanningScreen(), // Kế hoạch bữa ăn
-    const RefrigeratorManagementScreen(), // Quản lý tủ lạnh
+    const MealPlanManagementScreen(), // Kế hoạch bữa ăn
     const ShoppingListScreen(), // Danh sách mua sắm
+    const GroupListScreen(), // Quản lý tủ lạnh
     const RecipeManagementScreen(),
   ];
 
@@ -50,12 +50,12 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             label: 'Bữa ăn',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.kitchen),
-            label: 'Tủ lạnh',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
             label: 'Mua sắm',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.kitchen),
+            label: 'Tủ lạnh',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.book),
