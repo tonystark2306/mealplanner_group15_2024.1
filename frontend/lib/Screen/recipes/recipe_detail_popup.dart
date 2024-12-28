@@ -6,13 +6,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class RecipeDetailPopup extends StatelessWidget {
-  final String groupId = "7b95381b-dc40-460a-981e-5c04d3053e38";
+  final String groupId = "c83fca65-8e79-472a-bd06-b6753c7a3843";
   final RecipeItem recipeItem;
   const RecipeDetailPopup({super.key, required this.recipeItem});
   Future<RecipeItem> fetchRecipeDetail() async {
     final id = recipeItem.id;
     final url = 'http://127.0.0.1:5000/api/recipe/$groupId/$id';
-    final String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWRiNDBlNDQtNmJhNS00ZWNiLWJkOGQtZWY3MjMyOGNjYTIyIiwiZXhwIjoxNzM1MTQwNTc2fQ.XVl44TsOSDYa2KuyE7-apKh4nw1DGhRdNVDNVmz9TL8";
+    final String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTlhMDZlOWItNzE2ZC00ODc4LThjZTEtMDdiM2RjYjY4YTdmIiwiZXhwIjoxNzM1Mzg4NjYwfQ.uGs_YvLiNZfdzq6FJafhO9b9qKIFeYmqvV4qMVNP3Xo";
     final response = await http.get(
       Uri.parse(url),
       headers: {
@@ -31,9 +31,9 @@ class RecipeDetailPopup extends StatelessWidget {
           timeCooking: field['timeCooking'] ?? '',
           ingredients: (field['foods'] as List?)
                   ?.map((ingredient) => Ingredient(
-                        name: ingredient['name'] ?? '',
-                        weight: ingredient['weight'] ?? '',
-                        unitName: ingredient['unitName'],
+                        name: ingredient['food_name'] ?? '',
+                        weight: ingredient['quantity'].toString() ?? '',
+                        unitName: ingredient['unit_name'] ?? '',
                       ))
                   .toList() ??
               [],
@@ -41,6 +41,8 @@ class RecipeDetailPopup extends StatelessWidget {
           image:
               imageBytes); // Assuming RecipeItem has a fromJson factory constructor.
     } else {
+      final responseBody = await response.body;
+        print('Error: $responseBody');
       throw Exception('Failed to load recipe details');
     }
   }
@@ -130,7 +132,7 @@ class RecipeDetailPopup extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 6.0),
                           child: Text(
-                            '${ingredient.name}: ${ingredient.weight}',
+                            '${ingredient.name}: ${ingredient.weight} ${ingredient.unitName}',
                             style: TextStyle(
                                 fontSize: 16, color: Colors.grey[700]),
                           ),

@@ -233,7 +233,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               child: ElevatedButton.icon(
                 onPressed: addIngredientField,
                 icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text('Thêm nguyên liệu'),
+                label: const Text('Thêm nguyên liệu', style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[700],
                 ),
@@ -275,7 +275,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
             ElevatedButton.icon(
               onPressed: pickImage,
               icon: const Icon(Icons.upload_file, color: Colors.white),
-              label: const Text('Chọn ảnh'),
+              label: const Text('Chọn ảnh', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[700],
               ),
@@ -285,7 +285,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               child: ElevatedButton.icon(
                 onPressed: saveRecipe,
                 icon: const Icon(Icons.save_alt, color: Colors.white),
-                label: const Text('Lưu công thức'),
+                label: const Text('Lưu công thức', style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[700],
                 ),

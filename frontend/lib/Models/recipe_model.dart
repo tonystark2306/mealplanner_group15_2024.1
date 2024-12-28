@@ -1,7 +1,7 @@
 // FILE: models/recipe_model.dart
 import 'dart:typed_data'; 
 class RecipeItem {
-  final String id;
+  String id;
   final String name;
   final String timeCooking;
   final List<Ingredient> ingredients;

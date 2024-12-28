@@ -25,8 +25,9 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch recipes from the provider (server call)
-    Provider.of<RecipeProvider>(context, listen: false).getRecipes();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<RecipeProvider>().getRecipes();
+    });
   }
 
   Widget _buildSearchBar() {
