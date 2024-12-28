@@ -18,7 +18,7 @@ class UserRepository(UserInterface):
             db.select(UserModel).where(
                 and_(
                     UserModel.id == id,
-                    UserModel.is_active == True
+                    UserModel.is_deleted == False
                 )
             )
         ).scalar()
@@ -29,7 +29,7 @@ class UserRepository(UserInterface):
             db.select(UserModel).where(
                 and_(
                     UserModel.email == email,
-                    UserModel.is_active == True
+                    UserModel.is_deleted == False
                 )
             )
         ).scalar()
@@ -40,7 +40,7 @@ class UserRepository(UserInterface):
             db.select(UserModel).where(
                 and_(
                     UserModel.username == username,
-                    UserModel.is_active == True
+                    UserModel.is_deleted == False
                 )
             )
         ).scalar()
@@ -106,12 +106,12 @@ class UserRepository(UserInterface):
             raise
         
         
-    def deactivated_user(self, user):
+    def delete_user(self, user):
         try:
-            user.is_active = False
+            user.is_deleted = True
             db.session.commit()
         
         except Exception as e:
             db.session.rollback()
-            logging.error(f"Error deactivating user: {str(e)}")
+            logging.error(f"Error deleting user: {str(e)}")
             raise

@@ -35,5 +35,5 @@ class UserInterface(ABC):
         pass
     
     @abstractmethod
-    def deactivated_user(self, user):
+    def delete_user(self, user):
         pass

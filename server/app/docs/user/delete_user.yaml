@@ -1,5 +1,5 @@
-Deactivate User Account
-This API allows the authenticated user to deactivate their account.
+Delete User Account
+This API allows the authenticated user to delete their account.
 ---
 tags:
   - User
@@ -23,10 +23,10 @@ responses:
           properties:
             en:
               type: string
-              example: "The user account has been deactivated successfully."
+              example: "The user account has been deleted successfully."
             vn:
               type: string
-              example: "Tài khoản người dùng đã được vô hiệu hóa thành công."
+              example: "Tài khoản người dùng đã được xóa thành công."
         resultCode:
           type: string
           example: "00092"
