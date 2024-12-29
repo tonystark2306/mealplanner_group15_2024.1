@@ -52,7 +52,7 @@ class ShoppingTaskService:
                 if existed_task.food_id == food.id and existed_task.status == 'Active':
                     return "food already exists"
             task['food_id'] = food.id
-            del task['food_name']
+
             try:
                 task['quantity'] = float(task['quantity'])
             except:

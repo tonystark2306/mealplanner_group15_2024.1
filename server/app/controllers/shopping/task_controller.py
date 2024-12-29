@@ -80,11 +80,18 @@ def create_tasks(user_id, group_id):
 @shopping_api.route("/<group_id>/task", methods=["GET"])
 @JWT_required
 @group_member_required
-@validate_fields(["list_id"])
 @check_list_ownership
 def get_tasks(user_id, group_id):
     '''Get tasks of a shopping list'''
-    list_id = request.json.get("list_id")
+    list_id = request.args.get("list_id")
+    if not list_id:
+        return jsonify({
+            "resultMessage": {
+                "en": "List ID is required.",
+                "vn": "ID danh sách mua sắm là bắt buộc."
+            },
+            "resultCode": "00292"
+        }), 400
     task_service = ShoppingTaskService()
 
     result = task_service.get_tasks_of_list(list_id, group_id, user_id)
