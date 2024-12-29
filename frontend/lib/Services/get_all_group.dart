@@ -15,11 +15,11 @@ class ApiGetAllGroup {
       );
 
       // Debug: In response body để kiểm tra
-      print('API Response Body: ${response.body}');
+      //print('API Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> body = json.decode(response.body);
-        print('Parsed Response: $body'); // In phản hồi đã parse
+        //print('Parsed Response: $body'); // In phản hồi đã parse
         return body;
       } else {
         // Xử lý lỗi HTTP

@@ -22,7 +22,7 @@ Future<Map<String, dynamic>?> fetchUserInfo() async {
       },
     );
 
-    print('API response: ${response.body}');
+    //print('API response: ${response.body}');
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

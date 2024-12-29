@@ -171,9 +171,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               ),
                             )
                           : const Text(
-                              "Gửi yêu cầu",
-                              style: TextStyle(fontSize: 16),
+                            "Gửi yêu cầu",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white, // Chuyển màu chữ sang màu trắng
                             ),
+                          ),
                     ),
                   ],
                 ),
