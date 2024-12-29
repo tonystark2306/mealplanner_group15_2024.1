@@ -53,22 +53,31 @@ class _RefrigeratorManagementScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.green[700], // Màu xanh cho AppBar
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Thực phẩm trong tủ lạnh',
+          'Tủ lạnh',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white), // Màu trắng cho nút quay lại
-          onPressed: () {
-            Navigator.of(context).pop(); // Quay lại trang trước đó
-          },
-        ),
+            icon: Icon(Icons.analytics, color: Colors.white),
+            onPressed: () {
+              Navigator.pushNamed(context, '/report');
+            },
+          ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications, color: Colors.white),
+            onPressed: () {
+              // Handle notifications
+            },
+          ),
+        ],
       ),
       body: _isLoading
           ? _buildLoadingIndicator()

@@ -6,8 +6,10 @@ import '../token_storage.dart';
 
 class RefrigeratorProvider with ChangeNotifier {
   List<FridgeItem> _items = [];
+  List<String> _foodNames = [];  // Store food names in a list
 
   List<FridgeItem> get items => _items;
+  List<String> get foodNames => _foodNames;  // Add this getter
 
   // Hàm tải danh sách các thực phẩm từ backend
   Future<void> loadFridgeItemsFromApi(String groupId) async {
@@ -45,6 +47,35 @@ class RefrigeratorProvider with ChangeNotifier {
       throw error;
     }
   }
+
+  //hàm lấy danh sách tên thực phẩm từ api
+  Future<void> fetchFoodNames(String groupId) async {
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
+    try {
+      final response = await http.get(
+        Uri.parse('http://localhost:5000/api/food/group/$groupId'),
+        headers: {
+          'Authorization': 'Bearer ${tokenObject['accessToken']}',
+        },
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body)['foods'];
+        if (data != null) {
+          _foodNames = List<String>.from(data.map((food) => food['name']));  // Update the list
+          notifyListeners();  // Notify listeners when the food names are updated
+        } else {
+          throw Exception('Không có thực phẩm trong nhóm');
+        }
+      } else {
+        throw Exception('Failed to fetch food names');
+      }
+    } catch (e) {
+      print(e);
+      _foodNames = [];  // Set to empty list on error
+      notifyListeners();  // Notify listeners even if the fetch failed
+    }
+  }
+
 
   // Hàm thêm thông tin thực phẩm chỉ định vào local
   Future<FridgeItem> addFridgeToLocal(String groupId, String fridgeId) async{
