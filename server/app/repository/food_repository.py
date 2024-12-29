@@ -66,6 +66,8 @@ class FoodRepository(FoodInterface):
                 food.type = data["type"]
             if "note" in data:
                 food.note = data["note"]
+            if "image_url" in data:
+                food.image_url = data["image_url"]
             if "categoryName" in data:
                 new_category = self.category_repository.get_category_by_name(data["categoryName"])
                 if not new_category:

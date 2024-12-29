@@ -50,7 +50,9 @@ class ShoppingTaskService:
                 return "food not found"
             for existed_task in existed_tasks:
                 if existed_task.food_id == food.id and existed_task.status == 'Active':
-                    return "food already exists"
+                    #merge case
+                    existed_task.quantity = str(float(existed_task.quantity) + float(task['quantity']))
+                    return "food already exists, merged successfully"
             task['food_id'] = food.id
 
             try:

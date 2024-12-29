@@ -71,6 +71,22 @@ class MealPlanProvider with ChangeNotifier {
     }
   }
 
+  //Fetch a recipe by id
+  Future<Map<String, dynamic>> fetchRecipeDetail(String url) async {
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
+
+    final response = await http.get(Uri.parse(url), headers: {
+      'Authorization': 'Bearer ${tokenObject['accessToken']}',
+    });
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data;
+    } else {
+      throw Exception('Lỗi khi tải chi tiết công thức.');
+    }
+  }
+
   //get meal plan by id
   Future<MealPlanModel> getMealPlanById(String id, String groupId) async {
     final url = Uri.parse('$apiBaseUrl/meal/$groupId/$id');

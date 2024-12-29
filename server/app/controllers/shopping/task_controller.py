@@ -50,11 +50,11 @@ def create_tasks(user_id, group_id):
             "resultCode": "00285"
         }), 404
     
-    if result == "food already exists":
+    if result == "food already exists, merged successfully":
         return jsonify({
             "resultMessage": {
-                "en": "This food is already in the list.",
-                "vn": " Loại thức ăn này đã có trong danh sách rồi."
+                "en": "Food already exists, merged successfully.",
+                "vn": " Thực phẩm này đã có trong danh sách, nhiệm vụ đã được gộp."
             },
             "resultCode": "00285x"
         }), 400
