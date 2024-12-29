@@ -15,7 +15,7 @@ class CategoryApiAdd {
 
     // Kiểm tra nếu không có access token
     if (accessToken == null || accessToken.isEmpty) {
-      print("Access token is missing");
+      //print("Access token is missing");
       return false;
     }
 
@@ -32,14 +32,14 @@ class CategoryApiAdd {
       );
 
       if (response.statusCode == 201) {
-        print("Category added successfully");
+        //print("Category added successfully");
         return true;
       } else {
-        print("Failed to add category: ${response.body}");
+        //print("Failed to add category: ${response.body}");
         return false;
       }
     } catch (e) {
-      print("Error occurred while adding category: $e");
+      //print("Error occurred while adding category: $e");
       return false;
     }
   }

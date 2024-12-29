@@ -5,7 +5,7 @@ import 'routes.dart';
 import 'Providers/fridge_provider/refrigerator_provider.dart';
 import 'Providers/meal_planning_provider.dart';
 import "Screen/auth/login.dart";
-import 'Screen/bottom_navigation_screen.dart';
+import 'Providers/food_provider.dart';
 import 'Providers/fridge_provider/list_group_provider.dart';
 import 'Providers/shopping_provider.dart';
 
@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => FoodProvider()),
         ChangeNotifierProvider(create: (_) => GroupFridgeProvider()),
         ChangeNotifierProvider(create: (_) => RefrigeratorProvider()),
         ChangeNotifierProvider(create: (_) => MealPlanProvider()),

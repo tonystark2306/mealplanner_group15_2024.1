@@ -173,9 +173,13 @@ void handleLogin() async {
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
-                          "Đăng nhập",
-                          style: TextStyle(fontSize: 16),
+                        "Đăng nhập",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white, // Thay đổi màu chữ thành màu trắng
                         ),
+                      ),
                 ),
                 const SizedBox(height: 15),
                 TextButton(

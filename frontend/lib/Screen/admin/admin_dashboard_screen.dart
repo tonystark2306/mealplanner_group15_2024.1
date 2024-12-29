@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
 
-  @override 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -14,11 +14,30 @@ class AdminDashboardScreen extends StatelessWidget {
             color: Colors.white, // Màu chữ
             fontSize: 20, // Kích thước chữ (tuỳ chỉnh)
             fontWeight: FontWeight.bold, // Kiểu chữ đậm (tuỳ chọn)
-            
           ),
         ),
         centerTitle: true,
         backgroundColor: Colors.green[700],
+        actions: [
+          // Nút Đăng xuất
+          TextButton.icon(
+            onPressed: () {
+              // Logic để logout
+              Navigator.pushReplacementNamed(context, '/login'); // Chuyển về màn hình đăng nhập
+            },
+            icon: const Icon(
+              Icons.logout,
+              color: Colors.red, // Icon màu đỏ
+            ),
+            label: const Text(
+              'Đăng xuất',
+              style: TextStyle(
+                color: Colors.red, // Chữ màu đỏ
+                fontWeight: FontWeight.bold, // Chữ đậm
+              ),
+            ),
+          ),
+        ],
       ),
       body: GridView.count(
         padding: const EdgeInsets.all(16),
@@ -48,7 +67,7 @@ class AdminDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildAdminTile(
-    BuildContext context, 
+    BuildContext context,
     String title,
     IconData icon,
     VoidCallback onTap,

@@ -88,7 +88,13 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green[700],
           ),
-          child: const Text('Tạo'),
+          child: const Text (
+                              'Tạo',
+                              style: TextStyle(
+                                color: Colors.white, // Màu trắng
+                                fontWeight: FontWeight.bold, // Bôi đậm
+                              ),
+                            ),
         ),
 
       ],

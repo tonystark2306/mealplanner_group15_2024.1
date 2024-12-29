@@ -91,9 +91,6 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     }
   }
 
-
-
-
   void _deleteCategory(String name) async {
     setState(() => _isLoading = true);
 
@@ -224,31 +221,38 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final category = categories[index];
-                return Card(
-                  child: ListTile(
-                    title: Text(category['name']),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () => _showEditCategoryDialog(category['name']), // Truyền old_name
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _confirmDeleteCategory(category['name']),
-                        ),
-                      ],
-                    ),
+          : categories.isEmpty
+              ? const Center(
+                  child: Text(
+                    'Chưa có danh mục. Nhấn + để thêm danh mục.',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
-                );
-              },
-            ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    final category = categories[index];
+                    return Card(
+                      child: ListTile(
+                        title: Text(category['name']),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () => _showEditCategoryDialog(category['name']), // Truyền old_name
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _confirmDeleteCategory(category['name']),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddCategoryDialog,
         backgroundColor: Colors.green[700],
