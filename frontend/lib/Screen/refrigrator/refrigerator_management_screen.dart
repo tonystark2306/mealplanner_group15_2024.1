@@ -5,11 +5,11 @@ import '../../Providers/fridge_provider/refrigerator_provider.dart';
 import './add_food_item_screen.dart';
 import './edit_food_item_screen.dart';
 import './fridge_item_screen.dart';
+import '../../Providers/group_id_provider.dart';
 
 class RefrigeratorManagementScreen extends StatefulWidget {
-  final String groupId;
 
-  const RefrigeratorManagementScreen({super.key, required this.groupId});
+  const RefrigeratorManagementScreen({super.key});
 
   @override
   _RefrigeratorManagementScreenState createState() =>
@@ -18,7 +18,7 @@ class RefrigeratorManagementScreen extends StatefulWidget {
 
 class _RefrigeratorManagementScreenState
     extends State<RefrigeratorManagementScreen> {
-  late final String groupId = widget.groupId;
+  String? groupId;
   bool _isLoading = true;
 
   @override
@@ -28,9 +28,14 @@ class _RefrigeratorManagementScreenState
   }
 
   Future<void> _loadFridgeItems() async {
+    final id = await GroupIdProvider.getSelectedGroupId();
+    setState(() {
+      groupId = id;
+    });
+
     try {
       await Provider.of<RefrigeratorProvider>(context, listen: false)
-          .loadFridgeItemsFromApi(groupId);
+          .loadFridgeItemsFromApi(groupId!);
       setState(() {
         _isLoading = false;
       });
@@ -102,7 +107,7 @@ class _RefrigeratorManagementScreenState
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => AddFridgeItemScreen(groupId: groupId,)),
+                builder: (context) => AddFridgeItemScreen(groupId: groupId!,)),
           );
         },
         child: const Icon(Icons.add, color: Colors.white),
@@ -217,7 +222,7 @@ class _RefrigeratorManagementScreenState
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              EditFridgeItemScreen(groupId: groupId, fridgeItem: fridgeItem),
+                              EditFridgeItemScreen(groupId: groupId!, fridgeItem: fridgeItem),
                         ),
                       );
                     } else if (value == 'delete') {
@@ -304,7 +309,7 @@ class _RefrigeratorManagementScreenState
             onPressed: () async {
               try {
                 Provider.of<RefrigeratorProvider>(context, listen: false)
-                    .deleteItemFromApi(widget.groupId, fridgeItem.id);
+                    .deleteItemFromApi(groupId!, fridgeItem.id);
                 Navigator.of(ctx).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

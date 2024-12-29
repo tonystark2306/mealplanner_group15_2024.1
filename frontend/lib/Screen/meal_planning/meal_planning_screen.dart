@@ -4,7 +4,7 @@ import './add_meal_plan_screen.dart';
 import 'package:provider/provider.dart';
 import '../../Providers/meal_planning_provider.dart';
 import '../../Models/meal_plan/meal_plan_model.dart';
-import 'package:flutter/scheduler.dart';
+import '../../Providers/group_id_provider.dart';
 
 class MealPlanManagementScreen extends StatefulWidget {
   const MealPlanManagementScreen({Key? key}) : super(key: key);
@@ -15,7 +15,7 @@ class MealPlanManagementScreen extends StatefulWidget {
 
 class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
   DateTime _selectedDate = DateTime.now();
-  final String groupId = "1366e289-e787-459f-896e-5c2a5df5c69f";
+  String? groupId ;
 
   @override
   void didChangeDependencies() {
@@ -32,26 +32,34 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
 
 
   Future<void> _fetchMealPlans() async {
-    final provider = Provider.of<MealPlanProvider>(context, listen: false);
 
-    if (provider.isLoading) return; // Tránh gọi API nếu đang tải dữ liệu
+    final id = await GroupIdProvider.getSelectedGroupId();
+    setState(() {
+      groupId = id;
+    });
 
-    provider.setLoading(true); // Đặt trạng thái loading
+    if (groupId != null) {
+      final provider = Provider.of<MealPlanProvider>(context, listen: false);
 
-    try {
-      // Gọi API với ngày mới đã chọn
-      await provider.fetchMealPlansByDate(_selectedDate, groupId);
-      // Sau khi tải thành công, thông báo thành công
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Tải dữ liệu thành công!')),
-      );
-    } catch (error) {
-      // Hiển thị lỗi nếu có
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi khi tải dữ liệu!')),
-      );
-    } finally {
-      provider.setLoading(false); // Hủy trạng thái loading khi hoàn tất
+      if (provider.isLoading) return; // Tránh gọi API nếu đang tải dữ liệu
+
+      provider.setLoading(true); // Đặt trạng thái loading
+
+      try {
+        // Gọi API với ngày mới đã chọn
+        await provider.fetchMealPlansByDate(_selectedDate, groupId!);
+        // Sau khi tải thành công, thông báo thành công
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tải dữ liệu thành công!')),
+        );
+      } catch (error) {
+        // Hiển thị lỗi nếu có
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi khi tải dữ liệu!')),
+        );
+      } finally {
+        provider.setLoading(false); // Hủy trạng thái loading khi hoàn tất
+      }
     }
   }
 
@@ -108,7 +116,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => AddMealPlanScreen(groupId: groupId)),
+                builder: (context) => AddMealPlanScreen(groupId: groupId!)),
           );
         },
         child: const Icon(Icons.add, color: Colors.white),
@@ -233,7 +241,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              EditMealPlanScreen(groupId: groupId, mealPlan: meal),
+                              EditMealPlanScreen(groupId: groupId!, mealPlan: meal),
                         ),
                       );
                     } else if (value == 'delete') {
@@ -297,7 +305,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
     if (confirmed == true) {
       Provider.of<MealPlanProvider>(context, listen: false)
           // .deleteMealPlan(mealId, token);
-          .deleteMealPlan(mealId, groupId);
+          .deleteMealPlan(mealId, groupId!);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đã xóa bữa ăn')),
       );
