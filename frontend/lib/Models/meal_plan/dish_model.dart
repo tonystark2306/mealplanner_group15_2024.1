@@ -1,12 +1,12 @@
 class Dish {
   String recipeId;
   final String recipeName;
-  final double servings;
+  double servings;
 
   Dish({
-    required this.recipeId,
+    this.recipeId = '',
     required this.recipeName,
-    required this.servings,
+    this.servings = 1,
   });
 
   factory Dish.fromJson(Map<String, dynamic> json) {
@@ -14,6 +14,13 @@ class Dish {
       recipeId: json['recipe_id'],
       recipeName: json['dish_name'],
       servings: json['servings'],
+    );
+  }
+
+  factory Dish.fetchdropdown(Map<String, dynamic> json) {
+    return Dish(
+      recipeId: json['id'],
+      recipeName: json['dish_name'],
     );
   }
 

@@ -134,77 +134,108 @@ class _AddMealScreenState extends State<AddMealScreen> {
     );
   }
 
-  // Thêm món ăn vào danh sách
   void _addDish() {
-    // Mở màn hình nhập tên món ăn và khẩu phần
+    // Gọi API để lấy danh sách món ăn
     showDialog(
       context: context,
       builder: (context) {
-        final _dishNameController = TextEditingController();
         final _servingsController = TextEditingController();
+        Dish? selectedDish;
+        List<Dish> dishesList = [];
+        bool isLoading = true;
 
-        return AlertDialog(
-          title: const Text('Nhập thông tin món ăn'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Nhập tên món ăn
-              TextField(
-                controller: _dishNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Tên món ăn',
-                  border: OutlineInputBorder(),
+        // Gọi API lấy danh sách món ăn
+        Future<void> fetchDishes() async {
+          try {
+            final provider = Provider.of<MealPlanProvider>(context, listen: false);
+            dishesList = await provider.fetchAllRecipes(widget.groupId);
+          } catch (e) {
+            print('Error fetching dishes: $e');
+          } finally {
+            setState(() {
+              isLoading = false; // Cập nhật đúng trạng thái trong dialog
+            });
+          }
+        }
+
+        // Gọi hàm fetch ngay khi dialog được tạo
+        fetchDishes();
+
+        return StatefulBuilder(
+          builder: (context, dialogSetState) {
+            return AlertDialog(
+              title: const Text('Thêm món ăn'),
+              content: isLoading
+                  ? const Center(child: CircularProgressIndicator()) // Hiển thị khi loading
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        DropdownButtonFormField<Dish>(
+                          decoration: const InputDecoration(
+                            labelText: 'Chọn món ăn',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: dishesList.map((dish) {
+                            return DropdownMenuItem<Dish>(
+                              value: dish,
+                              child: Text(dish.recipeName),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            dialogSetState(() {
+                              selectedDish = value;
+                            });
+                          },
+                          value: selectedDish,
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _servingsController,
+                          decoration: const InputDecoration(
+                            labelText: 'Số phần',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ],
+                    ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Hủy'),
                 ),
-              ),
-              const SizedBox(height: 8),
-              
-              // Nhập số phần khẩu phần
-              TextField(
-                controller: _servingsController,
-                decoration: const InputDecoration(
-                  labelText: 'Số phần',
-                  border: OutlineInputBorder(),
+                ElevatedButton(
+                  onPressed: () {
+                    if (selectedDish == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Vui lòng chọn món ăn')),
+                      );
+                      return;
+                    }
+
+                    final servings =
+                        double.tryParse(_servingsController.text) ?? 1;
+
+                    setState(() {
+                      _dishes.add(Dish(
+                        recipeId: selectedDish!.recipeId,
+                        recipeName: selectedDish!.recipeName,
+                        servings: servings,
+                      ));
+                    });
+
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Thêm món ăn'),
                 ),
-                keyboardType: TextInputType.number,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Hủy'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final dishName = _dishNameController.text;
-                final servings = double.tryParse(_servingsController.text) ?? 1;
-
-                if (dishName.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Vui lòng nhập tên món ăn')),
-                  );
-                  return;
-                }
-
-                setState(() {
-                  _dishes.add(Dish(
-                    recipeId: 'dish_${_dishes.length + 1}',
-                    recipeName: dishName,
-                    servings: servings,
-                  ));
-                });
-
-                Navigator.pop(context);
-              },
-              child: const Text('Thêm món ăn'),
-            ),
-          ],
+              ],
+            );
+          },
         );
       },
     );
   }
+
 
   // Xóa món ăn khỏi danh sách
   void _removeDish(int index) {

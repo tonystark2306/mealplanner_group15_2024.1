@@ -28,7 +28,7 @@ class MealPlanModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+
       'name': name,
       'schedule_time': scheduleTime.toIso8601String(),
       'description': description,
