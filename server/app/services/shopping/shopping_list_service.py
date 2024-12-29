@@ -66,6 +66,22 @@ class ShoppingListService:
         return [list.as_dict() for list in all_lists if list.assigned_to == user_id]
     
 
+    def mark_list(self, group_id, list_id):
+        shopping_list = self.list_repo.get_shopping_by_id(list_id)
+        if not shopping_list:
+            return "list not found"
+        
+        if shopping_list.status == 'Draft':
+            return {"en": "Cannot change status of a draft shopping list.", "vn": "Không thể thay đổi trạng thái của danh sách mua sắm nháp."}
+
+        if shopping_list.status == 'Active':
+            self.change_status(group_id, list_id, 'Fully Completed')
+            return {"en": "Shopping list marked as fully completed.", "vn": "Danh sách mua sắm được đánh dấu là hoàn thành."}
+        if shopping_list.status == 'Fully Completed':
+            self.change_status(group_id, list_id, 'Active')
+            return {"en": "Shopping list marked as active.", "vn": "Danh sách mua sắm được đánh dấu là hoạt động."}
+
+
     def change_status(self, group_id, list_id, new_status):
         if new_status not in ['Active', 'Fully Completed', 'Partially Completed', 'Archived', 'Cancelled', 'Deleted']:
             return None
