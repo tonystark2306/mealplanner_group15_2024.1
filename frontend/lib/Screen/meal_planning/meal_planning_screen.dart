@@ -18,6 +18,13 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
   String? groupId ;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _fetchMealPlans();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final provider = Provider.of<MealPlanProvider>(context);
