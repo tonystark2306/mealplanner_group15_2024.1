@@ -1,4 +1,6 @@
 from datetime import datetime
+import json
+from collections import defaultdict
 
 from ...repository.shopping_list_repository import ShoppingListRepository
 from ...repository.shopping_task_repository import TaskRepository
@@ -32,19 +34,32 @@ class ShoppingTaskService:
 
     def create_tasks(self, data):
         list_id = data['list_id']
-        tasks = data['tasks']
         #check if shopping_list exists and is not cancelled
         shopping_list = self.list_repo.get_shopping_by_id(list_id)
         if not shopping_list:
             return "list not found"
         if shopping_list.status == 'Cancelled':
             return "list is cancelled"
-        existed_tasks = shopping_list.tasks
+        
+        #kiểm tra danh sách task, nếu có task nào trùng tên thì merge chúng lại
+        merged_tasks = defaultdict(float)
+        # Duyệt qua danh sách tasks và gộp quantity
+        for task in data["tasks"]:
+            food_name = task["food_name"]
+            quantity = float(task["quantity"])
+            merged_tasks[food_name] += quantity
+        # Chuyển dictionary thành danh sách
+        merged_list = [{"food_name": food, "quantity": str(quantity)} for food, quantity in merged_tasks.items()]
+        # Cập nhật lại tasks trong dữ liệu gốc
+        data["tasks"] = merged_list
+        tasks = data['tasks']
 
         #check if food name exists
         #check if food already exists in the list
         #check if quantity is a number
+        existed_tasks = shopping_list.tasks
         for task in tasks:
+            #kiểm tra xem cho 2 task cùng tên thì merge chúng lại
             food = self.food_repo.get_foods_by_name(task['food_name'])
             if not food:
                 return "food not found"
@@ -52,6 +67,12 @@ class ShoppingTaskService:
                 if existed_task.food_id == food.id and existed_task.status == 'Active':
                     #merge case
                     existed_task.quantity = str(float(existed_task.quantity) + float(task['quantity']))
+                    self.task_repo.update_task({
+                        'list_id': existed_task.list_id,
+                        'task_id': existed_task.id,
+                        'new_quantity': existed_task.quantity
+                    })
+
                     return "food already exists, merged successfully"
             task['food_id'] = food.id
 
@@ -111,6 +132,16 @@ class ShoppingTaskService:
             new_status = 'Completed'
 
         result=self.change_task_status(task, new_status)
+        #lấy danh sách task trong shopping_list, nếu tất cả task đều đã hoàn thành thì cập nhật shopping_list thành hoàn thành
+        if new_status == 'Completed':
+            shopping_list = self.list_repo.get_shopping_by_id(list_id)
+            tasks = shopping_list.tasks
+            if all(task.status == 'Completed' for task in tasks):
+                self.list_repo.update_shopping_list({
+                    'list_id': list_id,
+                    'new_status': 'Completed'
+                })
+                #đưa các đồ ăn này vào tủ lạnh
         return result
 
 
@@ -127,7 +158,7 @@ class ShoppingTaskService:
             return "invalid status"
         
         STATUS_TRANSITIONS = {
-            'Active': ['Completed', 'Cancelled'],
+            'Active': ['Completed', 'Cancelled', 'Deleted'],
             'Completed': [],
             'Cancelled': ['Active','Deleted'],
             'Deleted': []
