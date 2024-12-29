@@ -24,31 +24,26 @@ class _AddMealPlanScreenState extends State<AddMealPlanScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Meal Plan'),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.green, // Đổi màu app bar thành xanh lá
         centerTitle: true,
+        elevation: 6.0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Tên bữa ăn
-            TextField(
+            _buildTextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Meal Name',
-                border: OutlineInputBorder(),
-              ),
+              label: 'Meal Name',
+              hintText: 'Enter the name of the meal',
             ),
             const SizedBox(height: 16),
 
-            // Mô tả bữa ăn
-            TextField(
+            _buildTextField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                border: OutlineInputBorder(),
-              ),
+              label: 'Description',
+              hintText: 'Describe the meal (optional)',
               maxLines: 3,
             ),
             const SizedBox(height: 16),
@@ -58,12 +53,19 @@ class _AddMealPlanScreenState extends State<AddMealPlanScreen> {
               children: [
                 Text(
                   'Time: ${_selectedTime.toLocal().toString().substring(11, 16)}',
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16, color: Colors.green), // Màu chữ thành xanh lá
                 ),
                 const Spacer(),
                 ElevatedButton(
                   onPressed: _selectTime,
-                  child: const Text('Select Time'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green, // Đổi màu nút thành xanh lá
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 4,
+                  ),
+                  child: const Text('Select Time', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -72,26 +74,45 @@ class _AddMealPlanScreenState extends State<AddMealPlanScreen> {
             // Thêm món ăn
             ElevatedButton(
               onPressed: _addDish,
-              child: const Text('Add Dish'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+              ),
+              child: const Text('Add Dish', style: TextStyle(color: Colors.white)),
             ),
             const SizedBox(height: 16),
 
             // Danh sách món ăn
             _selectedDishes.isEmpty
-                ? const Text('No dishes added yet.')
+                ? const Text('No dishes added yet.', style: TextStyle(color: Colors.grey))
                 : ListView.builder(
                     shrinkWrap: true,
                     itemCount: _selectedDishes.length,
                     itemBuilder: (context, index) {
                       final dish = _selectedDishes[index];
-                      return ListTile(
-                        title: Text(dish.recipeName),
-                        subtitle: Text('Servings: ${dish.servings}'),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => setState(() {
-                            _selectedDishes.removeAt(index);
-                          }),
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: Colors.green.withOpacity(0.2)),
+                        ),
+                        elevation: 4,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(8),
+                          title: Text(
+                            dish.recipeName,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text('Servings: ${dish.servings}'),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => setState(() {
+                              _selectedDishes.removeAt(index);
+                            }),
+                          ),
                         ),
                       );
                     },
@@ -101,11 +122,43 @@ class _AddMealPlanScreenState extends State<AddMealPlanScreen> {
             // Lưu bữa ăn
             ElevatedButton(
               onPressed: _submitMealPlan,
-              child: const Text('Save Meal Plan'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green, // Đổi màu nút thành xanh lá
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+              ),
+              child: const Text('Save Meal Plan', style: TextStyle(color: Colors.white),),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hintText,
+    int maxLines = 1,
+  }) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.green), // Màu chữ nhãn thành xanh lá
+        hintText: hintText,
+        hintStyle: const TextStyle(color: Colors.grey),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.green), // Màu viền thành xanh lá
+        ),
+      ),
+      maxLines: maxLines,
     );
   }
 
@@ -134,12 +187,11 @@ class _AddMealPlanScreenState extends State<AddMealPlanScreen> {
       Dish? selectedDish;
       final servingsController = TextEditingController();
 
-      // Hiển thị dialog chọn món ăn
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('Add Dish'),
+            title: const Text('Add Dish'), // Đổi màu tiêu đề thành xanh lá
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -174,8 +226,7 @@ class _AddMealPlanScreenState extends State<AddMealPlanScreen> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  if (selectedDish != null &&
-                      servingsController.text.isNotEmpty) {
+                  if (selectedDish != null && servingsController.text.isNotEmpty) {
                     setState(() {
                       _selectedDishes.add(Dish(
                         recipeId: selectedDish!.recipeId,

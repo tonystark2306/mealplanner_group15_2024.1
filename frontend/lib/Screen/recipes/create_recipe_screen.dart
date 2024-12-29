@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'dart:typed_data';
-
+import 'dart:html' as html;
 import '../../Models/recipe_model.dart';
 import '../../Providers/recipe_provider.dart';
 import '../../../Providers/token_storage.dart'; // Import TokenStorage
@@ -182,7 +182,22 @@ Future<String> _getAccessToken() async {
   }
 
   Future<void> pickImage() async {
-    // Replace this with your image picker logic
+    final html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+      uploadInput.accept = 'image/*';
+      uploadInput.click();
+      
+      uploadInput.onChange.listen((e) async {
+        final files = uploadInput.files;
+        if (files!.isEmpty) return;
+
+        final reader = html.FileReader();
+        reader.readAsArrayBuffer(files[0]);
+        reader.onLoadEnd.listen((e) {
+          setState(() {
+            uploadedImage = reader.result as Uint8List;  // Lưu trữ ảnh cho web dưới dạng Uint8List
+          });
+        });
+      });
   }
 
   void saveRecipe() {
@@ -220,9 +235,9 @@ Future<String> _getAccessToken() async {
       steps: steps,
       image: uploadedImage,
     );
-
+  
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
-    recipeProvider.addRecipe(newRecipe);
+    recipeProvider.addRecipe(newRecipe, uploadedImage);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Đã thêm công thức thành công!')),
@@ -330,7 +345,7 @@ Future<String> _getAccessToken() async {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                  ),
+                  ),          
                   const SizedBox(height: 20),
                   Center(
                     child: ElevatedButton.icon(

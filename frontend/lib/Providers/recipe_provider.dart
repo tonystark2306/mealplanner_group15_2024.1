@@ -5,6 +5,7 @@ import '../Models/recipe_model.dart';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'token_storage.dart'; // Đảm bảo bạn đã import đúng nơi chứa hàm getTokens
+import 'package:http_parser/http_parser.dart'; // Import the http_parser package
 import 'group_id_provider.dart';
 
 class RecipeProvider with ChangeNotifier {
@@ -81,7 +82,6 @@ class RecipeProvider with ChangeNotifier {
 
   Future<String> _getGroupId() async {
     final groupId = await GroupIdProvider.getSelectedGroupId();
-     print(groupId);
     return groupId ?? ''; // Trả về access token
   }
 
@@ -136,7 +136,7 @@ class RecipeProvider with ChangeNotifier {
   }
 
   // Thêm công thức
-  Future<void> addRecipe(RecipeItem recipe) async {
+  Future<void> addRecipe(RecipeItem recipe, var uploadImage) async {
     final group_id = await _getGroupId();
     final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
     var request = http.MultipartRequest('POST', url)
@@ -148,7 +148,6 @@ class RecipeProvider with ChangeNotifier {
     request.fields['description'] = recipe.steps;
     request.fields['content_html'] = recipe.steps;
     request.fields['cooking_time'] = recipe.timeCooking;
-    print(recipe.timeCooking);
     List<String> foodNames = [];
     List<String> quantities = [];
     List<String> unitNames = [];
@@ -163,26 +162,27 @@ class RecipeProvider with ChangeNotifier {
     request.fields['list[quantity]'] = json.encode(quantities);
     request.fields['list[unit_name]'] = json.encode(unitNames);
 
-    print(request.fields['list[food_name]']);
-    if (recipe.image != null) {
-      request.files.add(http.MultipartFile.fromBytes(
-        'images',
-        recipe.image!,
-        filename: 'recipe_image.jpg',
-      ));
+    if (uploadImage != null) {
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'images', // Tên trường trong API
+          uploadImage,
+          filename: 'uploaded_image_${DateTime.now().toIso8601String()}.png',
+          contentType: MediaType('image', 'png'), // Xác định kiểu MIME
+        ),
+      );
     }
-    print(request.fields);
+
     try {
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
-      print(response.body);
+      var response = await request.send();
+      var responseBody = await response.stream.bytesToString();
+      print(responseBody);
       if (response.statusCode == 201) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
+        final Map<String, dynamic> responseData = json.decode(responseBody);
         final String serverId = responseData['created_recipe']
             ['id']; // Get the new ID from the server's response
         // Update the recipe object with the new ID
         recipe.id = serverId;
-
         _recipes.add(recipe); // Add new recipe with the updated ID to the list
         notifyListeners(); // Notify listeners to update UI
       } else {

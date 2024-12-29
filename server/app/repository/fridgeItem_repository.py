@@ -25,7 +25,7 @@ class FridgeItemRepository(FridgeInterface):
     
 
     def get_item_by_food_id(self,food_id: str) -> FridgeItemModel:
-        return db.session.query(FridgeItemModel).filter_by(food_id=food_id).all()
+        return db.session.query(FridgeItemModel).filter_by(food_id=food_id, status='active').first()
         
     
 

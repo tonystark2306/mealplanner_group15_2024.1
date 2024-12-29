@@ -41,6 +41,15 @@ def create_tasks(user_id, group_id):
             "resultCode": "00284"
         }), 400
     
+    if result == "list is completed":
+        return jsonify({
+            "resultMessage": {
+                "en": "Cannot add task to completed shopping list.",
+                "vn": "Không thể thêm task vào danh sách mua sắm đã hoàn thành."
+            },
+            "resultCode": "00284"
+        }), 400
+    
     if result == "food not found":
         return jsonify({
             "resultMessage": {
@@ -144,6 +153,33 @@ def update_task(user_id, group_id):
             },
             "resultCode": "00288"
         }), 404
+    
+    if result == "list not found":
+        return jsonify({
+            "resultMessage": {
+                "en": "Shopping list not found.",
+                "vn": "Không tìm thấy danh sách mua sắm."
+            },
+            "resultCode": "00283"
+        }), 404
+    
+    if result == "list is cancelled":
+        return jsonify({
+            "resultMessage": {
+                "en": "Cannot update task in cancelled shopping list.",
+                "vn": "Không thể cập nhật task trong danh sách mua sắm đã hủy."
+            },
+            "resultCode": "00284"
+        }), 400
+    
+    if result == "list is completed":
+        return jsonify({
+            "resultMessage": {
+                "en": "Cannot update task in completed shopping list.",
+                "vn": "Không thể cập nhật task trong danh sách mua sắm đã hoàn thành."
+            },
+            "resultCode": "00284"
+        }), 400
     
     if result == "food not found":
         return jsonify({
