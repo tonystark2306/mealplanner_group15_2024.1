@@ -4,6 +4,7 @@ import 'group_detail_screen.dart';
 import 'create_group_dialog.dart';
 import 'package:meal_planner_app/Services/get_all_group.dart';
 import 'package:meal_planner_app/Providers/token_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FamilyGroupScreen extends StatefulWidget {
   const FamilyGroupScreen({super.key});
@@ -26,8 +27,18 @@ class _FamilyGroupScreenState extends State<FamilyGroupScreen> {
       final tokens = await TokenStorage.getTokens();
       final accessToken = tokens['accessToken'];
       final data = await ApiGetAllGroup.getFamilyGroups(accessToken ?? '');
+
       if (data.containsKey('groups')) {
-        return List<Map<String, dynamic>>.from(data['groups']);
+        final List<Map<String, dynamic>> groups = List<Map<String, dynamic>>.from(data['groups']);
+
+        // Lưu danh sách groupId vào SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        final List<String> groupIds = groups.map((group) => group['id'] as String).toList();
+        await prefs.setStringList('groupIds', groupIds);
+
+        print('Group IDs saved: $groupIds'); // Debug: Kiểm tra danh sách groupId
+
+        return groups;
       } else {
         throw Exception('Dữ liệu từ API không hợp lệ.');
       }
@@ -37,12 +48,14 @@ class _FamilyGroupScreenState extends State<FamilyGroupScreen> {
     }
   }
 
-
   void _navigateToGroupDetails(Map<String, dynamic> group) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => GroupDetailScreen(group: group),
+        builder: (context) => GroupDetailScreen(
+          groupId: group['id'],
+          groupName: group['groupName'],
+        ),
       ),
     );
   }
@@ -60,11 +73,21 @@ class _FamilyGroupScreenState extends State<FamilyGroupScreen> {
               'groupName': result['name'], // Đảm bảo sử dụng đúng key 'groupName'
               'members': [],
             });
+
+            // Lưu groupId mới vào SharedPreferences
+            _saveGroupId(groups.map((group) => group['id'] as String).toList());
+
             return groups;
           });
         });
       }
     });
+  }
+
+  Future<void> _saveGroupId(List<String> groupIds) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('groupIds', groupIds);
+    print('Updated Group IDs: $groupIds');
   }
 
   @override

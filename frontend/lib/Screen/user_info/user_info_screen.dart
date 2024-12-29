@@ -2,8 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
 import 'package:meal_planner_app/Providers/token_storage.dart';
 import 'package:meal_planner_app/Services/get_user_info.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -13,25 +15,22 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  
-  //bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = true;
-  Map<String, dynamic>? _userData; // Để lưu thông tin người dùng
-  // Mock data - replace with actual user data
+  Map<String, dynamic>? _userData;
+
+  final List<String> _languages = ['Tiếng Việt'];
+  final List<String> _timezones = ['GMT+7'];
 
   @override
   void initState() {
     super.initState();
-    _fetchAndSetUserInfo(); // Gọi hàm lấy thông tin người dùng khi màn hình mở
+    _fetchAndSetUserInfo();
   }
-
-  final List<String> _languages = ['Tiếng Việt', 'English'];
-  final List<String> _timezones = ['GMT+7'];
 
   Future<void> _fetchAndSetUserInfo() async {
     setState(() => _isLoading = true);
-    final userInfo = await fetchUserInfo(); // Gọi hàm API
+    final userInfo = await fetchUserInfo();
     if (userInfo != null) {
       setState(() {
         _userData = userInfo;
@@ -45,19 +44,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-
-  Future<void> _pickImage() async {
+  Future<void> _updateUserProfile(Map<String, dynamic> updatedFields) async {
+    const String apiUrl = 'http://127.0.0.1:5000/api/user/'; // Thay URL thật
     try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-      
-      if (image != null) {
-        setState(() => _isLoading = true);
-        // TODO: Implement API call to upload image
-        // final response = await uploadProfileImage(File(image.path));
-        // setState(() {
-        //   _userData['avatarUrl'] = response.data['url'];
-        // });
+      setState(() => _isLoading = true);
+      final tokens = await TokenStorage.getTokens();
+      final accessToken = tokens['accessToken'] ?? '';
+
+      if (accessToken.isEmpty) {
+        throw Exception('Access token không tồn tại.');
+      }
+
+      final request = http.MultipartRequest('PUT', Uri.parse(apiUrl))
+        ..headers['Authorization'] = 'Bearer $accessToken';
+
+      // Thêm các trường vào request
+      updatedFields.forEach((key, value) {
+        if (value is http.MultipartFile) {
+          request.files.add(value);
+        } else if (value != null) {
+          request.fields[key] = value.toString();
+        }
+      });
+
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final responseData =
+            json.decode(await response.stream.bytesToString());
+        if (responseData['resultCode'] == '00086') {
+          setState(() {
+            _userData = responseData['updatedUser'];
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData['resultMessage']['vn'])),
+          );
+        } else {
+          throw Exception(responseData['resultMessage']['vn']);
+        }
+      } else {
+        throw Exception('Lỗi API: ${response.statusCode}');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -68,6 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+
   Future<void> _editField(String field, String currentValue) async {
     final result = await showDialog<String>(
       context: context,
@@ -77,19 +103,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
 
-    if (result != null) {
+    if (result != null && result != currentValue) {
+      await _updateUserProfile({field: result});
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
       setState(() => _isLoading = true);
       try {
-        // TODO: Implement API call to update field
-        // await updateUserField(field, result);
-        setState(() {
-          if (_userData != null) {
-            _userData![field] = result;
-          }
+        // Đọc dữ liệu từ ảnh và lấy tên file
+        final imageBytes = await image.readAsBytes();
+        final fileName = image.name;
+
+        // Gửi dữ liệu qua API
+        await _updateUserProfile({
+          'image': http.MultipartFile.fromBytes(
+            'image',
+            imageBytes,
+            filename: fileName,
+          ),
         });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi: ${e.toString()}')),
+          SnackBar(content: Text('Lỗi khi tải ảnh lên: ${e.toString()}')),
         );
       } finally {
         setState(() => _isLoading = false);
@@ -97,22 +137,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _changePassword() async {
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => const ChangePasswordDialog(),
-    );
-
-    if (result == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đổi mật khẩu thành công')),
-      );
-    }
-  }
 
   @override
-  @override
-Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -133,37 +160,45 @@ Widget build(BuildContext context) {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _userData == null
-              ? const Center(child: Text('Không thể tải thông tin người dùng'))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      _buildAvatarSection(),
-                      const SizedBox(height: 20),
-                      _buildInfoCard(),
-                    ],
-                  ),
-                ),
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  _buildAvatarSection(),
+                  const SizedBox(height: 20),
+                  _buildInfoCard(),
+                  const SizedBox(height: 20),
+                  _buildPreferencesCard(),
+                  const SizedBox(height: 20),
+                  _buildSecurityCard(),
+                ],
+              ),
+            ),
     );
   }
-
 
   Widget _buildAvatarSection() {
     return Center(
-      child: CircleAvatar(
-        radius: 60,
-        backgroundColor: Colors.green[100],
-        backgroundImage: _userData!['avatar_url'] != null
-            ? NetworkImage(_userData!['avatar_url'])
-            : null,
-        child: _userData!['avatar_url'] == null
-            ? Icon(Icons.person, size: 60, color: Colors.green[700])
-            : null,
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 60,
+            backgroundColor: Colors.green[100],
+            backgroundImage: _userData!['avatar_url'] != null
+                ? NetworkImage(_userData!['avatar_url'])
+                : null,
+            child: _userData!['avatar_url'] == null
+                ? Icon(Icons.person, size: 60, color: Colors.green[700])
+                : null,
+          ),
+          TextButton(
+            onPressed: _pickImage,
+            child: const Text('Cập nhật ảnh đại diện'),
+          ),
+        ],
       ),
     );
   }
-
 
   Widget _buildInfoCard() {
     return Card(
@@ -189,15 +224,39 @@ Widget build(BuildContext context) {
               ],
             ),
             const SizedBox(height: 20),
-            _buildInfoRow('Tên đăng nhập', _userData!['username']),
+            _buildInfoRow('Username', _userData!['username'], 'username'),
             const Divider(),
-            _buildInfoRow('Họ và tên', _userData!['name']),
+            _buildInfoRow('Họ và tên', _userData!['name'], 'name'),
           ],
         ),
       ),
     );
   }
 
+  Widget _buildInfoRow(String label, String value, String field) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: TextStyle(color: Colors.green[700])),
+              Text(
+                value,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          IconButton(
+            icon: Icon(Icons.edit, color: Colors.green[700]),
+            onPressed: () => _editField(field, value),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildPreferencesCard() {
     return Card(
@@ -225,30 +284,22 @@ Widget build(BuildContext context) {
             const SizedBox(height: 20),
             _buildDropdownRow(
               'Ngôn ngữ',
-              _userData != null ? _userData!['language'] : '',
+              _languages[0],
               _languages,
               (value) {
                 if (value != null) {
-                  setState(() {
-                    if (_userData != null) {
-                      _userData!['language'] = value;
-                    }
-                  });
+                  setState(() => _userData!['language'] = value);
                 }
               },
             ),
             const Divider(),
             _buildDropdownRow(
               'Múi giờ',
-              _userData != null ? _userData!['timezone'] : '',
+              _timezones[0],
               _timezones,
               (value) {
                 if (value != null) {
-                  setState(() {
-                    if (_userData != null) {
-                      _userData!['timezone'] = value;
-                    }
-                  });
+                  setState(() => _userData!['timezone'] = value);
                 }
               },
             ),
@@ -285,9 +336,15 @@ Widget build(BuildContext context) {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: _changePassword,
-                icon: const Icon(Icons.lock),
-                label: const Text('Đổi mật khẩu'),
+                onPressed: () {},
+                icon: const Icon(Icons.lock, color: Colors.white),
+                label: const Text(
+                                    'Đổi mật khẩu',
+                                    style: TextStyle(
+                                      color: Colors.white, // Màu chữ
+                                      fontWeight: FontWeight.bold, // Bôi đậm
+                                    ),
+                                  ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[700],
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -299,23 +356,6 @@ Widget build(BuildContext context) {
       ),
     );
   }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(color: Colors.green[700])),
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
-
 
   Widget _buildDropdownRow(
     String label,
@@ -345,7 +385,6 @@ Widget build(BuildContext context) {
   }
 }
 
-// edit_field_dialog.dart
 class EditFieldDialog extends StatefulWidget {
   final String field;
   final String currentValue;
@@ -413,181 +452,15 @@ class _EditFieldDialogState extends State<EditFieldDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green[700],
           ),
-          child: const Text('Lưu'),
+          child: const Text(
+                              'Lưu',
+                              style: TextStyle(
+                                color: Colors.white, // Màu chữ
+                                fontWeight: FontWeight.bold, // Bôi đậm
+                              ),
+                            ),
         ),
       ],
     );
   }
-}
-
-// change_password_dialog.dart
-class ChangePasswordDialog extends StatefulWidget {
-  const ChangePasswordDialog({super.key});
-
-  @override
-  State<ChangePasswordDialog> createState() => _ChangePasswordDialogState();
-}
-
-class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
-  final _formKey = GlobalKey<FormState>();
-  final _oldPasswordController = TextEditingController();
-  final _newPasswordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _oldPasswordController.dispose();
-    _newPasswordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _changePassword() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      try {
-        // TODO: Implement API call to change password
-        // await changePassword(
-        //   _oldPasswordController.text,
-        //   _newPasswordController.text,
-        // );
-        Navigator.pop(context, true);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi: ${e.toString()}')),
-        );
-      } finally {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        'Đổi mật khẩu',
-        style: TextStyle(color: Colors.green[700]),
-      ),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
-              controller: _oldPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Mật khẩu cũ',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Vui lòng nhập mật khẩu cũ';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _newPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Mật khẩu mới',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Vui lòng nhập mật khẩu mới';
-                  }
-                if (value.length < 8) {
-                  return 'Mật khẩu phải có ít nhất 8 ký tự';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _confirmPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Xác nhận mật khẩu mới',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Vui lòng xác nhận mật khẩu mới';
-                }
-                if (value != _newPasswordController.text) {
-                  return 'Mật khẩu xác nhận không khớp';
-                }
-                return null;
-              },
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: _isLoading ? null : () => Navigator.pop(context),
-          child: const Text('Hủy'),
-        ),
-        ElevatedButton(
-          onPressed: _isLoading ? null : _changePassword,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green[700],
-          ),
-          child: _isLoading
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : const Text('Xác nhận'),
-        ),
-      ],
-    );
-  }
-}
-
-// Service để gọi API
-class ProfileService {
-  static Future<void> updateProfile(Map<String, dynamic> data) async {
-    try {
-      // TODO: Implement API call
-      await Future.delayed(const Duration(seconds: 1)); // Mock API delay
-      // throw Exception('Test error');
-    } catch (e) {
-      throw Exception('Không thể cập nhật thông tin: $e');
-    }
-  }
-
-  static Future<void> changePassword({
-    required String oldPassword,
-    required String newPassword,
-  }) async {
-    try {
-      // TODO: Implement API call
-      await Future.delayed(const Duration(seconds: 1)); // Mock API delay
-      // throw Exception('Test error');
-    } catch (e) {
-      throw Exception('Không thể đổi mật khẩu: $e');
-    }
-  }
-
-  static Future<void> uploadAvatar(File file) async {
-    try {
-      // TODO: Implement API call
-      await Future.delayed(const Duration(seconds: 1)); // Mock API delay
-      // throw Exception('Test error');
-    } catch (e) {
-      throw Exception('Không thể tải lên ảnh đại diện: $e');
-    }
-  }
-
-  
 }
