@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import './homepage.dart';
-import './refrigrator/list_fridge.dart';
+import './refrigrator/refrigerator_management_screen.dart';
 import './meal_planning/meal_planning_screen.dart';
 import './recipes/recipe_management_screen.dart';
 import 'shopping/shopping_screen.dart';
@@ -20,7 +20,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     HomeScreen(), // Trang chủ
     const MealPlanManagementScreen(), // Kế hoạch bữa ăn
     ShoppingListScreen(), // Danh sách mua sắm
-    const GroupListScreen(), // Quản lý tủ lạnh
+    const RefrigeratorManagementScreen(), // Quản lý tủ lạnh
     const RecipeManagementScreen(),
   ];
 

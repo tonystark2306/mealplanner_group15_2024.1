@@ -59,8 +59,7 @@ class FoodProvider extends ChangeNotifier {
     print('categoryName: $categoryName');
     print('unitName: $unitName');
     print('note: $note');
-    print('image: $imageWeb');
-    
+   
     try {
       final request = http.MultipartRequest(
         'POST',
@@ -155,6 +154,7 @@ class FoodProvider extends ChangeNotifier {
 
     try {
       print('Fetching foods...');
+      print(jsonEncode({'name': foodName}));
       final response = await http.delete(
         Uri.parse('$baseUrl/api/food/group/$groupId'),
         headers: {
