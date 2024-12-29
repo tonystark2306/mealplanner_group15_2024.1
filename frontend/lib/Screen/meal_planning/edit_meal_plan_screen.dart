@@ -40,6 +40,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
         title: const Text('Edit Meal Plan'),
         backgroundColor: Colors.green,
         centerTitle: true,
+        elevation: 6.0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -47,22 +48,18 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Meal Name
-            TextField(
+            _buildTextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Meal Name',
-                border: OutlineInputBorder(),
-              ),
+              label: 'Meal Name',
+              hintText: 'Enter the name of the meal',
             ),
             const SizedBox(height: 16),
 
             // Description
-            TextField(
+            _buildTextField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                border: OutlineInputBorder(),
-              ),
+              label: 'Description',
+              hintText: 'Describe the meal (optional)',
               maxLines: 3,
             ),
             const SizedBox(height: 16),
@@ -72,12 +69,19 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
               children: [
                 Text(
                   'Time: ${_selectedTime.toLocal().toString().substring(11, 16)}',
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16, color: Colors.green),
                 ),
                 const Spacer(),
                 ElevatedButton(
                   onPressed: _selectTime,
-                  child: const Text('Select Time'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 4,
+                  ),
+                  child: const Text('Select Time', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -86,26 +90,45 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
             // Add Dish Button
             ElevatedButton(
               onPressed: _addDish,
-              child: const Text('Add Dish'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+              ),
+              child: const Text('Add Dish', style: TextStyle(color: Colors.white)),
             ),
             const SizedBox(height: 16),
 
             // Dish List
             _selectedDishes.isEmpty
-                ? const Text('No dishes added yet.')
+                ? const Text('No dishes added yet.', style: TextStyle(color: Colors.grey))
                 : ListView.builder(
                     shrinkWrap: true,
                     itemCount: _selectedDishes.length,
                     itemBuilder: (context, index) {
                       final dish = _selectedDishes[index];
-                      return ListTile(
-                        title: Text(dish.recipeName),
-                        subtitle: Text('Servings: ${dish.servings}'),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => setState(() {
-                            _selectedDishes.removeAt(index);
-                          }),
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: Colors.green.withOpacity(0.2)),
+                        ),
+                        elevation: 4,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(8),
+                          title: Text(
+                            dish.recipeName,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text('Servings: ${dish.servings}'),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => setState(() {
+                              _selectedDishes.removeAt(index);
+                            }),
+                          ),
                         ),
                       );
                     },
@@ -115,11 +138,43 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
             // Save Button
             ElevatedButton(
               onPressed: _submitMealPlan,
-              child: const Text('Save Changes'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+              ),
+              child: const Text('Save Changes', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hintText,
+    int maxLines = 1,
+  }) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.green),
+        hintText: hintText,
+        hintStyle: const TextStyle(color: Colors.grey),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.green),
+        ),
+      ),
+      maxLines: maxLines,
     );
   }
 
@@ -148,7 +203,6 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
       Dish? selectedDish;
       final servingsController = TextEditingController();
 
-      // Show dialog for adding a dish
       showDialog(
         context: context,
         builder: (context) {
@@ -188,8 +242,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  if (selectedDish != null &&
-                      servingsController.text.isNotEmpty) {
+                  if (selectedDish != null && servingsController.text.isNotEmpty) {
                     setState(() {
                       _selectedDishes.add(Dish(
                         recipeId: selectedDish!.recipeId,
@@ -222,7 +275,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
     }
 
     final mealPlan = MealPlanModel(
-      id: widget.mealPlan.id, // Keep the same ID for updating
+      id: widget.mealPlan.id,
       name: _nameController.text,
       description: _descriptionController.text,
       scheduleTime: _selectedTime,

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../Providers/meal_planning_provider.dart';
 import '../../Models/meal_plan/meal_plan_model.dart';
 import '../../Providers/group_id_provider.dart';
+import 'package:intl/intl.dart';
 
 class MealPlanManagementScreen extends StatefulWidget {
   const MealPlanManagementScreen({Key? key}) : super(key: key);
@@ -256,6 +257,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
 }
 
   Widget _buildMealTile(MealPlanModel meal) {
+    final timeFormat = DateFormat('HH:mm'); // Định dạng giờ và phút
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       shape: RoundedRectangleBorder(
@@ -271,9 +273,8 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
               children: [
                 CircleAvatar(
                   radius: 24,
-                  backgroundColor: Colors.green[50],
-                  child: Icon(Icons.restaurant_menu,
-                      color: Colors.green[700], size: 28),
+                  backgroundColor: Colors.green[100],
+                  child: Icon(Icons.restaurant_menu, color: Colors.green[700], size: 28),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -294,7 +295,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
                           const Icon(Icons.access_time, size: 16),
                           const SizedBox(width: 4),
                           Text(
-                            meal.scheduleTime.toLocal().toString().split(' ')[1],
+                            timeFormat.format(meal.scheduleTime),
                             style: const TextStyle(fontSize: 14),
                           ),
                         ],
@@ -302,7 +303,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
                       const SizedBox(height: 4),
                       Text(
                         meal.description,
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        style: TextStyle(fontSize: 14, color: Colors.black),
                       ),
                     ],
                   ),
@@ -345,15 +346,21 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: meal.dishes.map((dish) {
-                return GestureDetector(
-                  onTap: () => _showRecipeDetail(context, dish.recipeId, groupId!),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Text(
-                      '${dish.recipeName} - ${dish.servings} phần',
-                      style: const TextStyle(fontSize: 14, color: Colors.blue),
-                    ),
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.green[50],
+                    child: Icon(Icons.dining, color: Colors.green[700]),
                   ),
+                  title: Text(
+                    dish.recipeName,
+                    style: TextStyle(fontSize: 14, color: Colors.orange[700]),
+                  ),
+                  subtitle: Text(
+                    '${dish.servings} phần', 
+                    style: TextStyle(fontSize: 13, color: Colors.grey[900])
+                    ),
+                  onTap: () => _showRecipeDetail(context, dish.recipeId, groupId!),
                 );
               }).toList(),
             )
@@ -362,6 +369,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
       ),
     );
   }
+
 
   Future<void> _deleteMeal(BuildContext context, String mealId) async {
     final confirmed = await showDialog(
