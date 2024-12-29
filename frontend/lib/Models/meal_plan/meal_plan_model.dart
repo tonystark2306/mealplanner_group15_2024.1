@@ -41,6 +41,20 @@ class MealPlanModel {
     };
   }
 
+  Map<String, dynamic> toPutJson() {
+    // Định dạng ngày thành yyyy-MM-dd HH:mm:ss
+    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    final String formattedDate = formatter.format(scheduleTime);
+    return {
+      'meal_id': id,
+      'new_name': name,
+      'new_schedule_time': formattedDate,
+      'new_description': description,
+      'new_dishes': dishes.map((dish) => dish.toJson()).toList(),
+      'new_foods': [],
+    };
+  }
+
   static List<MealPlanModel> listFromJson(List<dynamic> json) {
     return json.map((e) => MealPlanModel.fromJson(e)).toList();
   }

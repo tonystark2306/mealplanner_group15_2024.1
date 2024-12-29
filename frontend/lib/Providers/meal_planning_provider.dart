@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../Models/meal_plan/meal_plan_model.dart';
@@ -207,42 +208,53 @@ class MealPlanProvider with ChangeNotifier {
   }
 
   // Update an existing meal plan
-  Future<void> updateMealPlan(
-      String id, MealPlanModel updatedMealPlan, String token) async {
-    final url = Uri.parse('$apiBaseUrl/meal-plans/$id');
+  Future<void> updateMealPlan(MealPlanModel mealPlan, String groupId) async {
+    final url = Uri.parse('$apiBaseUrl/meal/$groupId');
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
+    print(json.encode(mealPlan.toPutJson()));
+    print('Updating meal plan...');
     try {
       final response = await http.put(
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // Thêm token vào header
+          'Authorization': 'Bearer ${tokenObject['accessToken']}', // Thêm token vào header
         },
-        body: json.encode(updatedMealPlan.toJson()),
+        body: json.encode(mealPlan.toPutJson()),
       );
+      print('response.statusCode: ${response.statusCode}');
       if (response.statusCode == 200) {
-        final index = _mealPlans.indexWhere((meal) => meal.id == id);
-        if (index != -1) {
-          _mealPlans[index] = updatedMealPlan;
-          notifyListeners();
-        }
+        final id = json.decode(response.body)['meal_plan']['id'];
+        final newMealPlan = await getMealPlanById(id, groupId);
+        _mealPlans.removeWhere((plan) => plan.id == mealPlan.id);
+        _mealPlans.add(newMealPlan);
+        notifyListeners();
       } else {
         throw Exception('Failed to update meal plan');
       }
     } catch (error) {
+      print(error);
       rethrow;
     }
   }
 
   // Delete a meal plan
-  Future<void> deleteMealPlan(String id, String token) async {
-    final url = Uri.parse('$apiBaseUrl/meal-plans/$id');
+  Future<void> deleteMealPlan(String id, String groupId) async {
+    final url = Uri.parse('$apiBaseUrl/meal/$groupId');
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
+    print('id:$id');
+    print('Deleting meal plan...');
+    print('json.encode ${json.encode({'meal_id': id})}');
     try {
       final response = await http.delete(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Thêm token vào header
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${tokenObject['accessToken']}', // Thêm token vào header
         },
+        body: json.encode({'meal_id': id}),
       );
+      print('response.statusCode: ${response.statusCode}');
       if (response.statusCode == 200) {
         _mealPlans.removeWhere((meal) => meal.id == id);
         notifyListeners();
@@ -250,6 +262,7 @@ class MealPlanProvider with ChangeNotifier {
         throw Exception('Failed to delete meal plan');
       }
     } catch (error) {
+      print(error);
       rethrow;
     }
   }

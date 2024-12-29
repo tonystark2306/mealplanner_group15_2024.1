@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal_planner_app/Screen/meal_planning/edit_meal_plan_screen.dart';
 import './add_meal_plan_screen.dart';
 import 'package:provider/provider.dart';
 import '../../Providers/meal_planning_provider.dart';
@@ -228,7 +229,13 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
                 PopupMenuButton<String>(
                   onSelected: (value) async {
                     if (value == 'edit') {
-                      Navigator.pushNamed(context, '/edit-meal');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              EditMealPlanScreen(groupId: groupId, mealPlan: meal),
+                        ),
+                      );
                     } else if (value == 'delete') {
                       await _deleteMeal(context, meal.id);
                     }
@@ -290,7 +297,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
     if (confirmed == true) {
       Provider.of<MealPlanProvider>(context, listen: false)
           // .deleteMealPlan(mealId, token);
-          .deleteMealPlanState(mealId);
+          .deleteMealPlan(mealId, groupId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đã xóa bữa ăn')),
       );
