@@ -28,7 +28,7 @@ class Dish {
     return {
       'recipe_id': recipeId,
       'recipe_name': recipeName,
-      'servings': servings,
+      'servings': servings.toString(),
     };
   }
 }

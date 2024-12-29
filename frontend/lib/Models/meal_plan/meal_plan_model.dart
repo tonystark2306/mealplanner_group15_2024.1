@@ -1,4 +1,5 @@
 import './dish_model.dart';
+import 'package:intl/intl.dart';
 class MealPlanModel {
   final String id;
   final String name;
@@ -27,12 +28,16 @@ class MealPlanModel {
   }
 
   Map<String, dynamic> toJson() {
+    // Định dạng ngày thành yyyy-MM-dd HH:mm:ss
+    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    final String formattedDate = formatter.format(scheduleTime);
     return {
 
       'name': name,
-      'schedule_time': scheduleTime.toIso8601String(),
+      'schedule_time': formattedDate,
       'description': description,
       'dishes': dishes.map((dish) => dish.toJson()).toList(),
+      'foods': [],
     };
   }
 

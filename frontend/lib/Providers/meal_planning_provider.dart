@@ -70,6 +70,33 @@ class MealPlanProvider with ChangeNotifier {
     }
   }
 
+  //get meal plan by id
+  Future<MealPlanModel> getMealPlanById(String id, String groupId) async {
+    final url = Uri.parse('$apiBaseUrl/meal/$groupId/$id');
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${tokenObject['accessToken']}',
+        },
+      );
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final mealPlan = MealPlanModel.fromJson(data['meal_plan']);
+        return mealPlan;
+      } else {
+        throw Exception('Failed to load meal plan');
+      }
+    } catch (error) {
+      print(error);
+      rethrow;
+    }
+  }
+
   // Fetch all recipes
   Future<List<Dish>> fetchAllRecipes(String groupId) async {
     final url = Uri.parse('$apiBaseUrl/recipe/$groupId');
@@ -109,7 +136,11 @@ class MealPlanProvider with ChangeNotifier {
     final url = Uri.parse('$apiBaseUrl/meal/$groupId');
     Map<String, String> tokenObject = await TokenStorage.getTokens();
     print('Adding meal plan...');
+    for (var dish in mealPlan.dishes) {
+      print('dish: ${dish.recipeId}');
+    }
 
+    print(json.encode(mealPlan.toJson()));
     try {
       final response = await http.post(
         url,
@@ -121,14 +152,17 @@ class MealPlanProvider with ChangeNotifier {
         body: json.encode(mealPlan.toJson()),
       );
       print('response.statusCode: ${response.statusCode}');
+      print('response.body: ${response.body}');
       if (response.statusCode == 201) {
-        final newMealPlan = MealPlanModel.fromJson(json.decode(response.body));
+        final id = json.decode(response.body)['meal_plan']['id'];
+        final newMealPlan = await getMealPlanById(id, groupId);
         _mealPlans.add(newMealPlan);
         notifyListeners();
       } else {
         throw Exception('Failed to add meal plan');
       }
     } catch (error) {
+      print(error);
       rethrow;
     }
   }

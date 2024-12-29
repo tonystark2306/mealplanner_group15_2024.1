@@ -107,7 +107,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => AddMealScreen(groupId: groupId)),
+                builder: (context) => AddMealPlanScreen(groupId: groupId)),
           );
         },
         child: const Icon(Icons.add, color: Colors.white),
@@ -159,16 +159,19 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
   }
 
   Widget _buildMealList(List<MealPlanModel> mealPlans) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: mealPlans.length,
-      itemBuilder: (context, index) {
-        final meal = mealPlans[index];
-        return _buildMealTile(meal);
-      },
-    );
-  }
+  // Sắp xếp danh sách bữa ăn theo thời gian
+  mealPlans.sort((a, b) => a.scheduleTime.compareTo(b.scheduleTime));
+
+  return ListView.builder(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    itemCount: mealPlans.length,
+    itemBuilder: (context, index) {
+      final meal = mealPlans[index];
+      return _buildMealTile(meal);
+    },
+  );
+}
 
   Widget _buildMealTile(MealPlanModel meal) {
     return Card(
