@@ -78,26 +78,39 @@ def create_recipe(user_id, group_id):
 @group_admin_required
 @check_recipe_ownership
 def update_recipe(user_id, group_id):
-    '''Update recipe API'''
+    '''Create recipe API'''
     data = request.form
+
+    try:
+        # Giải mã các danh sách từ JSON
+        food_names = json.loads(data.get('list[new_food_name]', '[]'))
+        quantities = json.loads(data.get('list[new_quantity]', '[]'))
+        unit_names = json.loads(data.get('list[new_unit_name]', '[]'))
+
+        # Tạo danh sách các thực phẩm
+        foods=[]
+        for food_name, quantity, unit_name in zip(food_names, quantities, unit_names):
+            foods.append({
+                'food_name': food_name,
+                'quantity': quantity,
+                'unit_name': unit_name
+            })
+    except Exception as e:
+        return jsonify({
+            "resultMessage": {
+                "en": "Invalid data format.",
+                "vn": "Dữ liệu không hợp lệ."
+            },
+            "resultCode": "00194"
+        }), 400
+    
     new_recipe = {
         'recipe_id': data.get('recipe_id'),
         'name': data.get('new_name'),
-        'cooking_time': data.get('new_cooking_time'),
+        'cooking_time' : data.get('new_cooking_time'),
         'description': data.get('new_description'),
         'content_html': data.get('new_content_html'),
-        'foods': [
-            {
-                'food_name': food_name,
-                'unit_name': unit_name,
-                'quantity': quantity
-            }
-            for food_name, unit_name, quantity in zip(
-                request.form.getlist('list[new_food_name]'),
-                request.form.getlist('list[new_unit_name]'),
-                request.form.getlist('list[new_quantity]')
-            )
-        ],
+        'foods': foods,
         'images': [
             image for image in request.files.getlist('new_images') if image.filename
         ]
