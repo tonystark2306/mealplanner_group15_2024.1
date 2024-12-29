@@ -81,8 +81,12 @@ def check_list_ownership(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         group_id = kwargs.get('group_id') or request.view_args.get('group_id')
-        data = request.json
-        list_id = data.get("list_id") or kwargs.get('list_id')  # Lấy list_id từ request hoặc URL
+        print(request)
+        try:
+            data = request.json
+            list_id = data.get("list_id")
+        except:
+            list_id = kwargs.get('list_id') or request.args.get("list_id")
 
         # Kiểm tra nếu thiếu list_id trong yêu cầu
         if not list_id:

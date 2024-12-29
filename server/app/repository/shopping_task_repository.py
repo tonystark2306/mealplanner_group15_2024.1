@@ -25,6 +25,7 @@ class TaskRepository(TaskInterface):
     def add_shopping_task(self, task):
         new_task = ShoppingTaskModel(list_id=task['list_id'],
                                      food_id=task['food_id'],
+                                     food_name=task['food_name'],
                                      quantity=task['quantity']
                                      )
         db.session.add(new_task)
@@ -38,6 +39,7 @@ class TaskRepository(TaskInterface):
                                                            ShoppingTaskModel.status != 'Deleted').first()
         if task is not None and _task is not None:
             _task.food_id = task.get('new_food_id') or _task.food_id
+            _task.food_name = task.get('new_food_name') or _task.food_name
             _task.quantity = task.get('new_quantity') or _task.quantity
             _task.status = task.get('new_status') or _task.status
 

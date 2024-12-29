@@ -25,6 +25,8 @@ class ShoppingListService:
             is_member = self.group_service.is_member_of_group(user_id, shopping_list['group_id'])
             if not is_member:
                 return "not a member"
+            
+            shopping_list['assigned_to_username'] = shopping_list['assigned_to']
             shopping_list['assigned_to'] = user_id
 
         if shopping_list.get('due_time'):
@@ -41,7 +43,9 @@ class ShoppingListService:
             user_id = user.id
             if not self.group_service.is_member_of_group(user_id, shopping_list['group_id']):
                 return "not a member"
+            shopping_list['new_assigned_to_username'] = shopping_list['new_assigned_to']
             shopping_list['new_assigned_to'] = user_id
+            
 
         if shopping_list.get('new_due_time'):
             shopping_list['new_due_time'] = datetime.strptime(shopping_list['new_due_time'], "%Y-%m-%d %H:%M:%S")
