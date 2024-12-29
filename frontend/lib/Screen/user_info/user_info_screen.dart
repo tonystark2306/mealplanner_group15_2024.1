@@ -82,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           throw Exception(responseData['resultMessage']['vn']);
         }
       } else {
-        throw Exception('Lỗi API: ${response.statusCode}');
+        throw Exception('Username này đang được sử dụng. Vui lòng nhập username khác.');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
