@@ -11,6 +11,7 @@ class ShoppingList(Base):
     group_id: Mapped[str] = mapped_column(String(36), ForeignKey('groups.id'), nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     assigned_to: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=True)
+    assigned_to_username: Mapped[str] = mapped_column(String(100), nullable=True)
     notes: Mapped[str] = mapped_column(Text, nullable=True)
     due_time: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     status: Mapped[str] = mapped_column(
@@ -25,10 +26,11 @@ class ShoppingList(Base):
     tasks = relationship('ShoppingTask', backref='shopping_list', lazy=True)
     user = relationship('User', backref='shopping_lists', lazy=True)
 
-    def __init__(self, name, group_id,  assigned_to=None, notes=None, due_time=None, **kwargs):
+    def __init__(self, name, group_id,  assigned_to=None, assigned_to_username=None,notes=None, due_time=None, **kwargs):
         self.name = name
         self.group_id = group_id
         self.assigned_to = assigned_to
+        self.assigned_to_username = assigned_to_username
         self.notes = notes
         self.due_time = due_time
         if due_time is not None and assigned_to is not None:
@@ -46,6 +48,7 @@ class ShoppingTask(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     list_id: Mapped[str] = mapped_column(String(36), ForeignKey('shopping_lists.id'), nullable=False)
     food_id: Mapped[str] = mapped_column(String(36), ForeignKey('foods.id'), nullable=False)
+    food_name: Mapped[str] = mapped_column(String(100), nullable=True)
     quantity: Mapped[str] = mapped_column(String(50), nullable=False)
     status: Mapped[str] = mapped_column(
         Enum(
@@ -62,9 +65,10 @@ class ShoppingTask(Base):
 
     food = relationship('Food', backref='tasks')
 
-    def __init__(self, list_id, food_id, quantity):
+    def __init__(self, list_id, food_id, food_name, quantity, **kwargs):
         self.list_id = list_id
         self.food_id = food_id
+        self.food_name = food_name
         self.quantity = quantity
 
     def as_dict(self):
