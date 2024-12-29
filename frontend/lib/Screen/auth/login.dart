@@ -56,7 +56,7 @@ void handleLogin() async {
           Navigator.pushReplacementNamed(context, '/admin-dashboard');
         } else {
           // Chuyển hướng đến dashboard người dùng thông thường
-          Navigator.pushReplacementNamed(context, '/bottomnav');
+          Navigator.pushReplacementNamed(context, '/family-group');
         }
       } else {
         setState(() {

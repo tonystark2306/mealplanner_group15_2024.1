@@ -95,7 +95,7 @@ class _FamilyGroupScreenState extends State<FamilyGroupScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.pushReplacementNamed(context, '/bottomnav');
               },
               child: Text(
                 'Đóng',
@@ -293,62 +293,65 @@ Widget build(BuildContext context) {
               ),
               
               if (_selectedGroupId != null)
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, -2),
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                      onPressed: () async {
-                        if (_selectedGroupId != null) {
-                          // Lưu groupId đã chọn
-                          await GroupIdProvider.saveSelectedGroupId(_selectedGroupId!);
+  Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 4,
+          offset: const Offset(0, -2),
+        ),
+      ],
+    ),
+    child: ElevatedButton(
+      onPressed: () async {
+        if (_selectedGroupId != null) {
+          // Lưu groupId đã chọn
+          await GroupIdProvider.saveSelectedGroupId(_selectedGroupId!);
 
-                          // Kiểm tra và in ra groupId đã lưu
-                          final savedGroupId = await GroupIdProvider.getSelectedGroupId();
-                          print('Group ID đã lưu: $savedGroupId'); // Kiểm tra log
+          // Kiểm tra và in ra groupId đã lưu
+          final savedGroupId = await GroupIdProvider.getSelectedGroupId();
+          print('Group ID đã lưu: $savedGroupId'); // Kiểm tra log
 
-                          // Hiển thị thông báo cho người dùng
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Đã lưu Group ID: $savedGroupId')),
-                          );
+          // Hiển thị thông báo cho người dùng
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Đã lưu Group ID: $savedGroupId')),
+          );
 
-                          // Hiển thị hộp thoại thành công
-                          _showSuccessDialog(_selectedGroupId!);
-                        }
-                      },
-  
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[700],
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.check, color: Colors.white,),
-                        SizedBox(width: 8),
-                        Text(
-                          'Xác nhận chọn nhóm',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+          // Hiển thị hộp thoại thành công
+          _showSuccessDialog(_selectedGroupId!);
+
+          // Chuyển đến màn hình 'bottomnav'
+          Navigator.pushReplacementNamed(context, 'bottomnav');
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green[700],
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.check, color: Colors.white),
+          SizedBox(width: 8),
+          Text(
+            'Xác nhận chọn nhóm',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+
             ],
           );
         },
