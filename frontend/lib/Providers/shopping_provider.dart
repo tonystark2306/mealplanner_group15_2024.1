@@ -20,7 +20,8 @@ class ShoppingProvider with ChangeNotifier {
     // Chuyển chuỗi thành đối tượng DateTime
     try {
       // Cắt bớt phần '00:00:00 GMT' ở cuối chuỗi
-      String formattedDueTime = dueTime.split(' ')[0] + ' ' +
+      String formattedDueTime = dueTime.split(' ')[0] +
+          ' ' +
           dueTime.split(' ')[1] +
           ' ' +
           dueTime.split(' ')[2] +
@@ -47,17 +48,20 @@ class ShoppingProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         final Map<String, dynamic> decodedResponse = json.decode(response.body);
         final List<dynamic> shoppingLists = decodedResponse['shopping_lists'];
-
         _shoppingList.clear();
         _shoppingList.addAll(shoppingLists.map((item) {
-          return ShoppingItem(
+          //print(item['tasks']);
+          ShoppingItem newShopingItem = ShoppingItem(
             id: item['id'] ?? '',
             name: item['name'] ?? '',
             assignedTo: item['assigned_to'] ?? '',
             notes: item['notes'] ?? '',
             dueTime: formatDueTime(item['due_time'] ?? ''),
-            isDone: (item['status'] ?? '') == 'Done', // Kiểm tra trạng thái
+            nameAssignedTo: item['assigned_to_username'] ?? '',
+            isDone:
+                (item['status'] ?? '') == 'Completed', // Kiểm tra trạng thái
           );
+          return newShopingItem;
         }).toList());
 
         notifyListeners();
@@ -75,7 +79,7 @@ class ShoppingProvider with ChangeNotifier {
     // Chuyển đối tượng ShoppingItem thành JSON
     final Map<String, dynamic> body = {
       "name": item.name,
-      "assigned_to": item.assignedTo,
+      "assigned_to": item.nameAssignedTo,
       "notes": item.notes,
       "due_time": item.dueTime, // Đảm bảo định dạng đúng 'yyyy-MM-dd HH:mm:ss'
     };
@@ -96,6 +100,8 @@ class ShoppingProvider with ChangeNotifier {
         // Thành công, có thể thực hiện thêm hành động
         item.id = json.decode(response.body)['created_shopping_list']
             ['id']; // Lấy id từ phản hồi
+        item.dueTime = formatDueTime(
+            json.decode(response.body)['created_shopping_list']['due_time']);
         _shoppingList.add(item); // Thêm vào danh sách local
         addTaskToShopping(
             item.id,
@@ -159,9 +165,40 @@ class ShoppingProvider with ChangeNotifier {
     }
   }
 
-  void deleteShoppingItem(String id) {
-    _shoppingList.removeWhere((item) => item.id == id);
-    notifyListeners();
+  Future<void> deleteShoppingItem(String id) async {
+    final url = Uri.parse('http://127.0.0.1:5000/api/shopping/$groupId');
+    final token = await _getAccessToken();
+
+    // Tạo body cho request DELETE
+    final Map<String, dynamic> body = {
+      'list_id': id, // Truyền id vào body
+    };
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token', // Thêm token nếu cần
+    };
+
+    try {
+      // Gửi DELETE request
+      final response = await http.delete(
+        url,
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        // Xóa thành công, cập nhật danh sách local
+        _shoppingList.removeWhere((item) => item.id == id);
+        notifyListeners(); // Cập nhật UI
+        print('Shopping item deleted successfully');
+      } else {
+        throw Exception(
+            'Failed to delete shopping item: ${response.statusCode}');
+      }
+    } catch (error) {
+      throw Exception('Error when deleting shopping item: $error');
+    }
   }
 
   void toggleShoppingItemDone(String id) {

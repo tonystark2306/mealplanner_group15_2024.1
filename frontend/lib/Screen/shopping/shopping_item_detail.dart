@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../../Providers/shopping_provider.dart';
-import '../../../Providers/token_storage.dart'; // Import TokenStorage
+import '../../../Providers/token_storage.dart';
 
 class ShoppingItemDetailsDialog extends StatefulWidget {
-  final String shoppingItemId; // ID của shopping item để fetch task
+  final String shoppingItemId;
   final String groupId = 'aa67b8a7-2608-4125-9676-9ba340bd5deb';
 
   ShoppingItemDetailsDialog({required this.shoppingItemId});
@@ -17,41 +17,47 @@ class ShoppingItemDetailsDialog extends StatefulWidget {
 }
 
 class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
-  bool isCompleted = false; // Trạng thái của checkbox
-
   Future<String> _getAccessToken() async {
-    final tokens = await TokenStorage.getTokens(); // Đảm bảo đã chờ đợi kết quả
-    return tokens['accessToken'] ?? ''; // Trả về access token
+    final tokens = await TokenStorage.getTokens();
+    return tokens['accessToken'] ?? '';
   }
 
-  Future<List<Map<String, String>>> fetchTasks() async {
-    final url = Uri.parse('http://127.0.0.1:5000/api/shopping/${widget.groupId}/task');
-    final token = await _getAccessToken(); // Lấy token
+  late Future<List<Map<String, dynamic>>> _tasksFuture;
+  late List<Map<String, dynamic>> tasks;
+
+  @override
+  void initState() {
+    super.initState();
+    _tasksFuture = fetchTasks();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchTasks() async {
+    final url = Uri.parse(
+        'http://127.0.0.1:5000/api/shopping/${widget.groupId}/task?list_id=${widget.shoppingItemId}');
+    final token = await _getAccessToken();
 
     try {
       var request = http.Request('GET', url)
         ..headers['Content-Type'] = 'application/json'
-        ..headers['Authorization'] =
-            'Bearer ${token}'; // Dùng token từ _getAccessToken
+        ..headers['Authorization'] = 'Bearer $token';
 
-      request.body = json.encode({'list_id': widget.shoppingItemId.toString()});
-      
       final response = await request.send();
 
       if (response.statusCode == 200) {
         final responseBody = await response.stream.bytesToString();
         final Map<String, dynamic> data = json.decode(responseBody);
-        final List<dynamic> taskList =
-            data['tasks']; // Giả sử tasks trả về trong key "tasks"
+        final List<dynamic> taskList = data['tasks'];
 
-        List<Map<String, String>> formattedTasks = taskList.map((task) {
+        tasks = taskList.map((task) {
           return {
-            'food_name': task['food_id']?.toString() ?? '',
+            'id': task['id'],
+            'food_name': task['food_name']?.toString() ?? '',
             'quantity': task['quantity']?.toString() ?? '',
+            'status': task['status'] ?? 'Pending',
+            'firstStatus': task['status'] ?? 'Pending',
           };
         }).toList();
-
-        return formattedTasks;
+        return tasks;
       } else {
         final responseBody = await response.stream.bytesToString();
         print(responseBody);
@@ -63,36 +69,46 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
     }
   }
 
-  Future<void> markTaskAsCompleted() async {
+  Future<void> markTasksAsDone() async {
+    final token = await _getAccessToken();
     final url = Uri.parse(
-        'http://127.0.0.1:5000/shopping/${widget.groupId}/task/mark');
-    final token = await _getAccessToken(); // Lấy token
+        'http://127.0.0.1:5000/api/shopping/${widget.groupId}/task/mark');
+
+    // Lọc các task đã được tick (status = 'Completed')
+    final completedTasks =
+        tasks.where((task) => task['status'] == 'Completed').toList();
 
     try {
-      var request = http.Request('PUT', url)
-        ..headers['Content-Type'] = 'application/json'
-        ..headers['Authorization'] =
-            'Bearer ${token}'; // Dùng token từ _getAccessToken
+      for (var task in completedTasks) {
+        final body = json.encode({
+          'list_id': widget.shoppingItemId,
+          'task_id': task['id'],
+        });
 
-      // Body cần truyền vào API
-      request.body = json.encode({
-        'list_id': widget.shoppingItemId,
-        //'task_id': widget.task_id, // Giả sử bạn muốn dùng taskId cụ thể
-      });
+        var request = http.Request('PUT', url)
+          ..headers['Content-Type'] = 'application/json'
+          ..headers['Authorization'] = 'Bearer $token'
+          ..body = body;
 
-      // Gửi yêu cầu PUT
-      final response = await request.send();
+        final response = await request.send();
 
-      if (response.statusCode == 200) {
-        print('Task marked as completed');
-      } else {
-        final responseBody = await response.stream.bytesToString();
-        print(responseBody);
-        throw Exception('Failed to mark task as completed');
+        if (response.statusCode == 200) {
+          print('Task ${task['id']} marked as completed');
+        } else {
+          final responseBody = await response.stream.bytesToString();
+          print('Failed to mark task: ${responseBody}');
+          print(responseBody);
+        }
       }
+      // Sau khi gửi thành công, có thể cập nhật UI hoặc thông báo cho người dùng
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tasks marked as completed!')),
+      );
     } catch (error) {
       print('Error: $error');
-      rethrow;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to mark tasks!')),
+      );
     }
   }
 
@@ -126,7 +142,7 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
                 Icon(Icons.person, color: Colors.grey),
                 SizedBox(width: 8),
                 Text(
-                  'Assigned to: ${shoppingItem.assignedTo ?? 'N/A'}',
+                  'Giao cho: ${shoppingItem.nameAssignedTo ?? 'N/A'}',
                   style: TextStyle(color: Colors.grey[700], fontSize: 16),
                 ),
               ],
@@ -144,15 +160,16 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
               ],
             ),
             SizedBox(height: 16),
-            FutureBuilder<List<Map<String, String>>>(
-              future: fetchTasks(),
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: _tasksFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Text('Failed to load tasks');
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Text('No tasks available', style: TextStyle(color: Colors.grey));
+                  return Text('No tasks available',
+                      style: TextStyle(color: Colors.grey));
                 } else {
                   final tasks = snapshot.data!;
                   return ListView.builder(
@@ -166,12 +183,72 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          title: Text(task['food_name']!, 
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                          subtitle: Text('Quantity: ${task['quantity']}',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: task['status'] == 'Completed'
+                                ? Colors.green[100]
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                            title: Text(
+                              task['food_name'],
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: task['status'] == 'Completed'
+                                    ? Colors.green
+                                    : Colors.black,
+                              ),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Khối lượng: ${task['quantity']}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                if (task['status'] == 'Completed')
+                                  Text(
+                                    'Task Completed',
+                                    style: TextStyle(
+                                      color: Colors.green[800],
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Kiểm tra trạng thái task, nếu "Completed" thì chỉ hiển thị icon tick xanh
+                                if (task['firstStatus'] == 'Completed')
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  ),
+                                if (task['status'] != 'Completed')
+                                  Checkbox(
+                                    value: task['status'] == 'Completed',
+                                    onChanged: (bool? value) {
+                                      if (value != null) {
+                                        setState(() {
+                                          // Thay đổi trạng thái của task
+                                          tasks[index]['status'] =
+                                              value ? 'Completed' : 'Pending';
+                                        });
+                                      }
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
                         ),
                       );
                     },
@@ -181,56 +258,30 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
             ),
             SizedBox(height: 16),
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Checkbox(
-                  value: isCompleted,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      isCompleted = value ?? false;
-                    });
-                  },
-                ),
-                Text('Mark as completed'),
-              ],
-            ),
-            SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Nút Hủy
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Đóng popup mà không làm gì cả
+                    Navigator.of(context).pop();
                   },
                   child: Text(
-                    'Hủy',
+                    'Đóng',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.red, // Màu chữ đỏ để dễ phân biệt
+                      color: Colors.red,
                     ),
                   ),
                 ),
-                // Nút Xác nhận
-                ElevatedButton(
-                  onPressed: () {
-                    if (isCompleted) {
-                      markTaskAsCompleted(); // Giả sử bạn dùng taskId cụ thể
-                    }
-                    Navigator.of(context).pop(); // Đóng popup
+                TextButton(
+                  onPressed: () async {
+                    await markTasksAsDone(); // Gửi các task đã được tick lên server
                   },
                   child: Text(
                     'Xác nhận',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.white, // Chữ trắng cho nổi bật trên nền màu
+                      color: Colors.green,
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green, // Màu nền nút Xác nhận
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                   ),
                 ),
               ],
