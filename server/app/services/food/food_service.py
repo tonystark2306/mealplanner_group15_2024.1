@@ -61,3 +61,13 @@ class FoodService:
         except Exception as e:
             logging.error(f"Error while deleting food: {str(e)}")
             raise
+        
+        
+    def search_foods_in_group(self, group_id, query):
+        try:
+            foods = self.food_repository.search_foods_in_group(group_id, query)
+            return [food.as_dict() for food in foods]
+        
+        except Exception as e:
+            logging.error(f"Error while searching foods: {str(e)}")
+            raise
