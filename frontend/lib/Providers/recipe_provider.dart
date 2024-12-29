@@ -5,6 +5,7 @@ import '../Models/recipe_model.dart';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'token_storage.dart'; // Đảm bảo bạn đã import đúng nơi chứa hàm getTokens
+import 'group_id_provider.dart';
 
 class RecipeProvider with ChangeNotifier {
   // Danh sách công thức của người dùng
@@ -72,23 +73,30 @@ class RecipeProvider with ChangeNotifier {
   // Lấy danh sách công thức gợi ý
   List<RecipeItem> get suggestedRecipes => _suggestedRecipes;
 
-  final String group_id = "aa67b8a7-2608-4125-9676-9ba340bd5deb";
-
   // Lấy access token từ TokenStorage
   Future<String> _getAccessToken() async {
     final tokens = await TokenStorage.getTokens();
     return tokens['accessToken'] ?? ''; // Trả về access token
   }
 
+  Future<String> _getGroupId() async {
+    final groupId = await GroupIdProvider.getSelectedGroupId();
+     print(groupId);
+    return groupId ?? ''; // Trả về access token
+  }
+
   // Lấy công thức
   Future<void> getRecipes() async {
+    final group_id = await _getGroupId();
     final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
     try {
-      final accessToken = await _getAccessToken(); // Lấy access token từ TokenStorage
+      final accessToken =
+          await _getAccessToken(); // Lấy access token từ TokenStorage
       final response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $accessToken', // Dùng access token trong header
+          'Authorization':
+              'Bearer $accessToken', // Dùng access token trong header
         },
       );
 
@@ -105,18 +113,17 @@ class RecipeProvider with ChangeNotifier {
             name: recipeData['dish_name'] ?? '',
             timeCooking: recipeData['cooking_time'] ?? '',
             ingredients: (recipeData['ingredients'] as List?)
-                ?.map((ingredient) => Ingredient(
-                      name: ingredient['food_name'] ?? '',
-                      weight: ingredient['quantity'] ?? '',
-                      unitName: ingredient['unit_name'] ?? '',
-                    ))
-                .toList() ??
+                    ?.map((ingredient) => Ingredient(
+                          name: ingredient['food_name'] ?? '',
+                          weight: ingredient['quantity'] ?? '',
+                          unitName: ingredient['unit_name'] ?? '',
+                        ))
+                    .toList() ??
                 [],
             steps: recipeData['description'] ?? '',
             image: imageBytes,
           );
           _recipes.add(recipe);
-          
         }
         notifyListeners();
       } else {
@@ -130,10 +137,12 @@ class RecipeProvider with ChangeNotifier {
 
   // Thêm công thức
   Future<void> addRecipe(RecipeItem recipe) async {
+    final group_id = await _getGroupId();
     final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
     var request = http.MultipartRequest('POST', url)
       ..headers['Content-Type'] = 'multipart/form-data'
-      ..headers['Authorization'] = 'Bearer ${await _getAccessToken()}'; // Dùng token từ _getAccessToken
+      ..headers['Authorization'] =
+          'Bearer ${await _getAccessToken()}'; // Dùng token từ _getAccessToken
 
     request.fields['name'] = recipe.name;
     request.fields['description'] = recipe.steps;
@@ -166,11 +175,11 @@ class RecipeProvider with ChangeNotifier {
     try {
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-      print(response.body); 
+      print(response.body);
       if (response.statusCode == 201) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        final String serverId =
-            responseData['created_recipe']['id']; // Get the new ID from the server's response
+        final String serverId = responseData['created_recipe']
+            ['id']; // Get the new ID from the server's response
         // Update the recipe object with the new ID
         recipe.id = serverId;
 
@@ -188,10 +197,12 @@ class RecipeProvider with ChangeNotifier {
   Future<void> updateRecipe(String id, RecipeItem updatedRecipe) async {
     final index = _recipes.indexWhere((recipe) => recipe.id == id);
     if (index != -1) {
+      final group_id = await _getGroupId();
       final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
       var request = http.MultipartRequest('PUT', url)
         ..headers['Content-Type'] = 'multipart/form-data'
-        ..headers['Authorization'] = 'Bearer ${await _getAccessToken()}'; // Dùng token từ _getAccessToken
+        ..headers['Authorization'] =
+            'Bearer ${await _getAccessToken()}'; // Dùng token từ _getAccessToken
 
       request.fields['recipe_id'] = id;
       request.fields['new_name'] = updatedRecipe.name;
@@ -237,12 +248,14 @@ class RecipeProvider with ChangeNotifier {
 
   // Xóa công thức
   Future<void> deleteRecipe(String id) async {
+    final group_id = await _getGroupId();
     final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
 
     try {
       var request = http.Request('DELETE', url)
         ..headers['Content-Type'] = 'application/json'
-        ..headers['Authorization'] = 'Bearer ${await _getAccessToken()}'; // Dùng token từ _getAccessToken
+        ..headers['Authorization'] =
+            'Bearer ${await _getAccessToken()}'; // Dùng token từ _getAccessToken
 
       // Thêm các trường vào form-data
       request.body = json.encode({'recipe_id': id});

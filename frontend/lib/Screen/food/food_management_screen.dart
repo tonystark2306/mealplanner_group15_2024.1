@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../Providers/food_provider.dart';
 import 'add_food_screen.dart';
 import 'edit_food_screen.dart';
+import '../../Providers/group_id_provider.dart';
 
 class FoodListScreen extends StatefulWidget {
   FoodListScreen({Key? key}) : super(key: key);
@@ -12,13 +13,23 @@ class FoodListScreen extends StatefulWidget {
 }
 
 class _FoodListScreenState extends State<FoodListScreen> {
-  final String groupId = "1366e289-e787-459f-896e-5c2a5df5c69f";
+  String? groupId;
 
   @override
   void initState() {
     super.initState();
-    final foodProvider = Provider.of<FoodProvider>(context, listen: false);
-    foodProvider.fetchFoods(groupId); // Fetch data
+    _loadGroupIdAndFetchFoods();
+  }
+
+  Future<void> _loadGroupIdAndFetchFoods() async {
+    final id = await GroupIdProvider.getSelectedGroupId();
+    setState(() {
+      groupId = id;
+    });
+    if (groupId != null) {
+      final foodProvider = Provider.of<FoodProvider>(context, listen: false);
+      await foodProvider.fetchFoods(groupId!);
+    }
   }
 
   @override
@@ -95,7 +106,7 @@ class _FoodListScreenState extends State<FoodListScreen> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => EditFoodScreen(
-                                      groupId: groupId,
+                                      groupId: groupId!,
                                       food: food,
                                     ),
                                   ),
@@ -125,7 +136,7 @@ class _FoodListScreenState extends State<FoodListScreen> {
 
                                 if (confirm == true) {
                                   try {
-                                    await foodProvider.deleteFood(groupId, food['name']);
+                                    await foodProvider.deleteFood(groupId!, food['name']);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(content: Text("Xóa thành công!")),
                                     );
@@ -151,7 +162,7 @@ class _FoodListScreenState extends State<FoodListScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => AddFoodScreen(groupId: groupId),
+              builder: (_) => AddFoodScreen(groupId: groupId!),
             ),
           );
         },

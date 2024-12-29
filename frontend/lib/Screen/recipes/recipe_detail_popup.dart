@@ -4,9 +4,9 @@ import '../../Models/recipe_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../Providers/token_storage.dart'; // Import TokenStorage
+import '../../../Providers/group_id_provider.dart'; // Import TokenStorage
 
 class RecipeDetailPopup extends StatelessWidget {
-  final String groupId = "aa67b8a7-2608-4125-9676-9ba340bd5deb";
   final RecipeItem recipeItem;
   const RecipeDetailPopup({super.key, required this.recipeItem});
 
@@ -16,8 +16,14 @@ class RecipeDetailPopup extends StatelessWidget {
     return tokens['accessToken'] ?? ''; // Trả về access token
   }
 
+  Future<String> _getGroupId() async {
+    final groupId = await GroupIdProvider.getSelectedGroupId();
+    return groupId ?? ''; // Trả về access token
+  }
+
   Future<RecipeItem> fetchRecipeDetail() async {
     final id = recipeItem.id;
+    final groupId = await _getGroupId();
     final url = 'http://127.0.0.1:5000/api/recipe/$groupId/$id';
     final token = await _getAccessToken(); // Lấy token từ TokenStorage
 
@@ -46,7 +52,8 @@ class RecipeDetailPopup extends StatelessWidget {
                 .toList() ??
             [],
         steps: field['description'] ?? '',
-        image: imageBytes, // Assuming RecipeItem has a fromJson factory constructor.
+        image:
+            imageBytes, // Assuming RecipeItem has a fromJson factory constructor.
       );
     } else {
       final responseBody = await response.body;
