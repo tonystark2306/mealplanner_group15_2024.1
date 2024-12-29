@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../Models/fridge/fridge_item_model.dart';
+import '../token_storage.dart';
 
 class RefrigeratorProvider with ChangeNotifier {
   List<FridgeItem> _items = [];
@@ -11,14 +12,15 @@ class RefrigeratorProvider with ChangeNotifier {
   // Hàm tải danh sách các thực phẩm từ backend
   Future<void> loadFridgeItemsFromApi(String groupId) async {
     final url =
-        'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
+        'http://localhost:5000/api/fridge/$groupId'; 
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
     try {
       print('Loading food items from API ${url}');
       final response = await http.get(
         Uri.parse(url),
         headers: {
           'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTU3NWIwM2UtYzYxYS00OGUyLThlYzQtNjhkMTk4ZTAyMTYxIiwiZXhwIjoxNzM1Mzg3MDc1fQ.Hrt68VjgbqUNhGAz0Mus8p99trLOw4DDaRwzR1W_DbM'
+              'Bearer ${tokenObject['accessToken']}'
         }, // Thay 'YOUR_TOKEN' bằng token của người dùng
       );
       print('Response status: ${response.statusCode}');
@@ -48,13 +50,14 @@ class RefrigeratorProvider with ChangeNotifier {
   Future<FridgeItem> addFridgeToLocal(String groupId, String fridgeId) async{
     final url =
         'http://localhost:5000/api/fridge/$groupId/$fridgeId'; // Thay thế với URL của bạn
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
     try {
       print('Loading food items from API ${url}');
       final response = await http.get(
         Uri.parse(url),
         headers: {
           'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTU3NWIwM2UtYzYxYS00OGUyLThlYzQtNjhkMTk4ZTAyMTYxIiwiZXhwIjoxNzM1Mzg3MDc1fQ.Hrt68VjgbqUNhGAz0Mus8p99trLOw4DDaRwzR1W_DbM'
+              'Bearer ${tokenObject['accessToken']}'
         }, // Thay 'YOUR_TOKEN' bằng token của người dùng
       );
       print('Response status: ${response.statusCode}');
@@ -78,6 +81,7 @@ class RefrigeratorProvider with ChangeNotifier {
   Future<void> addItemToApi(BuildContext context, String groupId, FridgeItem item) async {
     final url =
         'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
     try {
       print("item $item");
 
@@ -86,7 +90,7 @@ class RefrigeratorProvider with ChangeNotifier {
         headers: {
           'Content-Type': 'application/json',
           'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTU3NWIwM2UtYzYxYS00OGUyLThlYzQtNjhkMTk4ZTAyMTYxIiwiZXhwIjoxNzM1Mzg3MDc1fQ.Hrt68VjgbqUNhGAz0Mus8p99trLOw4DDaRwzR1W_DbM', // Thay 'YOUR_TOKEN' bằng token của người dùng
+              'Bearer ${tokenObject['accessToken']}', // Thay 'YOUR_TOKEN' bằng token của người dùng
         },
         body: json.encode(item.toJson()),
       );
@@ -114,6 +118,7 @@ class RefrigeratorProvider with ChangeNotifier {
   Future<void> updateItemInApi(BuildContext context, String groupId, FridgeItem updatedItem) async {
     final url =
         'http://localhost:5000/api/fridge/$groupId'; // Thay thế với URL của bạn
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
     print('updateItem ${updatedItem.toDataForPut()}');
     try {
       final response = await http.put(
@@ -121,7 +126,7 @@ class RefrigeratorProvider with ChangeNotifier {
         headers: {
           'Content-Type': 'application/json',
           'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTU3NWIwM2UtYzYxYS00OGUyLThlYzQtNjhkMTk4ZTAyMTYxIiwiZXhwIjoxNzM1Mzg3MDc1fQ.Hrt68VjgbqUNhGAz0Mus8p99trLOw4DDaRwzR1W_DbM', // Thay 'YOUR_TOKEN' bằng token của người dùng
+              'Bearer ${tokenObject['accessToken']}', // Thay 'YOUR_TOKEN' bằng token của người dùng
         },
         body: json.encode(updatedItem.toDataForPut()),
       );
@@ -146,11 +151,12 @@ class RefrigeratorProvider with ChangeNotifier {
   Future<void> deleteItemFromApi(String groupId, String itemId) async {
     final url =
         'http://localhost:5000/api/fridge/$groupId/$itemId'; // Thay thế với URL của bạn
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
     try {
       final response = await http.delete(
         Uri.parse(url),
         headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTU3NWIwM2UtYzYxYS00OGUyLThlYzQtNjhkMTk4ZTAyMTYxIiwiZXhwIjoxNzM1Mzg3MDc1fQ.Hrt68VjgbqUNhGAz0Mus8p99trLOw4DDaRwzR1W_DbM'
+          'Authorization': 'Bearer ${tokenObject['accessToken']}'
         }, // Thay 'YOUR_TOKEN' bằng token của người dùng
       );
       if (response.statusCode == 200) {

@@ -139,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 
   @override
-  Widget build(BuildContext context) {
+Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -160,22 +160,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  _buildAvatarSection(),
-                  const SizedBox(height: 20),
-                  _buildInfoCard(),
-                  const SizedBox(height: 20),
-                  _buildPreferencesCard(),
-                  const SizedBox(height: 20),
-                  _buildSecurityCard(),
-                ],
-              ),
-            ),
+          : _userData == null
+              ? const Center(child: Text('Không thể tải thông tin người dùng'))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      _buildAvatarSection(),
+                      const SizedBox(height: 20),
+                      _buildInfoCard(),
+                    ],
+                  ),
+                ),
     );
   }
+
 
   Widget _buildAvatarSection() {
     return Center(
@@ -199,6 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+
 
   Widget _buildInfoCard() {
     return Card(

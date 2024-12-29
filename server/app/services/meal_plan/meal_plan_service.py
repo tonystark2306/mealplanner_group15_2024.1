@@ -116,8 +116,13 @@ class MealPlanService:
         for recipe_data in data['new_dishes']:
             recipe = self.recipe_repo.get_recipe_by_id(recipe_data['recipe_id'])
             if not recipe:
+                recipe = self.recipe_repo.get_system_recipe_by_name(recipe_data['recipe_name'])
+            if not recipe:
+                recipe = self.recipe_repo.get_group_recipe_by_name(recipe_data['recipe_name'], data['group_id'])
+            if not recipe:
                 return "recipe not found"
             recipe_data.update({
+                'recipe_id': recipe.id,
                 'servings': float(recipe_data.get('servings', 0.0))
             })
 

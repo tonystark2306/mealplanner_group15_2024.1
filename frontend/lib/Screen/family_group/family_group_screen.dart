@@ -137,7 +137,40 @@ class _FamilyGroupScreenState extends State<FamilyGroupScreen> {
             },
           );
         },
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _groupsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Lỗi khi tải danh sách nhóm: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Không có nhóm nào.'));
+          }
+
+          final groups = snapshot.data!;
+          return ListView.builder(
+            itemCount: groups.length,
+            itemBuilder: (context, index) {
+              final group = groups[index];
+              final groupName = group['groupName'] ?? 'Tên nhóm không xác định';
+              return Card(
+                elevation: 4,
+                margin: const EdgeInsets.only(bottom: 16.0),
+                child: ListTile(
+                  title: Text(
+                    groupName,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, color: Colors.green),
+                  onTap: () => _navigateToGroupDetails(group),
+                ),
+              );
+            },
+          );
+        },
       ),
+
 
       floatingActionButton: FloatingActionButton(
         onPressed: _createGroup,
