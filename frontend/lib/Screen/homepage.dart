@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meal_planner_app/Services/logoutservice.dart';
+import 'package:meal_planner_app/Services/delete_account_service.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -180,8 +181,11 @@ Widget _buildDrawer(BuildContext context) {
         _buildDrawerItem(icon: Icons.person, text: 'Thông tin cá nhân', onTap: (){
             Navigator.pushNamed(context, '/user-info');
         }),
-        _buildDrawerItem(icon: Icons.group, text: 'Quản lý thành viên nhóm', onTap: () {
+        _buildDrawerItem(icon: Icons.group, text: 'Quản lý nhóm', onTap: () {
             Navigator.pushNamed(context, '/family-group');
+        }),
+        _buildDrawerItem(icon: Icons.food_bank, text: 'Quản lý thực phẩm', onTap: () {
+            Navigator.pushNamed(context, '/food-management');
         }),
         _buildDrawerItem(icon: Icons.notifications, text: 'Cài đặt thông báo'),
         _buildDrawerItem(icon: Icons.star, text: 'Đánh giá ứng dụng'),
@@ -232,38 +236,69 @@ Widget _buildDrawer(BuildContext context) {
           },
         ),
         _buildDrawerItem(
-  icon: Icons.delete,
-  text: 'Xóa tài khoản',
-  iconColor: Colors.red, // Màu đỏ cho icon
-  textColor: Colors.red, // Màu đỏ cho text
-  onTap: () {
-    // Xử lý khi nhấn vào mục "Xóa tài khoản"
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Xác nhận'),
-          content: const Text('Bạn có chắc chắn muốn xóa tài khoản không? Hành động này không thể hoàn tác.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context), // Hủy bỏ xóa
-              child: const Text('Hủy'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              onPressed: () {
-                Navigator.pop(context); // Đóng dialog
-                // Thêm logic xóa tài khoản tại đây
-                print('Tài khoản đã được xóa.');
+          icon: Icons.delete,
+          text: 'Xóa tài khoản',
+          iconColor: Colors.red,
+          textColor: Colors.red,
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Xác nhận'),
+                  content: const Text(
+                    'Bạn có chắc chắn muốn xóa tài khoản không? Hành động này không thể hoàn tác.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context), // Hủy bỏ xóa
+                      child: const Text('Hủy'),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      onPressed: () async {
+                        Navigator.pop(context); // Đóng dialog
+
+                        // Hiển thị thông báo đang xử lý
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Đang xóa tài khoản...'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+
+                        // Gọi API xóa tài khoản
+                        bool success = await DeleteUserApi.deleteUser();
+
+                        if (success) {
+                          // Thông báo xóa thành công
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Xóa tài khoản thành công!'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+
+                          // Điều hướng về màn hình đăng nhập
+                          Navigator.pushReplacementNamed(context, '/login');
+                        } else {
+                          // Thông báo xóa thất bại
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Xóa tài khoản thất bại, vui lòng thử lại.'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                      child: const Text('Xóa'),
+                    ),
+                  ],
+                );
               },
-              child: const Text('Xóa'),
-            ),
-          ],
-        );
-      },
-    );
-  },
-),
+            );
+          },
+        ),
 
 
       ],

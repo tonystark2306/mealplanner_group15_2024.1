@@ -7,7 +7,8 @@ class AuthApi {
   static const String _baseUrl = 'http://127.0.0.1:5000/api/user';
 
   Future<Map<String, dynamic>> login(String email, String password) async {
-    final url = Uri.parse('$_baseUrl/login');
+    try{
+            final url = Uri.parse('$_baseUrl/login');
 
     final response = await http.post(
       url,
@@ -20,6 +21,7 @@ class AuthApi {
       }),
     );
 
+    print('Response status: ${response.statusCode}');
     if (response.statusCode == 200) {
       
 
@@ -27,5 +29,9 @@ class AuthApi {
     } else {
       throw Exception('Failed to login'); // Handle errors
     }
+  }catch(e){
+    print(e);
+    throw Exception('Failed to login');
+  }
   }
 }
