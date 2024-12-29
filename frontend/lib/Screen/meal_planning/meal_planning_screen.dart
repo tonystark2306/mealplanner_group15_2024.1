@@ -144,6 +144,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.green[700],
         centerTitle: true,
         title: const Text(
@@ -153,6 +154,20 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        leading: IconButton(
+            icon: Icon(Icons.analytics, color: Colors.white),
+            onPressed: () {
+              Navigator.pushNamed(context, '/report');
+            },
+          ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications, color: Colors.white),
+            onPressed: () {
+              // Handle notifications
+            },
+          ),
+        ],
       ),
       body: isLoading
         ? _buildLoadingIndicator()
