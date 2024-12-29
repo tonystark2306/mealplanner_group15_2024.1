@@ -6,6 +6,7 @@ import '../../Models/shopping_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../Providers/token_storage.dart'; // Import TokenStorage
+import '../../../Providers/group_id_provider.dart'; // Import TokenStorage
 
 class AddShoppingItemScreen extends StatefulWidget {
   @override
@@ -32,6 +33,12 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
     super.dispose();
   }
 
+  Future<String> _getGroupId() async {
+    final groupId = await GroupIdProvider.getSelectedGroupId();
+    print(groupId);
+    return groupId ?? ''; // Trả về access token
+  }
+
   Future<String> _getAccessToken() async {
     final tokens = await TokenStorage.getTokens();
     return tokens['accessToken'] ?? ''; // Trả về access token
@@ -39,8 +46,7 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
 
   // Lấy danh sách thực phẩm từ API
   Future<void> _fetchFoodList() async {
-    final groupId =
-        'aa67b8a7-2608-4125-9676-9ba340bd5deb'; // Lấy từ nơi bạn cần
+    final groupId = await _getGroupId();
     final token = await _getAccessToken();
     final url = Uri.parse('http://127.0.0.1:5000/api/food/group/$groupId');
 
@@ -75,8 +81,7 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
 
   // Lấy danh sách người dùng từ API
   Future<void> _fetchUsers() async {
-    final groupId =
-        'aa67b8a7-2608-4125-9676-9ba340bd5deb'; // Lấy từ nơi bạn cần
+    final groupId = await _getGroupId();
     final token = await _getAccessToken();
     final url = Uri.parse('http://127.0.0.1:5000/api/user/group/$groupId');
 

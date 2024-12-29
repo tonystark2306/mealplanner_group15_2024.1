@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal_planner_app/Screen/admin/units.dart';
 import 'Screen/bottom_navigation_screen.dart';
 import 'Screen/reports/consumption_report_screen.dart';
 // import 'Screen/refrigrator/refrigerator_management_screen.dart';
@@ -17,6 +18,7 @@ import 'Screen/meal_planning/add_meal_plan_screen.dart';
 import 'Screen/admin/admin_dashboard_screen.dart';
 import 'Screen/admin/category_management_screen.dart';
 import 'Screen/food/food_management_screen.dart';
+import 'Screen/admin/admin_dashboard_screen.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -35,6 +37,7 @@ class AppRoutes {
   static const String foodManagement = '/food-management';
   static const String adminDashboard = '/admin-dashboard';
   static const String adminCategories = '/admin-categories';
+  static const String adminUnit = '/admin-unit';
 
   static Map<String, WidgetBuilder> get routes {
     return {
@@ -54,6 +57,7 @@ class AppRoutes {
 
       adminDashboard: (context) => const AdminDashboardScreen(),
       adminCategories: (context) => const CategoryManagementScreen(),
+      adminUnit: (context) => const UnitsManagementScreen(),
     };
   }
 }

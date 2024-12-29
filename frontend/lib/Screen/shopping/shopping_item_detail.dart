@@ -4,11 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../../Providers/shopping_provider.dart';
 import '../../../Providers/token_storage.dart';
+import '../../../Providers/group_id_provider.dart';
 
 class ShoppingItemDetailsDialog extends StatefulWidget {
   final String shoppingItemId;
-  final String groupId = 'aa67b8a7-2608-4125-9676-9ba340bd5deb';
-
   ShoppingItemDetailsDialog({required this.shoppingItemId});
 
   @override
@@ -22,8 +21,14 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
     return tokens['accessToken'] ?? '';
   }
 
+  Future<String> _getGroupId() async {
+    final groupId = await GroupIdProvider.getSelectedGroupId();
+    return groupId ?? '';
+  }
+
   late Future<List<Map<String, dynamic>>> _tasksFuture;
   late List<Map<String, dynamic>> tasks;
+  late Future<String> groupId;
 
   @override
   void initState() {
@@ -32,8 +37,9 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
   }
 
   Future<List<Map<String, dynamic>>> fetchTasks() async {
+    final group_Id = await _getGroupId();
     final url = Uri.parse(
-        'http://127.0.0.1:5000/api/shopping/${widget.groupId}/task?list_id=${widget.shoppingItemId}');
+        'http://127.0.0.1:5000/api/shopping/${group_Id}/task?list_id=${widget.shoppingItemId}');
     final token = await _getAccessToken();
 
     try {
@@ -70,9 +76,10 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
   }
 
   Future<void> markTasksAsDone() async {
+    final group_id = await _getGroupId();
     final token = await _getAccessToken();
     final url = Uri.parse(
-        'http://127.0.0.1:5000/api/shopping/${widget.groupId}/task/mark');
+        'http://127.0.0.1:5000/api/shopping/${group_id}/task/mark');
 
     // Lọc các task đã được tick (status = 'Completed')
     final completedTasks =
@@ -233,7 +240,7 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
                                     Icons.check_circle,
                                     color: Colors.green,
                                   ),
-                                if (task['status'] != 'Completed')
+                                if (task['firstStatus'] != 'Completed')
                                   Checkbox(
                                     value: task['status'] == 'Completed',
                                     onChanged: (bool? value) {

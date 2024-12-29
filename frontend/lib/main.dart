@@ -9,6 +9,7 @@ import 'Providers/food_provider.dart';
 import 'Providers/fridge_provider/list_group_provider.dart';
 import 'Providers/shopping_provider.dart';
 
+
 void main() {
   runApp(const MyApp());
 }

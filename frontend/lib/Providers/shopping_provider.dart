@@ -4,12 +4,17 @@ import '../Models/shopping_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'token_storage.dart';
+import 'group_id_provider.dart';
 
 class ShoppingProvider with ChangeNotifier {
   final List<ShoppingItem> _shoppingList = [];
 
   List<ShoppingItem> get shoppingList => _shoppingList;
-  final String groupId = 'aa67b8a7-2608-4125-9676-9ba340bd5deb';
+  Future<String> _getGroupId() async {
+    final groupId = await GroupIdProvider.getSelectedGroupId();
+    print(groupId);
+    return groupId ?? ''; // Trả về access token
+  }
 
   Future<String> _getAccessToken() async {
     final tokens = await TokenStorage.getTokens();
@@ -35,6 +40,7 @@ class ShoppingProvider with ChangeNotifier {
   }
 
   Future<void> fetchShoppingList() async {
+    final groupId = await _getGroupId();
     final url = Uri.parse('http://127.0.0.1:5000/api/shopping/$groupId');
     final token = await _getAccessToken();
     try {
@@ -74,6 +80,7 @@ class ShoppingProvider with ChangeNotifier {
   }
 
   Future<void> addShoppingItem(ShoppingItem item) async {
+    final groupId = await _getGroupId();
     final String url = 'http://127.0.0.1:5000/api/shopping/$groupId'; // API URL
     final token = await _getAccessToken();
     // Chuyển đối tượng ShoppingItem thành JSON
@@ -123,6 +130,7 @@ class ShoppingProvider with ChangeNotifier {
 
   Future<void> addTaskToShopping(
       String shoppingId, List<Map<String, String>> tasks) async {
+    final groupId = await _getGroupId();
     final String url =
         'http://127.0.0.1:5000/api/shopping/$groupId/task'; // API URL
     final token = await _getAccessToken();
@@ -166,6 +174,7 @@ class ShoppingProvider with ChangeNotifier {
   }
 
   Future<void> deleteShoppingItem(String id) async {
+    final groupId = await _getGroupId();
     final url = Uri.parse('http://127.0.0.1:5000/api/shopping/$groupId');
     final token = await _getAccessToken();
 
