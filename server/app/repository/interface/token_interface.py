@@ -19,7 +19,15 @@ class TokenInterface(ABC):
         pass
     
     @abstractmethod
+    def save_reset_code(self, user_id, code):
+        pass
+    
+    @abstractmethod
     def save_confirm_token(self, user_id, token):
+        pass
+    
+    @abstractmethod
+    def save_reset_token(self, user_id, token):
         pass
     
     @abstractmethod

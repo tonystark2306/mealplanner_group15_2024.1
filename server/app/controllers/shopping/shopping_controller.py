@@ -103,13 +103,24 @@ def delete_shopping_list(user_id, group_id):
     list_service = ShoppingListService()
     
     result = list_service.change_status(group_id, list_id, "Deleted")
+
+    if result:
+        if result["status"] == "Deleted":
+            return jsonify({
+                "resultMessage": {
+                    "en": "Shopping list deleted successfully.",
+                    "vn": "Danh sách mua sắm được xóa thành công."
+                },
+                "resultCode": "00267",
+            }), 200
+        
     return jsonify({
         "resultMessage": {
-            "en": "Shopping list deleted successfully.",
-            "vn": "Danh sách mua sắm được xóa thành công."
+            "en": "Cannot delete shopping list.",
+            "vn": "Không xoá được danh sách mua sắm, hãy thử lại."
         },
-        "resultCode": "00267",
-    }), 200
+        "resultCode": "00268"
+    }), 404
 
 
 @shopping_api.route("/<group_id>", methods=["GET"])

@@ -70,3 +70,7 @@ responses:
               type: boolean
               description: User's verification status
               example: true
+            is_deleted:
+              type: boolean
+              description: User's deletion status
+              example: false

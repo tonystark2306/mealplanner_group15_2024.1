@@ -247,3 +247,44 @@ def get_all_foods_in_group(user_id, group_id):
         "resultCode": "00188",
         "foods": foods
     }), 200
+    
+    
+@food_api.route("/group/<group_id>/search", methods=["GET"])
+@JWT_required
+@swag_from(
+    "../../docs/food/search_foods.yaml", 
+    endpoint="food_api.search_foods", 
+    methods=["GET"]
+)
+def search_foods(user_id, group_id):
+    group_service = GroupService()
+    if not group_service.is_member_of_group(user_id, group_id):
+        return jsonify({
+            "resultMessage": {
+                "en": "You are not a member of this group.",
+                "vn": "Bạn không phải là thành viên của nhóm này."
+            },
+            "resultCode": "00031"
+        }), 403
+        
+    query = request.args.get("q", type=str, default=None)
+    if not query:
+        return jsonify({
+            "resultMessage": {
+                "en": "Missing query parameter.",
+                "vn": "Thiếu tham số truy vấn."
+            },
+            "resultCode": "00037"
+        }), 400
+        
+    food_service = FoodService()
+    food_search_results = food_service.search_foods_in_group(group_id, query)
+    return jsonify({
+        "resultMessage": {
+            "en": "Successfull search foods",
+            "vn": "Tìm kiếm thực phẩm thành công"
+        },
+        "resultCode": "00192",
+        "total": len(food_search_results),
+        "foods": food_search_results
+    }), 200

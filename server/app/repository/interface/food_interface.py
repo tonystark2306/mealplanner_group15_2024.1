@@ -38,3 +38,7 @@ class FoodInterface(ABC):
     @abstractmethod
     def delete_food(self, food):
         pass
+    
+    @abstractmethod
+    def search_foods_in_group(group_id, query) -> List[FoodModel]:
+        pass

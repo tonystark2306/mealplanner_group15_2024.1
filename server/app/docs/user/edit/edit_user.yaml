@@ -72,6 +72,9 @@ responses:
             id:
               type: string
               example: "e6b3562f-6cc5-4e2c-95d2-b7ac8ec478cc"
+            email:
+              type: string
+              example: "johndoe@example.com"
             username:
               type: string
               example: "new_username"
@@ -90,3 +93,9 @@ responses:
             avatar_url:
               type: string
               example: "https://example.com/avatar.jpg"
+            is_verified:
+              type: boolean
+              example: true
+            is_deleted:
+              type: boolean
+              example: false

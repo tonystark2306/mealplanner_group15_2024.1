@@ -28,6 +28,7 @@ class ShoppingListRepository(ShoppingListInterface):
         new_list = ShoppingListModel(name=shopping_list.get('name') or None,
                                      group_id=shopping_list['group_id'],
                                      assigned_to=shopping_list.get('assigned_to') or None,
+                                     assigned_to_username=shopping_list.get('assigned_to_username') or None,
                                      notes=shopping_list.get('notes') or None,
                                      due_time=shopping_list.get('due_time') or None
                                      )
@@ -43,6 +44,7 @@ class ShoppingListRepository(ShoppingListInterface):
             _list.name = shopping_list.get('new_name') or _list.name
             _list.group_id = shopping_list['group_id'] or _list.group_id
             _list.assigned_to = shopping_list.get('new_assigned_to') or _list.assigned_to
+            _list.assigned_to_username = shopping_list.get('new_assigned_to_username') or _list.assigned_to_username
             _list.notes = shopping_list.get('new_notes') or _list.notes
             _list.due_time = shopping_list.get('new_due_time') or _list.due_time
             _list.status = shopping_list.get('new_status') or _list.status
