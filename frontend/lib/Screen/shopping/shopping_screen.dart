@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'add_shopping_screen.dart';
 import 'package:provider/provider.dart';
 import '../../Providers/shopping_provider.dart';
-import 'package:intl/intl.dart'; // Để định dạng ngày tháng
+import 'package:intl/intl.dart';
+
+import 'shopping_item_detail.dart'; // Để định dạng ngày tháng
 
 class ShoppingListScreen extends StatefulWidget {
   @override
@@ -73,12 +75,12 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                       children: [
                         SizedBox(height: 4),
                         Text(
-                          'Assigned to: ${shoppingItem.assignedTo ?? 'N/A'}',
+                          'Giao cho: ${shoppingItem.assignedTo ?? 'N/A'}',
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Due: ${shoppingItem.dueTime}',
+                          'Hạn: ${shoppingItem.dueTime ?? 'No due date'}',
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                       ],
@@ -96,7 +98,13 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                       },
                     ),
                     onTap: () {
-                      // Navigate to task management screen
+                      // Gọi Dialog khi người dùng chọn shopping item
+                      showDialog(
+                        context: context,
+                        builder: (context) => ShoppingItemDetailsDialog(
+                          shoppingItemId: shoppingItem.id
+                        ),
+                      );
                     },
                   ),
                 );

@@ -23,13 +23,12 @@ class TaskItem {
   String title;
   String quanity;
   String unitName;
-  bool isCompleted;
-
+  bool isDone;
   TaskItem({
     required this.id,
     required this.title,
     required this.quanity,
     required this.unitName,
-    this.isCompleted = false,
+    required this.isDone,
   });
 }

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../Providers/shopping_provider.dart';
 import '../../Models/shopping_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../Providers/token_storage.dart'; // Import TokenStorage
+
 class AddShoppingItemScreen extends StatefulWidget {
   @override
   State<AddShoppingItemScreen> createState() => _AddShoppingItemScreenState();
@@ -18,9 +20,9 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
   DateTime? _dueTime;
 
   List<Map<String, dynamic>> _foodList = []; // Danh sách thực phẩm
-  String? _selectedFoodName;
-  String? _selectedUnitName;
   List<TaskItem> _taskList = []; // Danh sách task
+  List<String> _userList = []; // Danh sách người dùng
+  String? _selectedUser; // Người dùng đã chọn
 
   @override
   void dispose() {
@@ -37,44 +39,88 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
 
   // Lấy danh sách thực phẩm từ API
   Future<void> _fetchFoodList() async {
-    final groupId =
-        'aa67b8a7-2608-4125-9676-9ba340bd5deb'; // Lấy từ nơi bạn cần
+    final groupId = 'aa67b8a7-2608-4125-9676-9ba340bd5deb'; // Lấy từ nơi bạn cần
     final token = await _getAccessToken();
     final url = Uri.parse('http://127.0.0.1:5000/api/food/group/$groupId');
+
     try {
       final response = await http.get(
         url,
         headers: {
-          'Authorization':
-              'Bearer $token', // Thêm token vào header Authorization
+          'Authorization': 'Bearer $token', // Thêm token vào header Authorization
         },
       );
+
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> decodedJson = json.decode(response.body);
+        final List<dynamic> foods = decodedJson['foods'];
+
         setState(() {
-          _foodList = data
-              .map((item) =>
-                  {'name': item['name'], 'unitName': item['unit_name']})
+          _foodList = foods
+              .map((item) => {
+                    'name': item['name'],
+                    'unitName': item['unit_name'],
+                  })
               .toList();
         });
       } else {
-        throw Exception('Failed to load food list');
+        throw Exception('Không tải được danh sách thực phẩm');
       }
     } catch (error) {
-      throw Exception('Error fetching food list: $error');
+      throw Exception('Lỗi khi tải danh sách thực phẩm: $error');
+    }
+  }
+
+  // Lấy danh sách người dùng từ API
+  Future<void> _fetchUsers() async {
+    final groupId = 'aa67b8a7-2608-4125-9676-9ba340bd5deb'; // Lấy từ nơi bạn cần
+    final token = await _getAccessToken();
+    final url = Uri.parse('http://127.0.0.1:5000/api/user/group/$groupId');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Thêm token vào header Authorization
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> decodedJson = json.decode(response.body);
+        final List<dynamic> members = decodedJson['members'];
+
+        setState(() {
+          _userList = members.map((member) => member['username'] as String).toList();
+        });
+      } else {
+        throw Exception('Không tải được danh sách người dùng');
+      }
+    } catch (error) {
+      throw Exception('Lỗi khi tải danh sách người dùng: $error');
     }
   }
 
   void _pickDueDate(BuildContext context) async {
+    // Chọn ngày
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
+
+    // Nếu người dùng đã chọn ngày, mặc định giờ là 00:00:00
     if (pickedDate != null) {
       setState(() {
-        _dueTime = pickedDate;
+        _dueTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          0,  // Mặc định giờ là 00
+          0,  // Mặc định phút là 00
+          0,  // Mặc định giây là 00
+        );
+        
       });
     }
   }
@@ -84,9 +130,9 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
       final shoppingItem = ShoppingItem(
         id: DateTime.now().toString(),
         name: _nameController.text,
-        assignedTo: _assignedToController.text,
+        assignedTo: _selectedUser ?? '', // Lưu tên người dùng đã chọn
         notes: _notesController.text,
-        dueTime: _dueTime.toString() ?? DateTime.now().toString(),
+        dueTime: DateFormat('yyyy-MM-dd HH:mm:ss').format(_dueTime ?? DateTime.now()),
         isDone: false,
         tasks: _taskList,
       );
@@ -95,28 +141,116 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
           .addShoppingItem(shoppingItem);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Shopping item added!')),
+        const SnackBar(content: Text('Đã thêm mục shopping!')),
       );
 
       Navigator.of(context).pop();
     }
   }
 
-  void _addTask() {
-    setState(() {
-      _taskList.add(TaskItem(
-        id: DateTime.now().toString(),
-        title: _selectedFoodName ?? '',
-        quanity: "1", // Số lượng mặc định là 1
-        unitName: _selectedUnitName ?? '',
-      ));
-    });
+  Future<void> _showAddTaskDialog() async {
+    String? selectedFoodName;
+    String? selectedUnitName;
+    final quantityController = TextEditingController(text: '1'); // Giá trị mặc định là 1
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Thêm nhiệm vụ'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: selectedFoodName,
+                    hint: const Text('Chọn thực phẩm'),
+                    items: _foodList.map((food) {
+                      return DropdownMenuItem<String>(
+                        value: food['name'],
+                        child: Text(food['name']),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedFoodName = value;
+                        selectedUnitName = _foodList
+                            .firstWhere((food) => food['name'] == value)['unitName'];
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Thực phẩm',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: TextEditingController(text: selectedUnitName),
+                    enabled: false, // Không cho chỉnh sửa
+                    decoration: const InputDecoration(
+                      labelText: 'Đơn vị',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: quantityController,
+                    decoration: const InputDecoration(
+                      labelText: 'Số lượng',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Hủy'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (selectedFoodName != null &&
+                        quantityController.text.isNotEmpty) {
+                      setState(() {
+                        _taskList.add(TaskItem(
+                          id: DateTime.now().toString(),
+                          title: selectedFoodName!,
+                          quanity: quantityController.text,
+                          unitName: selectedUnitName ?? '',
+                          isDone: false,
+                        ));
+                      });
+
+                      // Đảm bảo giao diện chính cập nhật
+                      this.setState(() {});
+                      Navigator.of(context).pop();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Vui lòng chọn thực phẩm và nhập số lượng'),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('Thêm nhiệm vụ'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
   void initState() {
     super.initState();
     _fetchFoodList(); // Gọi API khi màn hình được tải
+    _fetchUsers(); // Gọi API để tải danh sách người dùng
   }
 
   @override
@@ -125,8 +259,7 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
       appBar: AppBar(
         title: Text(
           'Tạo shopping',
-          style:
-              TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -143,21 +276,34 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
-                    labelText: 'Name',
+                    labelText: 'Tiêu đề',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a name';
+                      return 'Vui lòng nhập tên';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _assignedToController,
+                // Dropdown for selecting user
+                DropdownButtonFormField<String>(
+                  value: _selectedUser,
+                  hint: const Text('Chọn người giao'),
+                  items: _userList.map((user) {
+                    return DropdownMenuItem<String>(
+                      value: user,
+                      child: Text(user),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedUser = value;
+                    });
+                  },
                   decoration: const InputDecoration(
-                    labelText: 'Assigned To',
+                    labelText: 'Giao cho',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -165,7 +311,7 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
                 TextFormField(
                   controller: _notesController,
                   decoration: const InputDecoration(
-                    labelText: 'Notes',
+                    labelText: 'Ghi chú',
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 3,
@@ -176,33 +322,32 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
                     Expanded(
                       child: Text(
                         _dueTime != null
-                            ? 'Due Date: ${_dueTime!.toLocal()}'
-                            : 'No due date selected',
+                            ? 'Hạn: ${_dueTime!.toLocal().toString().split(' ')[0]}'  // Hiển thị chỉ ngày, không giờ
+                            : 'Chưa chọn hạn',
                       ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.calendar_today),
-                      onPressed: () => _pickDueDate(context),
+                      onPressed: () => _pickDueDate(context), // Gọi phương thức chọn ngày
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Phần thêm task
                 const Text(
-                  'Add Tasks',
+                  'Nhiệm vụ: ',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Column(
                   children: _taskList.map((task) {
                     return Card(
-                      margin: EdgeInsets.symmetric(vertical: 8),
+                      margin: const EdgeInsets.symmetric(vertical: 8),
                       child: ListTile(
                         title: Text(task.title),
                         subtitle: Text(
-                            'Quantity: ${task.quanity} | Unit: ${task.unitName}'),
+                            'Số lượng: ${task.quanity} | Đơn vị: ${task.unitName}'),
                         trailing: IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
+                          icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
                             setState(() {
                               _taskList.remove(task);
@@ -213,21 +358,24 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
                     );
                   }).toList(),
                 ),
-                ElevatedButton(
-                  onPressed: _addTask,
+                ElevatedButton.icon(
+                  onPressed: _showAddTaskDialog,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green[700],
                   ),
-                  child: const Text('Add Task'),
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  label: const Text('Thêm nhiệm vụ',
+                      style: TextStyle(color: Colors.white)),
                 ),
                 const SizedBox(height: 16),
                 Center(
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: _saveShoppingItem,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green[700],
                     ),
-                    child: const Text('Save',
+                    icon: const Icon(Icons.save, color: Colors.white),
+                    label: const Text('Lưu shopping',
                         style: TextStyle(color: Colors.white)),
                   ),
                 ),

@@ -40,7 +40,7 @@ class AdminDashboardScreen extends StatelessWidget {
             context,
             'Quản lý đơn vị',
             Icons.straighten,
-            () => Navigator.pushNamed(context, '/admin/units'),
+            () => Navigator.pushNamed(context, '/admin-unit'),
           ),
         ],
       ),
