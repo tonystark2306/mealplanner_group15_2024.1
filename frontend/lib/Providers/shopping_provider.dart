@@ -130,6 +130,7 @@ class ShoppingProvider with ChangeNotifier {
 
   Future<void> addTaskToShopping(
       String shoppingId, List<Map<String, String>> tasks) async {
+        if (tasks.isEmpty) return;
     final groupId = await _getGroupId();
     final String url =
         'http://127.0.0.1:5000/api/shopping/$groupId/task'; // API URL
@@ -157,6 +158,7 @@ class ShoppingProvider with ChangeNotifier {
       if (response.statusCode == 201) {
         print('Tasks added to shopping list successfully');
       } else {
+        print(response.body);
         throw Exception(
             'Failed to add tasks to shopping list: ${response.statusCode}');
       }
@@ -165,11 +167,97 @@ class ShoppingProvider with ChangeNotifier {
     }
   }
 
-  void updateShoppingItem(String id, ShoppingItem updatedItem) {
-    final index = _shoppingList.indexWhere((item) => item.id == id);
-    if (index != -1) {
-      _shoppingList[index] = updatedItem;
-      notifyListeners();
+  Future<void> updateTaskToShopping(
+      String shoppingId, List<Map<String, String>> tasks) async {
+      if(tasks.isEmpty) return; 
+    final groupId = await _getGroupId();
+    final String baseUrl =
+        'http://127.0.0.1:5000/api/shopping/$groupId/task'; // Base API URL
+    final token = await _getAccessToken();
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token', // Thêm token nếu cần
+    };
+
+    try {
+      for (var task in tasks) {
+        // Tạo body dữ liệu JSON cho từng task
+        final Map<String, dynamic> body = {
+          "list_id": shoppingId,
+          "task_id": task['task_id'],
+          "new_food_name": task['new_food_name'] ?? '',
+          "new_quantity": task['new_quantity'] ?? '',
+        };
+
+        // Gửi PUT request cho từng task
+        final response = await http.put(
+          Uri.parse(baseUrl),
+          headers: headers,
+          body: json.encode(body),
+        );
+
+        if (response.statusCode == 200) {
+          print('Task ${task['id']} updated successfully');
+        } else {
+          print(
+              'Failed to update task ${task['task_id']}: ${response.statusCode} ${response.body}');
+        }
+      }
+    } catch (error) {
+      print('Error when updating tasks: $error');
+      rethrow;
+    }
+  }
+
+  Future<void> updateShoppingItem(ShoppingItem updatedItem) async {
+    final groupId = await _getGroupId();
+    final String url = 'http://127.0.0.1:5000/api/shopping/$groupId'; // API URL
+    final token = await _getAccessToken();
+    // Chuyển đối tượng ShoppingItem thành JSON
+    final Map<String, dynamic> body = {
+      "list_id": updatedItem.id,
+      "new_name": updatedItem.name,
+      "new_assigned_to": updatedItem.nameAssignedTo,
+      "new_notes": updatedItem.notes,
+      "new_due_time": updatedItem.dueTime
+    };
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token', // Nếu cần token thì thêm ở đây
+    };
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        headers: headers,
+        body: json.encode(body), // Chuyển body thành JSON
+      );
+      if (response.statusCode == 200) {
+        // Thành công, có thể thực hiện thêm hành động
+        final index =
+            _shoppingList.indexWhere((item) => item.id == updatedItem.id);
+        if (index != -1) {
+          _shoppingList[index] = updatedItem;
+          final decodedResponse = json.decode(response.body);
+          updatedItem.dueTime = formatDueTime(
+              decodedResponse['updated_shopping_list']['due_time']);
+          updateTaskController(
+              updatedItem.id,
+              updatedItem.tasks
+                  .map((task) => {
+                        'id': task.id,
+                        'food_name': task.title,
+                        'quantity': task.quanity,
+                      })
+                  .toList());
+          notifyListeners();
+        }
+        print('Shopping item added successfully');
+      } else {
+        throw Exception('Failed to add shopping item: ${response.statusCode}');
+      }
+    } catch (error) {
+      throw Exception('Error when posting shopping item: $error');
     }
   }
 
@@ -218,24 +306,80 @@ class ShoppingProvider with ChangeNotifier {
     }
   }
 
-  void addTaskToShoppingItem(String shoppingItemId, TaskItem task) {
-    final index = _shoppingList.indexWhere((item) => item.id == shoppingItemId);
-    if (index != -1) {
-      _shoppingList[index].tasks.add(task);
-      notifyListeners();
-    }
-  }
+  Future<void> updateTaskController(
+      String shoppingId, List<Map<String, String>> tasks) async {
+    final group_Id = await _getGroupId();
+    final url = Uri.parse(
+        'http://127.0.0.1:5000/api/shopping/${group_Id}/task?list_id=${shoppingId}');
+    final token = await _getAccessToken();
 
-  void toggleTaskCompletion(String shoppingItemId, String taskId) {
-    final shoppingIndex =
-        _shoppingList.indexWhere((item) => item.id == shoppingItemId);
-    if (shoppingIndex != -1) {
-      final taskIndex = _shoppingList[shoppingIndex]
-          .tasks
-          .indexWhere((task) => task.id == taskId);
-      if (taskIndex != -1) {
-        notifyListeners();
+    try {
+      var request = http.Request('GET', url)
+        ..headers['Content-Type'] = 'application/json'
+        ..headers['Authorization'] = 'Bearer $token';
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        final responseBody = await response.stream.bytesToString();
+        final Map<String, dynamic> data = json.decode(responseBody);
+        final List<dynamic> taskList = data['tasks'];
+
+        // Convert `taskList` to `oldTasks`
+        List<Map<String, dynamic>> oldTasks = taskList.map((task) {
+          return {
+            'id': task['id']?.toString() ?? '',
+            'food_name': task['food_name']?.toString() ?? '',
+            'quantity': task['quantity']?.toString().split('.').first ?? '',
+          };
+        }).toList();
+
+        // Prepare newTasks and updateTasks
+        List<Map<String, String>> newTasks = [];
+        List<Map<String, String>> updateTasks = [];
+
+        for (var task in tasks) {
+          // Check if the task exists in oldTasks
+          var oldTask = {};
+          bool isTaskNew = true;
+          for (var old in oldTasks) {
+            if (old['id'].toString() == task['id'].toString()) {
+              oldTask = old;
+              isTaskNew = false;
+              break;
+            }
+          }
+
+          if (isTaskNew) {
+            // Task is new, add to newTasks
+            newTasks.add({
+              'food_name': task['food_name'] ?? '',
+              'quantity': task['quantity'] ?? '',
+            });
+          } else {
+            // Task exists, check if it needs an update
+            if (oldTask['food_name'] != task['food_name'] ||
+                oldTask['quantity'] != task['quantity']) {
+              updateTasks.add({
+                'list_id': shoppingId,
+                'task_id': oldTask['id'],
+                'new_food_name': task['food_name'] ?? '',
+                'new_quantity': task['quantity'] ?? '',
+              });
+            }
+          }
+        }
+
+        print('New tasks: $newTasks');
+        print(updateTasks);
+        addTaskToShopping(shoppingId, newTasks);
+        updateTaskToShopping(shoppingId, updateTasks);
+      } else {
+        throw Exception('Failed to load tasks');
       }
+    } catch (error) {
+      print('Error: $error');
+      rethrow;
     }
   }
 }

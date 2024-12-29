@@ -78,12 +78,14 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
   Future<void> markTasksAsDone() async {
     final group_id = await _getGroupId();
     final token = await _getAccessToken();
-    final url = Uri.parse(
-        'http://127.0.0.1:5000/api/shopping/${group_id}/task/mark');
+    final url =
+        Uri.parse('http://127.0.0.1:5000/api/shopping/${group_id}/task/mark');
 
     // Lọc các task đã được tick (status = 'Completed')
-    final completedTasks =
-        tasks.where((task) => task['status'] == 'Completed').toList();
+    final completedTasks = tasks
+        .where((task) => (task['status'] == 'Completed' &&
+            task['firstStatus'] != 'Completed'))
+        .toList();
 
     try {
       for (var task in completedTasks) {
@@ -107,10 +109,12 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
           print(responseBody);
         }
       }
-      // Sau khi gửi thành công, có thể cập nhật UI hoặc thông báo cho người dùng
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Tasks marked as completed!')),
-      );
+
+      if (completedTasks.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tasks marked as completed!')),
+        );
+      }
     } catch (error) {
       print('Error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -139,7 +143,7 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-                color: Colors.blueAccent,
+                color: Colors.black,
               ),
             ),
             SizedBox(height: 8),
@@ -162,6 +166,18 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
                 SizedBox(width: 8),
                 Text(
                   'Due time: ${shoppingItem.dueTime ?? 'No due date'}',
+                  style: TextStyle(color: Colors.grey[700], fontSize: 16),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Icon(Icons.person, color: Colors.grey),
+                SizedBox(width: 8),
+                Text(
+                  'Ghi chú: ${shoppingItem.notes ?? 'N/A'}',
                   style: TextStyle(color: Colors.grey[700], fontSize: 16),
                 ),
               ],
@@ -214,7 +230,7 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Khối lượng: ${task['quantity']}',
+                                  'Khối lượng: ${task['quantity'].toString().split('.')[0]}',
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontSize: 14,
@@ -265,29 +281,33 @@ class _ShoppingItemDetailsDialogState extends State<ShoppingItemDetailsDialog> {
             ),
             SizedBox(height: 16),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center, // Căn giữa các nút
               children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(
-                    'Đóng',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.red,
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    icon: const Icon(Icons.delete), // Icon delete
+                    label: const Text('Đóng'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red, // Nền đỏ
+                      foregroundColor: Colors.white, // Chữ trắng
                     ),
                   ),
                 ),
-                TextButton(
-                  onPressed: () async {
-                    await markTasksAsDone(); // Gửi các task đã được tick lên server
-                  },
-                  child: Text(
-                    'Xác nhận',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.green,
+                const SizedBox(width: 30), // Khoảng cách giữa 2 nút
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await markTasksAsDone(); // Gửi các task đã được tick lên server
+                    },
+                    icon: const Icon(Icons.save), // Icon save
+                    label: const Text('Xác nhận'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green, // Nền xanh
+                      foregroundColor: Colors.white, // Chữ trắng
                     ),
                   ),
                 ),
