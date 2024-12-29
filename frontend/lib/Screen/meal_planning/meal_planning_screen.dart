@@ -30,6 +30,72 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
     }
   }
 
+  Future<void> _showRecipeDetail(
+      BuildContext context, String recipeId, String groupId) async {
+    final apiBaseUrl = "http://localhost:5000/api"; // Thay bằng URL thực
+    final url = '$apiBaseUrl/recipe/$groupId/$recipeId';
+
+    try {
+      final response = await Provider.of<MealPlanProvider>(context, listen: false)
+          .fetchRecipeDetail(url);
+
+      final detailRecipe = response['detail_recipe'];
+
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(detailRecipe['dish_name']),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (detailRecipe['images'] != null &&
+                    detailRecipe['images'].isNotEmpty)
+                  Image.network(detailRecipe['images'][0]['image_url']),
+                const SizedBox(height: 8),
+                Text(
+                  'Thời gian nấu: ${detailRecipe['cooking_time'] ?? 'Không có thông tin'}',
+                  style: const TextStyle(fontSize: 14),
+                ),
+                
+                const SizedBox(height: 8),
+                const Text(
+                  'Nguyên liệu:',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                ...detailRecipe['foods'].map<Widget>((food) {
+                  return Text(
+                    '${food['food_name']} - ${food['quantity']} ${food['unit_name'] ?? ''}',
+                    style: const TextStyle(fontSize: 14),
+                  );
+                }).toList(),
+                const SizedBox(height: 16),
+                const Text(
+                  'Hướng dẫn:',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  detailRecipe['description'] ?? 'Không có mô tả.',
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Đóng'),
+            ),
+          ],
+        ),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không thể tải công thức: $error')),
+      );
+    }
+  }
 
   Future<void> _fetchMealPlans() async {
 
@@ -271,13 +337,19 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
             const Divider(height: 16, thickness: 1),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: meal.dishes
-                  .map((dish) => Text(
-                        '${dish.recipeName} - ${dish.servings} phần',
-                        style: const TextStyle(fontSize: 14),
-                      ))
-                  .toList(),
-            ),
+              children: meal.dishes.map((dish) {
+                return GestureDetector(
+                  onTap: () => _showRecipeDetail(context, dish.recipeId, groupId!),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Text(
+                      '${dish.recipeName} - ${dish.servings} phần',
+                      style: const TextStyle(fontSize: 14, color: Colors.blue),
+                    ),
+                  ),
+                );
+              }).toList(),
+            )
           ],
         ),
       ),
