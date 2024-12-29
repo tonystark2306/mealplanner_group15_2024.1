@@ -33,7 +33,7 @@ class FirebaseHelper:
         """
         try:
             blob = self.bucket.blob(filename)
-            blob.upload_from_file(file)
+            blob.upload_from_file(file, content_type=file.content_type)
             blob.make_public()
             return blob.public_url
         except Exception as e:

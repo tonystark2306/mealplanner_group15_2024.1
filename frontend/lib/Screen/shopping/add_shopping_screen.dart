@@ -217,40 +217,59 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
                 ],
               ),
               actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Hủy'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (selectedFoodName != null &&
-                        quantityController.text.isNotEmpty) {
-                      setState(() {
-                        _taskList.add(TaskItem(
-                          id: DateTime.now().toString(),
-                          foodName: selectedFoodName!,
-                          title: selectedFoodName!,
-                          quanity: quantityController.text,
-                          unitName: selectedUnitName ?? '',
-                          isDone: false,
-                        ));
-                      });
-
-                      // Đảm bảo giao diện chính cập nhật
-                      this.setState(() {});
-                      Navigator.of(context).pop();
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content:
-                              Text('Vui lòng chọn thực phẩm và nhập số lượng'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        icon: const Icon(Icons.delete), // Icon delete
+                        label: const Text('Hủy'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red, // Nền đỏ
+                          foregroundColor: Colors.white, // Chữ trắng
                         ),
-                      );
-                    }
-                  },
-                  child: const Text('Thêm nhiệm vụ'),
+                      ),
+                    ),
+                    const SizedBox(width: 8), // Khoảng cách giữa 2 nút
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          if (selectedFoodName != null &&
+                              quantityController.text.isNotEmpty) {
+                            setState(() {
+                              _taskList.add(TaskItem(
+                                id: DateTime.now().toString(),
+                                foodName: selectedFoodName!,
+                                title: selectedFoodName!,
+                                quanity: quantityController.text,
+                                unitName: selectedUnitName ?? '',
+                                isDone: false,
+                              ));
+                            });
+
+                            // Đảm bảo giao diện chính cập nhật
+                            this.setState(() {});
+                            Navigator.of(context).pop();
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Vui lòng chọn thực phẩm và nhập số lượng'),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.add), // Icon cộng
+                        label: const Text('Thêm'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green, // Nền xanh
+                          foregroundColor: Colors.white, // Chữ trắng
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             );
@@ -472,35 +491,54 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
                 ],
               ),
               actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Hủy'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (selectedFoodName != null &&
-                        quantityController.text.isNotEmpty) {
-                      setState(() {
-                        task.foodName = selectedFoodName!;
-                        task.unitName = selectedUnitName ?? '';
-                        task.quanity = quantityController.text;
-                      });
-
-                      // Đảm bảo giao diện chính cập nhật
-                      this.setState(() {});
-                      Navigator.of(context).pop();
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content:
-                              Text('Vui lòng chọn thực phẩm và nhập số lượng'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        icon: const Icon(Icons.delete), // Icon delete
+                        label: const Text('Hủy'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red, // Nền đỏ
+                          foregroundColor: Colors.white, // Chữ trắng
                         ),
-                      );
-                    }
-                  },
-                  child: const Text('Lưu chỉnh sửa'),
+                      ),
+                    ),
+                    const SizedBox(width: 8), // Khoảng cách giữa 2 nút
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          if (selectedFoodName != null &&
+                              quantityController.text.isNotEmpty) {
+                            setState(() {
+                              task.foodName = selectedFoodName!;
+                              task.unitName = selectedUnitName ?? '';
+                              task.quanity = quantityController.text;
+                            });
+
+                            // Đảm bảo giao diện chính cập nhật
+                            this.setState(() {});
+                            Navigator.of(context).pop();
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Vui lòng chọn thực phẩm và nhập số lượng'),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.save), // Icon save
+                        label: const Text('Lưu chỉnh sửa'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green, // Nền xanh
+                          foregroundColor: Colors.white, // Chữ trắng
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             );

@@ -6,7 +6,7 @@ import '../../Models/shopping_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../Providers/token_storage.dart'; // Import TokenStorage
-import '../../../Providers/group_id_provider.dart'; // Import TokenStorage
+import '../../../Providers/group_id_provider.dart'; // Import GroupIdProvider
 
 class EditShoppingItemScreen extends StatefulWidget {
   final ShoppingItem shoppingItem;
@@ -39,7 +39,7 @@ class _EditShoppingItemScreenState extends State<EditShoppingItemScreen> {
 
   Future<String> _getGroupId() async {
     final groupId = await GroupIdProvider.getSelectedGroupId();
-    return groupId ?? ''; // Trả về access token
+    return groupId ?? ''; // Trả về group ID
   }
 
   Future<String> _getAccessToken() async {
@@ -79,6 +79,49 @@ class _EditShoppingItemScreenState extends State<EditShoppingItemScreen> {
       }
     } catch (error) {
       throw Exception('Lỗi khi tải danh sách thực phẩm: $error');
+    }
+  }
+
+  // Lấy danh sách nhiệm vụ từ API
+  Future<void> _fetchTasks() async {
+    final groupId = await _getGroupId();
+    final token = await _getAccessToken();
+    final url = Uri.parse(
+        'http://127.0.0.1:5000/api/shopping/$groupId/task?list_id=${widget.shoppingItem.id}');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> decodedJson = json.decode(response.body);
+        final List<dynamic> tasks = decodedJson['tasks'];
+
+        setState(() {
+          _taskList = tasks.map((task) {
+            final matchedFood = _foodList.firstWhere(
+              (food) => food['name'] == task['food_name'],
+              orElse: () => {'unitName': ''},
+            );
+            return TaskItem(
+              id: task['id'].toString(),
+              foodName: task['food_name'] ?? 'Unknown',
+              title: task['food_name'] ?? 'Unknown',
+              quanity: task['quantity'].split('.').first,
+              unitName: matchedFood['unitName'] ?? '',
+              isDone: task['status'] == 'Completed',
+            );
+          }).toList();
+        });
+      } else {
+        throw Exception('Không tải được danh sách nhiệm vụ');
+      }
+    } catch (error) {
+      throw Exception('Lỗi khi tải danh sách nhiệm vụ: $error');
     }
   }
 
@@ -144,15 +187,14 @@ class _EditShoppingItemScreenState extends State<EditShoppingItemScreen> {
         name: _nameController.text,
         assignedTo: _selectedUser ?? '', // Lưu tên người dùng đã chọn
         notes: _notesController.text,
-        dueTime: DateFormat('yyyy-MM-dd HH:mm:ss')
-            .format(_dueTime ?? DateTime.now()),
+        dueTime: DateFormat('yyyy-MM-dd HH:mm:ss').format(_dueTime ?? DateTime.now()),
         nameAssignedTo: _selectedUser ?? '', // Lưu tên người dùng đã chọn
         isDone: widget.shoppingItem.isDone,
         tasks: _taskList,
       );
 
       Provider.of<ShoppingProvider>(context, listen: false)
-          .updateShoppingItem(shoppingItem.id, shoppingItem);
+          .updateShoppingItem(shoppingItem);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đã cập nhật mục shopping!')),
@@ -220,40 +262,59 @@ class _EditShoppingItemScreenState extends State<EditShoppingItemScreen> {
                 ],
               ),
               actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Hủy'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (selectedFoodName != null &&
-                        quantityController.text.isNotEmpty) {
-                      setState(() {
-                        _taskList.add(TaskItem(
-                          id: DateTime.now().toString(),
-                          foodName: selectedFoodName!,
-                          title: selectedFoodName!,
-                          quanity: quantityController.text,
-                          unitName: selectedUnitName ?? '',
-                          isDone: false,
-                        ));
-                      });
-
-                      // Đảm bảo giao diện chính cập nhật
-                      this.setState(() {});
-                      Navigator.of(context).pop();
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content:
-                              Text('Vui lòng chọn thực phẩm và nhập số lượng'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        icon: const Icon(Icons.delete), // Icon delete
+                        label: const Text('Hủy'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red, // Nền đỏ
+                          foregroundColor: Colors.white, // Chữ trắng
                         ),
-                      );
-                    }
-                  },
-                  child: const Text('Thêm nhiệm vụ'),
+                      ),
+                    ),
+                    const SizedBox(width: 8), // Khoảng cách giữa 2 nút
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          if (selectedFoodName != null &&
+                              quantityController.text.isNotEmpty) {
+                            setState(() {
+                              _taskList.add(TaskItem(
+                                id: DateTime.now().toString(),
+                                foodName: selectedFoodName!,
+                                title: selectedFoodName!,
+                                quanity: quantityController.text,
+                                unitName: selectedUnitName ?? '',
+                                isDone: false,
+                              ));
+                            });
+
+                            // Đảm bảo giao diện chính cập nhật
+                            this.setState(() {});
+                            Navigator.of(context).pop();
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Vui lòng chọn thực phẩm và nhập số lượng'),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.add), // Icon cộng
+                        label: const Text('Thêm'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green, // Nền xanh
+                          foregroundColor: Colors.white, // Chữ trắng
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             );
@@ -266,16 +327,16 @@ class _EditShoppingItemScreenState extends State<EditShoppingItemScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchFoodList(); // Gọi API khi màn hình được tải
-    _fetchUsers(); // Gọi API để tải danh sách người dùng
-
-    // Điền sẵn giá trị của mục shopping đã chọn
     _nameController = TextEditingController(text: widget.shoppingItem.name);
     _assignedToController =
-        TextEditingController(text: widget.shoppingItem.nameAssignedTo);
+        TextEditingController(text: widget.shoppingItem.assignedTo);
     _notesController = TextEditingController(text: widget.shoppingItem.notes);
-    // = DateTime.parse(widget.shoppingItem.dueTime);
     _selectedUser = widget.shoppingItem.nameAssignedTo;
+    _dueTime =
+        DateFormat('EEE, dd MMM yyyy').parse(widget.shoppingItem.dueTime, true);
+    _fetchFoodList();
+    _fetchUsers();
+    _fetchTasks();
   }
 
   @override
@@ -283,7 +344,7 @@ class _EditShoppingItemScreenState extends State<EditShoppingItemScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Chỉnh sửa shopping',
+          'Chỉnh sửa mục shopping',
           style:
               TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
         ),
@@ -302,18 +363,17 @@ class _EditShoppingItemScreenState extends State<EditShoppingItemScreen> {
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
-                    labelText: 'Tiêu đề',
+                    labelText: 'Tên mục',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Vui lòng nhập tên';
+                      return 'Tên mục không được để trống';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                // Dropdown for selecting user
                 DropdownButtonFormField<String>(
                   value: _selectedUser,
                   hint: const Text('Chọn người giao'),
@@ -334,38 +394,33 @@ class _EditShoppingItemScreenState extends State<EditShoppingItemScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                TextField(
                   controller: _notesController,
+                  maxLines: 3,
                   decoration: const InputDecoration(
                     labelText: 'Ghi chú',
                     border: OutlineInputBorder(),
                   ),
-                  maxLines: 3,
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        _dueTime != null
-                            ? 'Hạn: ${_dueTime!.toLocal().toString().split(' ')[0]}' // Hiển thị chỉ ngày, không giờ
-                            : 'Chưa chọn hạn',
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.calendar_today),
-                      onPressed: () =>
-                          _pickDueDate(context), // Gọi phương thức chọn ngày
-                    ),
-                  ],
+                ListTile(
+                  title: const Text('Thời hạn'),
+                  subtitle: Text(
+                    _dueTime != null
+                        ? DateFormat('yyyy-MM-dd').format(_dueTime!)
+                        : 'Chưa chọn',
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.calendar_today),
+                    onPressed: () => _pickDueDate(context),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Nhiệm vụ: ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  'Danh sách nhiệm vụ',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                // Render các task từ taskList
                 Column(
                   children: _taskList.map((task) {
                     return Card(
@@ -373,36 +428,172 @@ class _EditShoppingItemScreenState extends State<EditShoppingItemScreen> {
                       child: ListTile(
                         title: Text(task.title),
                         subtitle: Text(
-                            'Số lượng: ${task.quanity}, Đơn vị: ${task.unitName}'),
-                        trailing: Checkbox(
-                          value: task.isDone,
-                          onChanged: (value) {
-                            setState(() {
-                              task.isDone = value!;
-                            });
-                          },
+                            'Số lượng: ${task.quanity} | Đơn vị: ${task.unitName}'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () {
+                                _showEditTaskDialog(
+                                    task); // Gọi phương thức chỉnh sửa khi nhấn nút sửa
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                setState(() {
+                                  _taskList.remove(task);
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     );
                   }).toList(),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
+                ElevatedButton.icon(
                   onPressed: _showAddTaskDialog,
-                  child: const Text('Thêm nhiệm vụ'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[700],
+                  ),
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  label: const Text('Thêm nhiệm vụ',
+                      style: TextStyle(color: Colors.white)),
                 ),
                 const SizedBox(height: 16),
                 Center(
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: _saveShoppingItem,
-                    child: const Text('Lưu'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[700],
+                    ),
+                    icon: const Icon(Icons.save, color: Colors.white),
+                    label: const Text('Cập nhật',
+                        style: TextStyle(color: Colors.white)),
                   ),
-                ),
+                )
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _showEditTaskDialog(TaskItem task) async {
+    String? selectedFoodName = task.foodName;
+    String? selectedUnitName = task.unitName;
+    final quantityController = TextEditingController(text: task.quanity);
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Chỉnh sửa nhiệm vụ'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: selectedFoodName,
+                    hint: const Text('Chọn thực phẩm'),
+                    items: _foodList.map((food) {
+                      return DropdownMenuItem<String>(
+                        value: food['name'],
+                        child: Text(food['name']),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedFoodName = value;
+                        selectedUnitName = _foodList.firstWhere(
+                            (food) => food['name'] == value)['unitName'];
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Thực phẩm',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: TextEditingController(text: selectedUnitName),
+                    enabled: false, // Không cho chỉnh sửa
+                    decoration: const InputDecoration(
+                      labelText: 'Đơn vị',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: quantityController,
+                    decoration: const InputDecoration(
+                      labelText: 'Số lượng',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ],
+              ),
+              actions: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        icon: const Icon(Icons.delete), // Icon delete
+                        label: const Text('Hủy'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red, // Nền đỏ
+                          foregroundColor: Colors.white, // Chữ trắng
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8), // Khoảng cách giữa 2 nút
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          if (selectedFoodName != null &&
+                              quantityController.text.isNotEmpty) {
+                            setState(() {
+                              task.foodName = selectedFoodName!;
+                              task.unitName = selectedUnitName ?? '';
+                              task.quanity = quantityController.text;
+                            });
+
+                            // Đảm bảo giao diện chính cập nhật
+                            this.setState(() {});
+                            Navigator.of(context).pop();
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Vui lòng chọn thực phẩm và nhập số lượng'),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.save), // Icon save
+                        label: const Text('Lưu chỉnh sửa'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green, // Nền xanh
+                          foregroundColor: Colors.white, // Chữ trắng
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
