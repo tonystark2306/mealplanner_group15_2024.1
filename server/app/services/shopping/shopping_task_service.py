@@ -40,6 +40,8 @@ class ShoppingTaskService:
             return "list not found"
         if shopping_list.status == 'Cancelled':
             return "list is cancelled"
+        if shopping_list.status == 'Fully Completed':
+            return "list is completed"
         
         #kiểm tra danh sách task, nếu có task nào trùng tên thì merge chúng lại
         merged_tasks = defaultdict(float)
@@ -88,11 +90,20 @@ class ShoppingTaskService:
 
     def update_task(self, new_task):
 
+        #check if shopping_list exists and is not cancelled
+        shopping_list = self.list_repo.get_shopping_by_id(new_task['list_id'])
+        if not shopping_list:
+            return "list not found"
+        if shopping_list.status == 'Cancelled':
+            return "list is cancelled"
+        if shopping_list.status == 'Fully Completed':
+            return "list is completed"
+        
         #check status of task
         task = self.task_repo.get_task_by_id(new_task['list_id'],new_task['task_id'])
         if not task:
             return "task not found"
-        if task.status == 'Cancelled' or task.status == 'Completed':
+        if task.status == 'Cancelled' or task.status == 'Fully Completed':
             return "task is cancelled or completed"
         
         #check food name, if other task has the same food name, merge them into one task
@@ -139,9 +150,9 @@ class ShoppingTaskService:
             if all(task.status == 'Completed' for task in tasks):
                 self.list_repo.update_shopping_list({
                     'list_id': list_id,
-                    'new_status': 'Completed'
+                    'new_status': 'Fully Completed'
                 })
-                #đưa các đồ ăn này vào tủ lạnh
+                #TODO: thêm vào tủ lạnh sau
         return result
 
 

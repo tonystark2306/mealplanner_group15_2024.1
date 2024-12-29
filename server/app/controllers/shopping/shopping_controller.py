@@ -143,4 +143,32 @@ def get_shopping_lists(user_id, group_id):
     }), 200
 
 
+@shopping_api.route("/<group_id>/mark", methods=["PUT"])
+@JWT_required
+@group_admin_required
+@check_list_ownership
+def mark_list(user_id, group_id):
+    '''Mark shopping list as completed'''
+    list_id = request.json.get("list_id")
+    list_service = ShoppingListService()
+    result = list_service.mark_list(group_id, list_id)
+
+    if result == "list not found":
+        return jsonify({
+            "resultMessage": {
+                "en": "Shopping list not found.",
+                "vn": "Không tìm thấy danh sách mua sắm."
+            },
+            "resultCode": "00296"
+        }), 404
+    
+    return jsonify({
+        "resultMessage": {
+            "en": result["en"],
+            "vn": result["vn"]
+        },
+        "resultCode": "00299"
+    }), 200
+
+
 
