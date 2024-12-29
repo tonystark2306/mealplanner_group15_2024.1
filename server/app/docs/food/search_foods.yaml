@@ -1,0 +1,111 @@
+Search Foods in Group
+This API allows a user to search for food items within a specific group by a query parameter.
+
+---
+tags:
+  - Food
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    description: Unique identifier of the group
+    schema:
+      type: string
+      example: "123e4567-e89b-12d3-a456-426614174000"
+  - name: q
+    in: query
+    required: false
+    description: Query parameter to search for foods
+    schema:
+      type: string
+      example: "apple"
+
+responses:
+  200:
+    description: Foods searched successfully
+    schema:
+      type: object
+      properties:
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Successful search foods"
+            vn:
+              type: string
+              example: "Tìm kiếm thực phẩm thành công"
+        resultCode:
+          type: string
+          example: "00192"
+        total:
+          type: integer
+          description: Total number of foods matching the query
+          example: 1
+        foods:
+          type: array
+          description: List of foods matching the query
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier of the food
+                example: "123e4567-e89b-12d3-a456-426614174000"
+              name:
+                type: string
+                description: Name of the food
+                example: "Apple"
+              type:
+                type: string
+                description: Type of the food
+                example: "ingredient"
+              created_by:
+                type: string
+                description: Unique identifier of the user who created the food
+                example: "123e4567-e89b-12d3-a456-426614174000"
+              creator_username:
+                type: string
+                description: Username of the user who created the food
+                example: "johndoe"
+              group_id:
+                type: string
+                description: Unique identifier of the group
+                example: "123e4567-e89b-12d3-a456-426614174000"
+              category_name:
+                type: string
+                description: Category name of the food
+                example: "Fruit"
+              unit_id:
+                type: string
+                description: Unique identifier of the unit
+                example: "123e4567-e89b-12d3-a456-426614174000"
+              unit_name:
+                type: string
+                description: Unit name of the food
+                example: "kg"
+              image_url:
+                type: string
+                description: URL of the food image
+                example: "https://example.com/images/apple.jpg"
+              note:
+                type: string
+                description: Additional notes about the food
+                example: "Fresh and organic"
+              created_at:
+                type: string
+                format: date-time
+                description: Date and time when the food was created
+                example: "2021-07-01T00:00:00.000Z"
+              updated_at:
+                type: string
+                format: date-time
+                description: Date and time when the food was last updated
+                example: "2021-07-01T00:00:00.000Z"

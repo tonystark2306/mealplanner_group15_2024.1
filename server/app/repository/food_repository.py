@@ -97,3 +97,20 @@ class FoodRepository(FoodInterface):
             db.session.rollback()
             logging.error(f"Error deleting food: {str(e)}")
             raise
+        
+        
+    def search_foods_in_group(group_id, query) -> List[FoodModel]:
+        try:
+            filters = (
+                FoodModel.name.ilike(f"%{query}%") |
+                FoodModel.type.ilike(f"%{query}%") |
+                FoodModel.category_name.ilike(f"%{query}%") |
+                FoodModel.unit_name.ilike(f"%{query}%") |
+                FoodModel.note.ilike(f"%{query}%")
+            )
+            filters = filters & (FoodModel.group_id == group_id)
+            return db.session.query(FoodModel).filter(filters).all()
+        
+        except Exception as e:
+            logging.error(f"Error searching foods: {str(e)}")
+            raise
