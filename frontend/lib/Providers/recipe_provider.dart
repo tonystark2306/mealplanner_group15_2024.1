@@ -151,7 +151,7 @@ class RecipeProvider with ChangeNotifier {
     }
 
     request.fields['list[food_name]'] = json.encode(foodNames);
-    request.fields['list[quanity]'] = json.encode(quantities);
+    request.fields['list[quantity]'] = json.encode(quantities);
     request.fields['list[unit_name]'] = json.encode(unitNames);
 
     print(request.fields['list[food_name]']);
@@ -209,7 +209,7 @@ class RecipeProvider with ChangeNotifier {
       }
 
       request.fields['list[new_food_name]'] = json.encode(foodNames);
-      request.fields['list[new_quanity]'] = json.encode(quantities);
+      request.fields['list[new_quantity]'] = json.encode(quantities);
       request.fields['list[new_unit_name]'] = json.encode(unitNames);
 
       if (updatedRecipe.image != null) {
