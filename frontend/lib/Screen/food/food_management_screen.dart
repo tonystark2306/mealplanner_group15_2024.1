@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../Providers/food_provider.dart';
 import 'add_food_screen.dart';
+import 'edit_food_screen.dart';
 
 class FoodListScreen extends StatefulWidget {
   FoodListScreen({Key? key}) : super(key: key);
@@ -51,17 +52,19 @@ class _FoodListScreenState extends State<FoodListScreen> {
                       ),
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(16.0),
-                        leading: food['image_url'] != null
+                        leading: food['image_url'] != null && food['image_url']!.isNotEmpty
                             ? ClipRRect(
-                                borderRadius: BorderRadius.circular(8), // Bo tròn hình ảnh
+                                borderRadius: BorderRadius.circular(8),
                                 child: Image.network(
-                                        food['image_url'], // Đảm bảo URL là một chuỗi hợp lệ
-                                        width: 60,
-                                        height: 60,
-                                        fit: BoxFit.cover,
-                                      )
+                                  food['image_url'], // Đường dẫn ảnh
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image, size: 60, color: Colors.grey), // Xử lý lỗi tải ảnh
+                                ),
                               )
-                            : const Icon(Icons.fastfood, size: 50, color: Colors.green),
+                            : Icon(Icons.fastfood, size: 50, color: Colors.green), // Icon thay thế nếu không có ảnh
+
                         title: Text(
                           food['name'] ?? 'Tên không xác định',
                           style: const TextStyle(
@@ -77,7 +80,7 @@ class _FoodListScreenState extends State<FoodListScreen> {
                             children: [
                               Text("Ghi chú: ${food['note'] ?? 'Không có'}"),
                               Text("Loại: ${food['type'] ?? 'Không xác định'}"),
-                              Text("Đơn vị: ${food['unit'] ?? 'Không xác định'}"),
+                              Text("Đơn vị: ${food['unit_name'] ?? 'Không xác định'}"),
                             ],
                           ),
                         ),
@@ -85,15 +88,53 @@ class _FoodListScreenState extends State<FoodListScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.black), // Nút chỉnh sửa màu đen
+                              icon: const Icon(Icons.edit, color: Colors.black),
                               onPressed: () {
-                                // Chuyển đến màn hình chỉnh sửa
+                                // Chuyển đến màn hình chỉnh sửa thực phẩm
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => EditFoodScreen(
+                                      groupId: groupId,
+                                      food: food,
+                                    ),
+                                  ),
+                                );
                               },
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red), // Nút xóa màu đỏ
-                              onPressed: () {
-                                // Xử lý xóa thực phẩm
+                              onPressed: () async {
+                                final confirm = await showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text("Xóa thực phẩm"),
+                                    content: const Text("Bạn có chắc muốn xóa thực phẩm này không?"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(false),
+                                        child: const Text("Hủy"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(true),
+                                        child: const Text("Xóa", style: TextStyle(color: Colors.red)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirm == true) {
+                                  try {
+                                    await foodProvider.deleteFood(groupId, food['name']);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Xóa thành công!")),
+                                    );
+                                  } catch (error) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text("Xóa thất bại: $error")),
+                                    );
+                                  }
+                                }
                               },
                             ),
                           ],
