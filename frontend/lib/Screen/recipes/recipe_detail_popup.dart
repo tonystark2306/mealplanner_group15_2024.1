@@ -126,7 +126,7 @@ class RecipeDetailPopup extends StatelessWidget {
 
                     // Time Cooking Section
                     Text(
-                      'Thời gian nấu: ${recipe.timeCooking}',
+                      'Thời gian nấu: ${recipe.timeCooking.split('.')[0]} phút',
                       style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                     ),
                     const SizedBox(height: 20),
