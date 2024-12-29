@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
+import '../../../Providers/token_storage.dart'; // Import TokenStorage
 class UnitsManagementScreen extends StatefulWidget {
   const UnitsManagementScreen({super.key});
 
@@ -14,17 +14,20 @@ class _UnitsManagementScreenState extends State<UnitsManagementScreen> {
   final TextEditingController _unitController = TextEditingController();
   bool _isLoading = true;
 
-  // Replace this with your actual access token
-  final String accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmZlZmFjNTQtOTQwMy00NmVkLThiZDctNWUyN2FmMGIzNmI5IiwiZXhwIjoxNzM1MzgzODUwfQ.nvGbvI_vgl73V_GGa0KfkQ6LZdsT-ELR7w5J8y6w5IM';
-
   @override
   void initState() {
     super.initState();
     _fetchUnits();
   }
 
+    Future<String> _getAccessToken() async {
+    final tokens = await TokenStorage.getTokens();
+    return tokens['accessToken'] ?? ''; // Trả về access token
+  }
+
   Future<void> _fetchUnits() async {
     try {
+      final accessToken = await _getAccessToken();
       final response = await http.get(
         Uri.parse('http://127.0.0.1:5000/api/admin/unit'),
         headers: {
@@ -74,6 +77,7 @@ class _UnitsManagementScreenState extends State<UnitsManagementScreen> {
         );
       } else {
         try {
+          final accessToken = await _getAccessToken();
           final response = await http.post(
             Uri.parse('http://127.0.0.1:5000/api/admin/unit'),
             headers: {
@@ -145,6 +149,7 @@ class _UnitsManagementScreenState extends State<UnitsManagementScreen> {
 
     if (confirmDelete == true) {
       try {
+        final accessToken = await _getAccessToken();
         // Gửi yêu cầu DELETE đến API với body JSON
         final response = await http.delete(
           Uri.parse('http://127.0.0.1:5000/api/admin/unit'),
@@ -217,6 +222,7 @@ class _UnitsManagementScreenState extends State<UnitsManagementScreen> {
       final String newUnitName = _unitController.text;
 
       if (oldUnitName != newUnitName) {
+        final accessToken = await _getAccessToken();
         try {
           final response = await http.put(
             Uri.parse('http://127.0.0.1:5000/api/admin/unit'),

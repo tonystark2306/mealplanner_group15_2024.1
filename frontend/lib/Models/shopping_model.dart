@@ -4,6 +4,7 @@ class ShoppingItem {
   String assignedTo;
   String notes;
   String dueTime;
+  String nameAssignedTo;
   bool isDone;
   List<TaskItem> tasks;
 
@@ -13,6 +14,7 @@ class ShoppingItem {
     required this.assignedTo,
     required this.notes,
     required this.dueTime,
+    required this.nameAssignedTo,
     this.isDone = false,
     this.tasks = const [],
   });
@@ -20,16 +22,17 @@ class ShoppingItem {
 
 class TaskItem {
   String id;
+  String foodName;
   String title;
   String quanity;
   String unitName;
-  bool isCompleted;
-
+  bool isDone;
   TaskItem({
     required this.id,
+    required this.foodName,
     required this.title,
     required this.quanity,
     required this.unitName,
-    this.isCompleted = false,
+    required this.isDone,
   });
 }
