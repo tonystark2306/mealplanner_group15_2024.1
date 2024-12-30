@@ -157,6 +157,7 @@ class AuthService:
             verification_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
             user = self.user_repository.get_user_by_email(email)
             self.token_repository.save_verification_code(user.id, verification_code)
+            logging.error(f"VERIFICATION CODE: {verification_code}")
             return verification_code
         
         except Exception as e:
@@ -170,6 +171,7 @@ class AuthService:
             reset_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
             user = self.user_repository.get_user_by_email(email)
             self.token_repository.save_reset_code(user.id, reset_code)
+            logging.error(f"RESET CODE: {reset_code}")
             return reset_code
         
         except Exception as e:
