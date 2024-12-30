@@ -3,28 +3,18 @@ from flasgger.utils import swag_from
 
 from . import food_api
 from ...services.food.food_service import FoodService
-from ...services.user.group_service import GroupService
-from ...utils.decorator import JWT_required
+from ...utils.decorator import JWT_required, group_member_required
 
 
 @food_api.route("/group/<group_id>", methods=["POST"])
 @JWT_required
+@group_member_required
 @swag_from(
     "../../docs/food/add_food.yaml", 
     endpoint="food_api.add_food", 
     methods=["POST"]
 )
 def add_food(user_id, group_id):
-    group_service = GroupService()
-    if not group_service.is_member_of_group(user_id, group_id):
-        return jsonify({
-            "resultMessage": {
-                "en": "You are not a member of this group.",
-                "vn": "Bạn không phải là thành viên của nhóm này."
-            },
-            "resultCode": "00031"
-        }), 403
-
     data = request.form
     if not data:
         return jsonify({
@@ -80,22 +70,13 @@ def add_food(user_id, group_id):
     
 @food_api.route("/group/<group_id>", methods=["PUT"])
 @JWT_required
+@group_member_required
 @swag_from(
     "../../docs/food/update_food.yaml", 
     endpoint="food_api.update_food", 
     methods=["PUT"]
 )
 def update_food(user_id, group_id):
-    group_service = GroupService()
-    if not group_service.is_member_of_group(user_id, group_id):
-        return jsonify({
-            "resultMessage": {
-                "en": "You are not a member of this group.",
-                "vn": "Bạn không phải là thành viên của nhóm này."
-            },
-            "resultCode": "00031"
-        }), 403
-        
     data = request.form
     new_image_file = request.files.get("image")
     if not data and not new_image_file:
@@ -162,22 +143,13 @@ def update_food(user_id, group_id):
 
 @food_api.route("/group/<group_id>", methods=["DELETE"])
 @JWT_required
+@group_member_required
 @swag_from(
     "../../docs/food/delete_food.yaml", 
     endpoint="food_api.delete_food", 
     methods=["DELETE"]
 )
 def delete_food(user_id, group_id):
-    group_service = GroupService()
-    if not group_service.is_member_of_group(user_id, group_id):
-        return jsonify({
-            "resultMessage": {
-                "en": "You are not a member of this group.",
-                "vn": "Bạn không phải là thành viên của nhóm này."
-            },
-            "resultCode": "00031"
-        }), 403
-        
     data = request.get_json()
     if not data:
         return jsonify({
@@ -221,22 +193,13 @@ def delete_food(user_id, group_id):
     
 @food_api.route("/group/<group_id>", methods=["GET"])
 @JWT_required
+@group_member_required
 @swag_from(
     "../../docs/food/get_all_foods_in_group.yaml", 
     endpoint="food_api.get_all_foods_in_group", 
     methods=["GET"]
 )
 def get_all_foods_in_group(user_id, group_id):
-    group_service = GroupService()
-    if not group_service.is_member_of_group(user_id, group_id):
-        return jsonify({
-            "resultMessage": {
-                "en": "You are not a member of this group.",
-                "vn": "Bạn không phải là thành viên của nhóm này."
-            },
-            "resultCode": "00031"
-        }), 403
-        
     food_service = FoodService()
     foods = food_service.get_all_foods_in_group(group_id)
     return jsonify({
@@ -251,22 +214,13 @@ def get_all_foods_in_group(user_id, group_id):
     
 @food_api.route("/group/<group_id>/search", methods=["GET"])
 @JWT_required
+@group_member_required
 @swag_from(
     "../../docs/food/search_foods.yaml", 
     endpoint="food_api.search_foods", 
     methods=["GET"]
 )
 def search_foods(user_id, group_id):
-    group_service = GroupService()
-    if not group_service.is_member_of_group(user_id, group_id):
-        return jsonify({
-            "resultMessage": {
-                "en": "You are not a member of this group.",
-                "vn": "Bạn không phải là thành viên của nhóm này."
-            },
-            "resultCode": "00031"
-        }), 403
-        
     query = request.args.get("q", type=str, default=None)
     if not query:
         return jsonify({

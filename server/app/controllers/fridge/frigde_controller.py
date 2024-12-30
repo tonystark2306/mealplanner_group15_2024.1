@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from flasgger.utils import swag_from
 
 from . import fridge_api
 from ...services.fridge.fridge_service import FridgeService
@@ -9,6 +10,11 @@ from ...utils.middleware import check_item_ownership, validate_fields
 @fridge_api.route("/<group_id>", methods=["GET"])
 @JWT_required
 @group_member_required
+@swag_from(
+    "../../docs/fridge/get_group_fridge.yaml", 
+    endpoint="fridge_api.get_group_fridge", 
+    methods=["GET"]
+)
 def get_group_fridge(user_id, group_id):
     fridge_service = FridgeService()
     fridge = fridge_service.get_group_fridge(group_id)
@@ -27,6 +33,11 @@ def get_group_fridge(user_id, group_id):
 @JWT_required
 @group_member_required
 @validate_fields({"foodName", "quantity", "expiration_date"})
+@swag_from(
+    "../../docs/fridge/create_fridge_item.yaml", 
+    endpoint="fridge_api.create_fridge_item", 
+    methods=["POST"]
+)
 def create_fridge_item(user_id, group_id):
     fridge_service = FridgeService()
     data = request.json
@@ -56,6 +67,11 @@ def create_fridge_item(user_id, group_id):
 @JWT_required
 @group_member_required
 @check_item_ownership
+@swag_from(
+    "../../docs/fridge/get_specific_item.yaml", 
+    endpoint="fridge_api.get_specific_item", 
+    methods=["GET"]
+)
 def get_specific_item(user_id, group_id, item_id):
     fridge_service = FridgeService()
     fridge_item = fridge_service.get_specific_item(item_id)
@@ -90,6 +106,11 @@ def get_specific_item(user_id, group_id, item_id):
 @group_member_required
 @validate_fields({"itemId", "newFoodName", "newQuantity", "newExpiration_date"})
 @check_item_ownership
+@swag_from(
+    "../../docs/fridge/update_fridge_item.yaml", 
+    endpoint="fridge_api.update_fridge_item", 
+    methods=["PUT"]
+)
 def update_fridge_item(user_id, group_id):
     fridge_service = FridgeService()
     data = request.json
@@ -120,6 +141,11 @@ def update_fridge_item(user_id, group_id):
 @JWT_required
 @group_member_required
 @check_item_ownership
+@swag_from(
+    "../../docs/fridge/delete_fridge_item.yaml", 
+    endpoint="fridge_api.delete_fridge_item", 
+    methods=["DELETE"]
+)
 def delete_fridge_item(user_id, group_id, item_id):
     fridge_service = FridgeService()
     result = fridge_service.delete_fridge_item(item_id)

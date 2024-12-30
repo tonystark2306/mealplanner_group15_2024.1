@@ -1,0 +1,83 @@
+Get Shopping Lists
+This API retrieves all shopping lists for a specific group.
+
+---
+tags:
+  - Shopping - List
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "aa67b8a7-2608-4125-9676-9ba340bd5deb"
+
+responses:
+  200:
+    description: Shopping lists retrieved successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00250"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Successfully retrieved shopping lists."
+            vn:
+              type: string
+              example: "Lấy danh sách mua sắm thành công."
+        shopping_lists:
+          type: array
+          description: List of shopping lists for the group
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier of the shopping list
+                example: "f93749f5-0780-47f9-af8a-dc7514e01d9c"
+              name:
+                type: string
+                description: Name of the shopping list
+                example: "Hieu"
+              assigned_to:
+                type: string
+                description: Unique identifier of the user the shopping list is assigned to
+                example: "99a06e9b-716d-4878-8ce1-07b3dcb68a7f"
+              assigned_to_username:
+                type: string
+                description: Username of the assigned user
+                example: "hieutest"
+              notes:
+                type: string
+                description: Notes for the shopping list
+                example: "note"
+              due_time:
+                type: string
+                format: date-time
+                description: Due time for completing the shopping list
+                example: "Mon, 30 Dec 2024 00:00:00 GMT"
+              created_at:
+                type: string
+                format: date-time
+                description: When the shopping list was created
+                example: "Sun, 29 Dec 2024 09:00:45 GMT"
+              group_id:
+                type: string
+                description: Unique identifier of the group
+                example: "aa67b8a7-2608-4125-9676-9ba340bd5deb"
+              status:
+                type: string
+                description: Status of the shopping list
+                example: "Active"

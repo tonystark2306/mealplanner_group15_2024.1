@@ -1,0 +1,59 @@
+Search Recipes
+This API allows a user to search for recipes within a specific group by a keyword.
+
+---
+tags:
+  - Recipe
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "61181178-890b-4162-b2c3-c9b7f10466a6"
+  - name: keyword
+    in: query
+    required: true
+    type: string
+    description: Keyword for searching recipes
+    example: "khoai"
+
+responses:
+  200:
+    description: Recipes retrieved successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00203"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "List of recipes."
+            vn:
+              type: string
+              example: "Danh sách các công thức."
+        recipes:
+          type: array
+          description: List of recipes matching the keyword
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier of the recipe
+                example: "5b1b5b0b-383a-41a2-b71c-2a7bfede90f7"
+              dish_name:
+                type: string
+                description: Name of the dish
+                example: "Tôi muốn ăn khoai luộc"

@@ -1,16 +1,23 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';  // Import to handle web-specific image data
+import 'dart:typed_data'; // Import to handle web-specific image data
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import './token_storage.dart';
+import 'package:intl/intl.dart';
+import 'package:http_parser/http_parser.dart';
 
 class FoodProvider extends ChangeNotifier {
   List<dynamic> foods = [];
   bool isLoading = false;
 
   final String baseUrl = "http://localhost:5000";
+  String generateUniqueFileName(String baseName) {
+    final String timestamp =
+        DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+    return '${baseName}_$timestamp.jpg';
+  }
 
   // Lấy danh sách thực phẩm từ server
   Future<void> fetchFoods(String groupId) async {
@@ -106,7 +113,7 @@ class FoodProvider extends ChangeNotifier {
     required String unitName,
     required String note,
     File? image,
-    var imageWeb,  // Thêm imageWeb cho web
+    var imageWeb, // Thêm imageWeb cho web
   }) async {
     Map<String, String> tokenObject = await TokenStorage.getTokens();
     print('Adding food...');
@@ -115,7 +122,7 @@ class FoodProvider extends ChangeNotifier {
     print('categoryName: $categoryName');
     print('unitName: $unitName');
     print('note: $note');
-   
+
     try {
       final request = http.MultipartRequest(
         'POST',
@@ -134,17 +141,22 @@ class FoodProvider extends ChangeNotifier {
         // Đối với web, có thể dùng Uint8List hoặc base64
         request.files.add(await http.MultipartFile.fromBytes(
           'image', imageWeb,
-          filename: 'image.jpg', // Có thể thay đổi theo yêu cầu
+          filename: generateUniqueFileName(
+              'image.jpg'), // Có thể thay đổi theo yêu cầu
+          contentType:
+              MediaType('image', 'png'), // Có thể thay đổi theo yêu cầu
         ));
       } else if (image != null) {
-        request.files.add(await http.MultipartFile.fromPath('image', image.path));
+        request.files
+            .add(await http.MultipartFile.fromPath('image', image.path));
       }
 
       final response = await request.send();
       print('response.statusCode: ${response.statusCode}');
-      
+
       // Đọc body từ StreamedResponse
-      final responseBody = await response.stream.bytesToString(); // Đọc dữ liệu từ stream và chuyển thành string
+      final responseBody = await response.stream
+          .bytesToString(); // Đọc dữ liệu từ stream và chuyển thành string
       if (response.statusCode == 201) {
         final newFood = jsonDecode(responseBody)['newFood']; // Refresh the list
         foods.add(newFood);
@@ -156,6 +168,7 @@ class FoodProvider extends ChangeNotifier {
       print("Error when adding food: $e");
     }
   }
+
   Future<void> updateFood({
     required String groupId,
     required String foodId,
@@ -186,10 +199,13 @@ class FoodProvider extends ChangeNotifier {
       if (kIsWeb && imageWeb != null) {
         request.files.add(await http.MultipartFile.fromBytes(
           'image', imageWeb,
-          filename: 'image.jpg',
+          filename: generateUniqueFileName('image.jpg'),
+          contentType:
+              MediaType('image', 'png'), // Có thể thay đổi theo yêu cầu
         ));
       } else if (image != null) {
-        request.files.add(await http.MultipartFile.fromPath('image', image.path));
+        request.files
+            .add(await http.MultipartFile.fromPath('image', image.path));
       }
 
       final response = await request.send();
@@ -205,6 +221,7 @@ class FoodProvider extends ChangeNotifier {
       print("Error when updating food: $e");
     }
   }
+
   Future<void> deleteFood(String groupId, String foodName) async {
     Map<String, String> tokenObject = await TokenStorage.getTokens();
 
@@ -220,7 +237,9 @@ class FoodProvider extends ChangeNotifier {
         body: jsonEncode({'name': foodName}),
       );
       if (response.statusCode == 200) {
-        foods.removeWhere((food) => food['name'] == foodName); // Cập nhật danh sách thực phẩm sau khi xóa
+        foods.removeWhere((food) =>
+            food['name'] ==
+            foodName); // Cập nhật danh sách thực phẩm sau khi xóa
         notifyListeners();
       } else {
         throw Exception('Failed to delete food');
@@ -229,5 +248,4 @@ class FoodProvider extends ChangeNotifier {
       throw Exception("Error deleting food: $error");
     }
   }
-
 }

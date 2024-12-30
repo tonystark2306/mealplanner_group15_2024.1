@@ -1,0 +1,128 @@
+Update Meal Plan
+This API updates the details of an existing meal plan for a specific group.
+
+---
+tags:
+  - Meal Plan
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "34761700-e6cb-426e-81c0-8803bf10e9de"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        meal_id:
+          type: string
+          description: Unique identifier of the meal plan to update
+          example: "c428c290-ce4e-40cd-909a-8518b13b0691"
+        new_name:
+          type: string
+          description: Updated name of the meal plan
+          example: "Bữa trưa"
+        new_schedule_time:
+          type: string
+          format: date-time
+          description: Updated scheduled time for the meal plan
+          example: "2024-12-29 04:13:09.049400"
+        new_description:
+          type: string
+          description: Updated description of the meal plan
+          example: "Tôi đã thay đổi vào ngày 21/12"
+        new_dishes:
+          type: array
+          description: Updated list of dishes in the meal plan
+          items:
+            type: object
+            properties:
+              recipe_id:
+                type: string
+                description: Unique identifier of the recipe
+                example: "d97cdd58-a3f9-40be-87ac-ea28e53e730f"
+              recipe_name:
+                type: string
+                description: Name of the recipe
+                example: "Rau cải xào"
+              servings:
+                type: string
+                description: Number of servings for the recipe
+                example: "2.5"
+        new_foods:
+          type: array
+          description: Updated list of foods in the meal plan
+          items:
+            type: object
+
+responses:
+  200:
+    description: Meal plan updated successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00229"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Meal plan updated successfully"
+            vn:
+              type: string
+              example: "Cập nhật kế hoạch ăn thành công"
+        meal_plan:
+          type: object
+          description: Details of the updated meal plan
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the meal plan
+              example: "c428c290-ce4e-40cd-909a-8518b13b0691"
+            name:
+              type: string
+              description: Updated name of the meal plan
+              example: "Bữa trưa"
+            description:
+              type: string
+              description: Updated description of the meal plan
+              example: "Tôi đã thay đổi vào ngày 21/12"
+            schedule_time:
+              type: string
+              format: date-time
+              description: Updated scheduled time for the meal plan
+              example: "2024-12-29 04:13:09.049400"
+            group_id:
+              type: string
+              description: Unique identifier of the group
+              example: "34761700-e6cb-426e-81c0-8803bf10e9de"
+            status:
+              type: string
+              description: Status of the meal plan
+              example: "Cancelled"
+            is_deleted:
+              type: string
+              description: Deletion status of the meal plan
+              example: "False"
+            created_at:
+              type: string
+              format: date-time
+              description: When the meal plan was created
+              example: "2024-12-30 11:31:07.581767"
+            updated_at:
+              type: string
+              format: date-time
+              description: When the meal plan was last updated
+              example: "2024-12-30 11:32:14.308058"

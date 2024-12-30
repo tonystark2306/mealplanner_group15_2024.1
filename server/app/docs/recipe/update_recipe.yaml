@@ -1,0 +1,182 @@
+Update Recipe
+This API allows a user to update an existing recipe with new details and foods.
+
+---
+tags:
+  - Recipe
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    description: Unique identifier of the group
+    schema:
+      type: string
+      example: "123e4567-e89b-12d3-a456-426614174000"
+  - name: recipe_id
+    in: formData
+    required: true
+    type: string
+    description: Unique identifier of the recipe to be updated
+    example: "5386000d-8e89-4c61-9960-7405d2e1eab6"
+  - name: new_name
+    in: formData
+    required: false
+    type: string
+    description: New name for the dish
+    example: "Salad chuối táo trộn thịt đà điểu"
+  - name: new_description
+    in: formData
+    required: false
+    type: string
+    description: New description for the dish
+    example: "Tôi không ăn chay nữa"
+  - name: new_content_html
+    in: formData
+    required: false
+    type: string
+    description: Updated content in HTML format
+    example: "<div>nấu với cơm </div>"
+  - name: new_cooking_time
+    in: formData
+    required: false
+    type: string
+    description: Updated cooking time (in minutes)
+    example: "40000"
+  - name: list[new_food_name]
+    in: formData
+    required: false
+    type: array
+    items:
+      type: string
+    description: List of new food names to be included in the recipe
+    example: ["Banana", "Thịt cừu siêu cấp vip pro"]
+  - name: list[new_quantity]
+    in: formData
+    required: false
+    type: array
+    items:
+      type: string
+    description: Quantities of the new foods
+    example: ["12", "500"]
+  - name: list[new_unit_name]
+    in: formData
+    required: false
+    type: array
+    items:
+      type: string
+    description: Units for the new quantities
+    example: ["Gram", "Gram"]
+  - name: new_images
+    in: formData
+    required: false
+    type: file
+    description: Updated images of the dish
+
+responses:
+  200:
+    description: Recipe updated successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00202"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Recipe updated successfully."
+            vn:
+              type: string
+              example: "Công thức đã được cập nhật thành công."
+        updated_recipe:
+          type: object
+          description: Details of the updated recipe
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the recipe
+              example: "5386000d-8e89-4c61-9960-7405d2e1eab6"
+            dish_name:
+              type: string
+              description: Updated name of the dish
+              example: "Salad chuối táo trộn thịt đà điểu"
+            cooking_time:
+              type: string
+              description: Updated cooking time in minutes
+              example: "40000.0"
+            description:
+              type: string
+              description: Updated description of the dish
+              example: "Tôi không ăn chay nữa"
+            content_html:
+              type: string
+              description: Updated content in HTML format
+              example: "<div>nấu với cơm </div>"
+            group_id:
+              type: string
+              description: Unique identifier of the group
+              example: "61181178-890b-4162-b2c3-c9b7f10466a6"
+            foods:
+              type: array
+              description: List of updated foods included in the recipe
+              items:
+                type: object
+                properties:
+                  food_id:
+                    type: string
+                    description: Unique identifier of the food (null if new)
+                    example: "e3a4d7bc-3b6b-4f76-b7c9-9c8e59a8d220"
+                  food_name:
+                    type: string
+                    description: Name of the food
+                    example: "Banana"
+                  id:
+                    type: string
+                    description: Unique identifier of the food in the recipe
+                    example: "cf2ab4f5-a900-4b06-a2d3-903d21e9c2d5"
+                  quantity:
+                    type: number
+                    description: Quantity of the food
+                    example: 12.0
+                  unit_id:
+                    type: string
+                    description: Unique identifier of the unit
+                    example: "unit2_id"
+                  unit_name:
+                    type: string
+                    description: Unit of the quantity
+                    example: "Gram"
+            images:
+              type: array
+              description: Updated images of the dish
+              items:
+                type: string
+                description: URL of an image
+                example: "https://example.com/images/dish.jpg"
+            type:
+              type: string
+              description: Type of the recipe
+              example: "custom"
+            is_deleted:
+              type: string
+              description: Deletion status
+              example: "False"
+            created_at:
+              type: string
+              format: date-time
+              description: Date and time when the recipe was created
+              example: "2024-12-30 09:31:38.998792"
+            updated_at:
+              type: string
+              format: date-time
+              description: Date and time when the recipe was last updated
+              example: "2024-12-30 09:36:09.752102"

@@ -1,0 +1,49 @@
+Update Meal Plan Status
+This API updates the status of a specific meal plan for a given group.
+
+---
+tags:
+  - Meal Plan
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "34761700-e6cb-426e-81c0-8803bf10e9de"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        meal_id:
+          type: string
+          description: Unique identifier of the meal plan to update
+          example: "26120d67-60d0-4219-9780-91ed12ac2548"
+
+responses:
+  200:
+    description: Meal plan status updated successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00229"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Meal plan status changed successfully"
+            vn:
+              type: string
+              example: "Thay đổi trạng thái kế hoạch ăn thành công"

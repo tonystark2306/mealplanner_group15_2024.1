@@ -1,0 +1,176 @@
+Create Recipe
+This API allows a user to create a new recipe with a list of foods and additional details.
+
+---
+tags:
+  - Recipe
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    description: Unique identifier of the group
+    schema:
+      type: string
+      example: "123e4567-e89b-12d3-a456-426614174000"
+  - name: dish_name
+    in: formData
+    required: true
+    type: string
+    description: Name of the dish
+    example: "Tôi muốn ăn khoai luộc"
+  - name: cooking_time
+    in: formData
+    required: true
+    type: string
+    description: Time required to cook the dish (in minutes)
+    example: "120"
+  - name: description
+    in: formData
+    required: true
+    type: string
+    description: Short description of the cooking process
+    example: "Rửa khoai, luộc"
+  - name: content_html
+    in: formData
+    required: true
+    type: string
+    description: Detailed content in HTML format
+    example: "Hehehe"
+  - name: list[food_name]
+    in: formData
+    required: true
+    type: array
+    items:
+      type: string
+    description: List of food names included in the recipe
+    example: ["Banana", "Gao lut trang"]
+  - name: list[quantity]
+    in: formData
+    required: true
+    type: array
+    items:
+      type: string
+    description: Quantities of the corresponding food items
+    example: ["1.5"]
+  - name: list[unit_name]
+    in: formData
+    required: true
+    type: array
+    items:
+      type: string
+    description: Units for the corresponding quantities
+    example: ["Gram", "Gram"]
+  - name: images
+    in: formData
+    required: false
+    type: file
+    description: Images of the dish
+
+responses:
+  201:
+    description: Recipe created successfully
+    schema:
+      type: object
+      properties:
+        created_recipe:
+          type: object
+          description: Details of the created recipe
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the recipe
+              example: "5386000d-8e89-4c61-9960-7405d2e1eab6"
+            dish_name:
+              type: string
+              description: Name of the dish
+              example: "Tôi muốn ăn khoai luộc"
+            cooking_time:
+              type: string
+              description: Cooking time in minutes
+              example: "120.0"
+            description:
+              type: string
+              description: Description of the cooking process
+              example: "Rửa khoai, luộc"
+            content_html:
+              type: string
+              description: Content in HTML format
+              example: "Hehehe"
+            group_id:
+              type: string
+              description: Unique identifier of the group
+              example: "61181178-890b-4162-b2c3-c9b7f10466a6"
+            foods:
+              type: array
+              description: List of foods included in the recipe
+              items:
+                type: object
+                properties:
+                  food_id:
+                    type: string
+                    description: Unique identifier of the food
+                    example: "e3a4d7bc-3b6b-4f76-b7c9-9c8e59a8d220"
+                  food_name:
+                    type: string
+                    description: Name of the food
+                    example: "Banana"
+                  id:
+                    type: string
+                    description: Unique identifier of the food in the recipe
+                    example: "4bf5d046-a557-4a05-baba-cfb689e3f0ac"
+                  quantity:
+                    type: number
+                    description: Quantity of the food
+                    example: 1.5
+                  unit_id:
+                    type: string
+                    description: Unique identifier of the unit
+                    example: "unit2_id"
+                  unit_name:
+                    type: string
+                    description: Unit of the quantity
+                    example: "Gram"
+            images:
+              type: array
+              description: Images of the dish
+              items:
+                type: string
+                description: URL of an image
+                example: "https://example.com/images/dish.jpg"
+            type:
+              type: string
+              description: Type of the recipe
+              example: "custom"
+            is_deleted:
+              type: string
+              description: Deletion status
+              example: "False"
+            created_at:
+              type: string
+              format: date-time
+              description: Date and time when the recipe was created
+              example: "2024-12-30 09:31:38.998792"
+            updated_at:
+              type: string
+              format: date-time
+              description: Date and time when the recipe was last updated
+              example: "2024-12-30 09:31:38.998792"
+        resultCode:
+          type: string
+          example: "00202"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Recipe created successfully."
+            vn:
+              type: string
+              example: "Công thức đã được tạo thành công."

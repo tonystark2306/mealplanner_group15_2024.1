@@ -1,0 +1,169 @@
+Get Meal Plan Details
+This API retrieves detailed information about a specific meal plan for a given group.
+
+---
+tags:
+  - Meal Plan
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "34761700-e6cb-426e-81c0-8803bf10e9de"
+  - name: meal_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the meal plan
+    example: "c428c290-ce4e-40cd-909a-8518b13b0691"
+
+responses:
+  200:
+    description: Meal plan details retrieved successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00228"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Successfully retrieved meal plan"
+            vn:
+              type: string
+              example: "Lấy kế hoạch ăn thành công"
+        meal_plan:
+          type: object
+          description: Details of the meal plan
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the meal plan
+              example: "c428c290-ce4e-40cd-909a-8518b13b0691"
+            name:
+              type: string
+              description: Name of the meal plan
+              example: "Bữa trưa"
+            description:
+              type: string
+              description: Description of the meal plan
+              example: "Tôi đã thay đổi vào ngày 21/12"
+            schedule_time:
+              type: string
+              format: date-time
+              description: Scheduled time for the meal plan
+              example: "2024-12-29 04:13:09.049400"
+            group_id:
+              type: string
+              description: Unique identifier of the group
+              example: "34761700-e6cb-426e-81c0-8803bf10e9de"
+            status:
+              type: string
+              description: Status of the meal plan
+              example: "Cancelled"
+            is_deleted:
+              type: string
+              description: Deletion status of the meal plan
+              example: "False"
+            created_at:
+              type: string
+              format: date-time
+              description: When the meal plan was created
+              example: "2024-12-30 11:31:07.581767"
+            updated_at:
+              type: string
+              format: date-time
+              description: When the meal plan was last updated
+              example: "2024-12-30 11:32:14.308058"
+            dishes:
+              type: array
+              description: List of dishes in the meal plan
+              items:
+                type: object
+                properties:
+                  recipe_id:
+                    type: string
+                    description: Unique identifier of the recipe
+                    example: "57b3daa0-3d93-4d5d-b228-973099404cc9"
+                  dish_name:
+                    type: string
+                    description: Name of the dish
+                    example: "Rau cải xào"
+                  description:
+                    type: string
+                    description: Description of the dish
+                    example: "Nấu như này như này"
+                  servings:
+                    type: number
+                    description: Number of servings for the dish
+                    example: 2.5
+                  type:
+                    type: string
+                    description: Type of the dish
+                    example: "custom"
+                  images:
+                    type: array
+                    description: Images of the dish
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: Unique identifier of the image
+                          example: "1"
+                        image_url:
+                          type: string
+                          description: URL of the image
+                          example: "https://storage.googleapis.com/meal-plan-app-acf97.firebasestorage.app/recipe/8056e196-3ba9-4fd5-9f35-cbc2cc6e7cba_1.jpg"
+                        is_deleted:
+                          type: string
+                          description: Deletion status of the image
+                          example: "False"
+                        created_at:
+                          type: string
+                          format: date-time
+                          description: When the image was created
+                          example: "2024-12-29 10:50:55.362845"
+                        updated_at:
+                          type: string
+                          format: date-time
+                          description: When the image was last updated
+                          example: "2024-12-29 10:50:55.362848"
+                  foods:
+                    type: array
+                    description: Foods used in the dish
+                    items:
+                      type: object
+                      properties:
+                        food_id:
+                          type: string
+                          description: Unique identifier of the food
+                          example: null
+                        food_name:
+                          type: string
+                          description: Name of the food
+                          example: "Rau cải"
+                        quantity:
+                          type: number
+                          description: Quantity of the food
+                          example: 10.0
+                        unit_name:
+                          type: string
+                          description: Unit of measurement
+                          example: "bó"
+            foods:
+              type: array
+              description: List of additional foods in the meal plan
+              items:
+                type: object
