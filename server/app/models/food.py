@@ -18,14 +18,14 @@ class Food(Base):
     __tablename__ = 'foods'
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
-    create_by: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=True)
-    creator_username: Mapped[str] = mapped_column(String(100), nullable=True)
+    create_by: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'))
+    creator_username: Mapped[str] = mapped_column(String(100))
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     type: Mapped[str] = mapped_column(String(50), nullable=False, default='ingredient')
     group_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey('groups.id'), nullable=True)
-    category_name: Mapped[str] = mapped_column(String, nullable=True)
+    category_name: Mapped[str] = mapped_column(String)
     unit_id: Mapped[str] = mapped_column(String(36), ForeignKey('units.id'), nullable=False)
-    unit_name: Mapped[str] = mapped_column(String, nullable=True)
+    unit_name: Mapped[str] = mapped_column(String)
     image_url: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
