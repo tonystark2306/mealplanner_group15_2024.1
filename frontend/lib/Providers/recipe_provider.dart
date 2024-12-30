@@ -219,6 +219,7 @@ class RecipeProvider with ChangeNotifier {
       request.fields['new_name'] = updatedRecipe.name;
       request.fields['new_description'] = updatedRecipe.steps;
       request.fields['new_content_html'] = updatedRecipe.steps;
+      request.fields['new_cooking_time'] = updatedRecipe.timeCooking;
 
       List<String> foodNames = [];
       List<String> quantities = [];
@@ -245,7 +246,7 @@ class RecipeProvider with ChangeNotifier {
         var streamedResponse = await request.send();
         var response = await http.Response.fromStream(streamedResponse);
 
-        print(request.fields);
+        
         if (response.statusCode == 200) {
           _recipes[index] = updatedRecipe;
           notifyListeners();

@@ -64,8 +64,8 @@ class ShoppingProvider with ChangeNotifier {
             notes: item['notes'] ?? '',
             dueTime: formatDueTime(item['due_time'] ?? ''),
             nameAssignedTo: item['assigned_to_username'] ?? '',
-            isDone:
-                (item['status'] ?? '') == 'Completed', // Kiểm tra trạng thái
+            isDone: (item['status'] ?? '') ==
+                'Fully Completed', // Kiểm tra trạng thái
           );
           return newShopingItem;
         }).toList());
@@ -130,7 +130,7 @@ class ShoppingProvider with ChangeNotifier {
 
   Future<void> addTaskToShopping(
       String shoppingId, List<Map<String, String>> tasks) async {
-        if (tasks.isEmpty) return;
+    if (tasks.isEmpty) return;
     final groupId = await _getGroupId();
     final String url =
         'http://127.0.0.1:5000/api/shopping/$groupId/task'; // API URL
@@ -169,7 +169,7 @@ class ShoppingProvider with ChangeNotifier {
 
   Future<void> updateTaskToShopping(
       String shoppingId, List<Map<String, String>> tasks) async {
-      if(tasks.isEmpty) return; 
+    if (tasks.isEmpty) return;
     final groupId = await _getGroupId();
     final String baseUrl =
         'http://127.0.0.1:5000/api/shopping/$groupId/task'; // Base API URL
@@ -370,8 +370,6 @@ class ShoppingProvider with ChangeNotifier {
           }
         }
 
-        print('New tasks: $newTasks');
-        print(updateTasks);
         addTaskToShopping(shoppingId, newTasks);
         updateTaskToShopping(shoppingId, updateTasks);
       } else {
@@ -380,6 +378,78 @@ class ShoppingProvider with ChangeNotifier {
     } catch (error) {
       print('Error: $error');
       rethrow;
+    }
+  }
+
+  Future<void> markAsDoneShoppingItem(String shoppingItemId) async {
+    final groupId = await _getGroupId();
+    final String url =
+        'http://127.0.0.1:5000/api/shopping/$groupId/mark'; // API URL
+    final token = await _getAccessToken();
+    // Chuyển đối tượng ShoppingItem thành JSON
+    final Map<String, dynamic> body = {
+      "list_id": shoppingItemId,
+    };
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token', // Nếu cần token thì thêm ở đây
+    };
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        headers: headers,
+        body: json.encode(body), // Chuyển body thành JSON
+      );
+      if (response.statusCode == 200) {
+        // Cập nhật trạng thái UI sau khi nhận được phản hồi từ API
+        final index =
+            _shoppingList.indexWhere((item) => item.id == shoppingItemId);
+        if (index != -1) {
+          _shoppingList[index].isDone =
+              true; // Cập nhật trạng thái là đã hoàn thành
+          notifyListeners(); // Cập nhật lại UI
+        }
+        print('Shopping item marked as done successfully');
+        notifyListeners();
+      } else {
+        throw Exception(
+            'Failed to mark done shopping item: ${response.statusCode}');
+      }
+    } catch (error) {
+      throw Exception('Error when posting shopping item: $error');
+    }
+  }
+
+  Future<Map<String, dynamic>> getTaskCompletion(String shoppingId) async {
+    final groupId = await _getGroupId();
+    final url = Uri.parse(
+        'http://127.0.0.1:5000/api/shopping/$groupId/task?list_id=$shoppingId');
+    final token = await _getAccessToken();
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final tasks = data['tasks'] as List;
+        int totalTasks = tasks.length;
+        int completedTasks =
+            tasks.where((task) => task['status'] == 'Completed').length;
+
+        return {
+          'completed': completedTasks,
+          'total': totalTasks,
+        };
+      }
+      return {'completed': 0, 'total': 0};
+    } catch (error) {
+      return {'completed': 0, 'total': 0};
     }
   }
 }

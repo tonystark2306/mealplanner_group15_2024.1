@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../Providers/shopping_provider.dart';
@@ -24,21 +23,56 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   }
 
   Color _getDueDateColor(String? dueTime) {
-    if (dueTime == null) return Colors.grey;
+    if (dueTime == null) return Colors.grey.withOpacity(0.7);
     final dueDate = DateTime.tryParse(dueTime);
-    if (dueDate == null) return Colors.grey;
+    if (dueDate == null) return Colors.grey.withOpacity(0.7);
 
     final now = DateTime.now();
     final difference = dueDate.difference(now);
 
     if (difference.isNegative) {
-      return Colors.red;
+      return Colors.red.withOpacity(0.9);
     } else if (difference.inDays < 1) {
-      return Colors.orange;
+      return Colors.orange.withOpacity(0.9);
     } else if (difference.inDays < 3) {
-      return Colors.yellow;
+      return Colors.yellow.withOpacity(0.9);
     }
-    return Colors.green;
+    return Colors.green.withOpacity(0.9);
+  }
+
+  Widget _buildTaskProgress(ShoppingProvider provider, String itemId) {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: provider.getTaskCompletion(itemId),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+
+        final completed = snapshot.data?['completed'] ?? 0;
+        final total = snapshot.data?['total'] ?? 0;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.blue[50],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.task_alt, size: 18, color: Colors.blue[700]),
+              const SizedBox(width: 6),
+              Text(
+                '$completed/$total tasks',
+                style: TextStyle(
+                  color: Colors.blue[700],
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -48,11 +82,11 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
     return Theme(
       data: theme.copyWith(
-        // Tuỳ chỉnh CardTheme để bo góc và có bóng nhẹ
         cardTheme: CardTheme(
-          elevation: 4, // Tăng chút để có hiệu ứng bóng rõ hơn
+          elevation: 8,
+          shadowColor: Colors.black26,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
@@ -67,112 +101,71 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: 24,
             ),
           ),
+          actions: [
+            Container(
+              margin: const EdgeInsets.only(right: 16),
+              // decoration: BoxDecoration(
+              //   color: Colors.white.withOpacity(0.2),
+              //   borderRadius: BorderRadius.circular(12),
+              // ),
+              child: IconButton(
+                icon: const Icon(Icons.add, color: Colors.white, size: 30),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => AddShoppingItemScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
           elevation: 0,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.green[600]!,
+                  Colors.green[800]!,
+                ],
+              ),
+            ),
+          ),
         ),
-        body: FutureBuilder(
-          future: _fetchShoppingListFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('Failed to load shopping list: ${snapshot.error}'),
-              );
-            } else if (shoppingProvider.shoppingList.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.shopping_cart_outlined,
-                      size: 64,
-                      color: theme.disabledColor,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Hiện đang chưa có kế hoạch',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: theme.disabledColor,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.green[50]!,
+                Colors.white,
+              ],
+            ),
+          ),
+          child: FutureBuilder(
+            future: _fetchShoppingListFuture,
+            builder: (context, snapshot) {
+              // ... previous error and loading states remain the same ...
 
-            return ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: shoppingProvider.shoppingList.length,
-              itemBuilder: (context, index) {
-                final item = shoppingProvider.shoppingList[index];
-                final dueColor = _getDueDateColor(item.dueTime);
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                itemCount: shoppingProvider.shoppingList.length,
+                itemBuilder: (context, index) {
+                  final item = shoppingProvider.shoppingList[index];
+                  final dueColor = _getDueDateColor(item.dueTime);
 
-                // Đổi màu nền item khi đã hoàn thành
-                final itemBackgroundColor = item.isDone
-                    ? Colors.green[100]
-                    : theme.cardColor;
-
-                return Hero(
-                  tag: 'shopping-item-${item.id}',
-                  child: Slidable(
-                    endActionPane: ActionPane(
-                      motion: const ScrollMotion(),
-                      children: [
-                        SlidableAction(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          icon: Icons.edit,
-                          label: 'Sửa',
-                          onPressed: (context) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => EditShoppingItemScreen(
-                                  shoppingItem: item,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        SlidableAction(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          icon: Icons.delete,
-                          label: 'Xoá',
-                          onPressed: (context) async {
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Xác nhận xoá'),
-                                content:
-                                    const Text('Bạn có chắc muốn xoá mục này?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
-                                    child: const Text('Huỷ'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
-                                    child: const Text('Xoá'),
-                                  ),
-                                ],
-                              ),
-                            );
-                            if (confirm == true) {
-                              await shoppingProvider.deleteShoppingItem(item.id);
-                            }
-                          },
-                        ),
-                      ],
-                    ),
+                  return Hero(
+                    tag: 'shopping-item-${item.id}',
                     child: Card(
-                      color: itemBackgroundColor,
+                      color: item.isDone ? Colors.green[50] : Colors.white,
                       child: InkWell(
                         onTap: () {
-                          // Mở dialog xem chi tiết với Hero animation
                           showDialog(
                             context: context,
                             builder: (context) => ShoppingItemDetailsDialog(
@@ -180,79 +173,193 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                             ),
                           );
                         },
-                        child: Padding(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
                           padding: const EdgeInsets.all(16),
-                          child: Row(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: item.isDone
+                                  ? Colors.green.withOpacity(0.3)
+                                  : Colors.transparent,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Checkbox(
-                                value: item.isDone,
-                                onChanged: (_) {
-                                  shoppingProvider.toggleShoppingItemDone(
-                                    item.id,
-                                  );
-                                },
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.name,
-                                      style: theme.textTheme.titleLarge
-                                          ?.copyWith(
-                                        decoration: item.isDone
-                                            ? TextDecoration.lineThrough
-                                            : null,
-                                        color: item.isDone
-                                            ? theme.disabledColor
-                                            : null,
+                              Row(
+                                children: [
+                                  if (item.isDone)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green[100],
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.check_circle,
+                                              size: 18,
+                                              color: Colors.green[700]),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            'Hoàn thành',
+                                            style: TextStyle(
+                                              color: Colors.green[700],
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      item.name,
+                                      style:
+                                          theme.textTheme.titleLarge?.copyWith(
+                                        color: item.isDone
+                                            ? Colors.green[700]
+                                            : Colors.black87,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                  if (!item.isDone)
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue[50],
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: IconButton(
+                                        icon: Icon(Icons.edit,
+                                            color: Colors.blue[700]),
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditShoppingItemScreen(
+                                                shoppingItem: item,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.red[50],
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: IconButton(
+                                      icon: Icon(Icons.delete,
+                                          color: Colors.red[700]),
+                                      onPressed: () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            title: const Text('Xác nhận xoá'),
+                                            content: const Text(
+                                                'Bạn có chắc muốn xoá mục này?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(
+                                                    context, false),
+                                                child: const Text('Huỷ'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(
+                                                    context, true),
+                                                child: const Text(
+                                                  'Xoá',
+                                                  style: TextStyle(
+                                                      color: Colors.red),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                        if (confirm == true) {
+                                          await shoppingProvider
+                                              .deleteShoppingItem(item.id);
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.person,
+                                        size: 20, color: Colors.grey[600]),
+                                    const SizedBox(width: 8),
                                     Text(
                                       'Giao cho: ${item.nameAssignedTo ?? 'N/A'}',
-                                      style: theme.textTheme.bodyMedium,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Chip(
-                                      label: Text(
-                                        'Hạn: ${item.dueTime ?? 'Không có'}',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                        ),
+                                      style:
+                                          theme.textTheme.bodyMedium?.copyWith(
+                                        color: Colors.grey[800],
+                                        fontWeight: FontWeight.w500,
                                       ),
-                                      backgroundColor: dueColor,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8),
                                     ),
                                   ],
                                 ),
                               ),
+                              const SizedBox(height: 8),
+                              _buildTaskProgress(shoppingProvider, item.id),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: dueColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.access_time,
+                                        size: 18, color: Colors.white),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'Hạn: ${item.dueTime ?? 'Không có'}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              
                             ],
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
-        ),
-        floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.add),
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => AddShoppingItemScreen(),
-              ),
-            );
-          },
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );
