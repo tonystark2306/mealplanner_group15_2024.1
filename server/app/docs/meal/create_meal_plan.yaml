@@ -1,0 +1,124 @@
+Create Meal Plan
+This API allows creating a new meal plan for a specific group.
+
+---
+tags:
+  - Meal Plan
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "34761700-e6cb-426e-81c0-8803bf10e9de"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the meal plan
+          example: "Bữa phụ23"
+        schedule_time:
+          type: string
+          format: date-time
+          description: Scheduled time for the meal plan
+          example: "2024-12-29 11:22:35"
+        description:
+          type: string
+          description: Description of the meal plan
+          example: "Ăn mạnh vào còn chạy deadline"
+        dishes:
+          type: array
+          description: List of dishes included in the meal plan
+          items:
+            type: object
+            properties:
+              recipe_id:
+                type: string
+                description: Unique identifier of the recipe
+                example: "d97cdd58-a3f9-40be-87ac-ea28e53e730f"
+              recipe_name:
+                type: string
+                description: Name of the recipe
+                example: "Rau cải xào"
+              servings:
+                type: string
+                description: Number of servings for the recipe
+                example: "2.5"
+        foods:
+          type: array
+          description: List of foods included in the meal plan
+          items:
+            type: object
+
+responses:
+  201:
+    description: Meal plan created successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00202"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Meal plan created successfully"
+            vn:
+              type: string
+              example: "Tạo kế hoạch ăn thành công"
+        meal_plan:
+          type: object
+          description: Details of the created meal plan
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the meal plan
+              example: "c428c290-ce4e-40cd-909a-8518b13b0691"
+            name:
+              type: string
+              description: Name of the meal plan
+              example: "Bữa phụ23"
+            description:
+              type: string
+              description: Description of the meal plan
+              example: "Ăn mạnh vào còn chạy deadline"
+            schedule_time:
+              type: string
+              format: date-time
+              description: Scheduled time for the meal plan
+              example: "2024-12-29 11:22:35"
+            group_id:
+              type: string
+              description: Unique identifier of the group
+              example: "34761700-e6cb-426e-81c0-8803bf10e9de"
+            status:
+              type: string
+              description: Status of the meal plan
+              example: "Cancelled"
+            is_deleted:
+              type: string
+              description: Deletion status of the meal plan
+              example: "False"
+            created_at:
+              type: string
+              format: date-time
+              description: When the meal plan was created
+              example: "2024-12-30 11:31:07.581767"
+            updated_at:
+              type: string
+              format: date-time
+              description: When the meal plan was last updated
+              example: "2024-12-30 11:31:07.581771"

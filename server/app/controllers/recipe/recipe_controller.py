@@ -1,17 +1,22 @@
-from flask import request, jsonify
 import json
 
-from . import recipe_api
+from flask import request, jsonify
+from flasgger.utils import swag_from
 
+from . import recipe_api
 from ...utils.decorator import JWT_required, group_member_required, group_admin_required
 from ...utils.middleware import validate_fields, check_recipe_ownership
 from ...services.recipe.recipe_service import RecipeService
 
 
-
 @recipe_api.route("/<group_id>", methods=["POST"])
 @JWT_required
 @group_admin_required
+@swag_from(
+    "../../docs/recipe/create_recipe.yaml", 
+    endpoint="recipe_api.create_recipe", 
+    methods=["POST"]
+)
 def create_recipe(user_id, group_id):
     '''Create recipe API'''
     data = request.form
@@ -77,6 +82,11 @@ def create_recipe(user_id, group_id):
 @JWT_required
 @group_admin_required
 @check_recipe_ownership
+@swag_from(
+    "../../docs/recipe/update_recipe.yaml", 
+    endpoint="recipe_api.update_recipe", 
+    methods=["PUT"]
+)
 def update_recipe(user_id, group_id):
     '''Create recipe API'''
     data = request.form
@@ -141,6 +151,11 @@ def update_recipe(user_id, group_id):
 @recipe_api.route("/<group_id>", methods=["GET"])
 @JWT_required
 @group_member_required
+@swag_from(
+    "../../docs/recipe/get_list_recipes.yaml", 
+    endpoint="recipe_api.get_list_recipes", 
+    methods=["GET"]
+)
 def get_list_recipes(user_id, group_id):
     '''get or list of recipes'''
     recipe_service = RecipeService()
@@ -160,6 +175,11 @@ def get_list_recipes(user_id, group_id):
 @recipe_api.route("/<group_id>/search", methods=["GET"])
 @JWT_required
 @group_member_required
+@swag_from(
+    "../../docs/recipe/search_recipe.yaml", 
+    endpoint="recipe_api.search_recipe", 
+    methods=["GET"]
+)
 def search_recipe(user_id, group_id):
     '''search recipe by keyword'''
     # Lấy từ khóa tìm kiếm từ parameter
@@ -191,6 +211,11 @@ def search_recipe(user_id, group_id):
 @JWT_required
 @group_member_required
 @check_recipe_ownership
+@swag_from(
+    "../../docs/recipe/get_recipe_detail.yaml", 
+    endpoint="recipe_api.get_recipe_detail", 
+    methods=["GET"]
+)
 def get_recipe_detail(user_id, group_id, recipe_id):
     recipe_service = RecipeService()
 
@@ -218,6 +243,11 @@ def get_recipe_detail(user_id, group_id, recipe_id):
 @JWT_required
 @group_admin_required
 @check_recipe_ownership
+@swag_from(
+    "../../docs/recipe/delete_recipe.yaml", 
+    endpoint="recipe_api.delete_recipe", 
+    methods=["DELETE"]
+)
 def delete_recipe(user_id, group_id):
     recipe_serice = RecipeService()
     recipe_id = request.json.get("recipe_id")
@@ -245,6 +275,11 @@ def delete_recipe(user_id, group_id):
 @recipe_api.route("/<group_id>/list", methods = ["DELETE"])
 @JWT_required
 @group_admin_required
+@swag_from(
+    "../../docs/recipe/delete_list_recipe.yaml", 
+    endpoint="recipe_api.delete_list_recipe", 
+    methods=["DELETE"]
+)
 def delete_list_recipe(user_id, group_id):
     recipe_service = RecipeService()
     recipe_ids = request.json.get("recipe_ids")

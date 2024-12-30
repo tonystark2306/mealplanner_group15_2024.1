@@ -1,0 +1,49 @@
+Delete Shopping List
+This API deletes a specific shopping list from a group.
+
+---
+tags:
+  - Shopping - List
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "aa67b8a7-2608-4125-9676-9ba340bd5deb"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        list_id:
+          type: string
+          description: Unique identifier of the shopping list to delete
+          example: "153175de-a769-4863-bc73-ab4995b3d57b"
+
+responses:
+  200:
+    description: Shopping list deleted successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00267"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Shopping list deleted successfully."
+            vn:
+              type: string
+              example: "Danh sách mua sắm được xóa thành công."

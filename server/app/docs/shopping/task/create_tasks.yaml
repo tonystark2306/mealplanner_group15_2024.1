@@ -1,0 +1,63 @@
+Add Tasks to Shopping List
+This API allows adding tasks (food items with quantities) to a specific shopping list in a group.
+
+---
+tags:
+  - Shopping - Task
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "aa67b8a7-2608-4125-9676-9ba340bd5deb"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        list_id:
+          type: string
+          description: Unique identifier of the shopping list
+          example: "a0d35cc9-04f7-433b-93fb-6fd17cde0579"
+        tasks:
+          type: array
+          description: List of tasks to add to the shopping list
+          items:
+            type: object
+            properties:
+              food_name:
+                type: string
+                description: Name of the food item
+                example: "Ga"
+              quantity:
+                type: string
+                description: Quantity of the food item
+                example: "7"
+
+responses:
+  201:
+    description: Tasks added to shopping list successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00287"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Successfully added tasks."
+            vn:
+              type: string
+              example: "Thêm các nhiệm vụ thành công."

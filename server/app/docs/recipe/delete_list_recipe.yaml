@@ -1,0 +1,54 @@
+Delete Multiple Recipes
+This API deletes multiple recipes from a group using their recipe IDs.
+
+---
+tags:
+  - Recipe
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "61181178-890b-4162-b2c3-c9b7f10466a6"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        recipe_ids:
+          type: array
+          description: List of unique identifiers for the recipes to be deleted
+          items:
+            type: string
+          example: 
+            - "24b960c4-c16f-4b62-83d7-3c058dfa7d95"
+            - "5386000d-8e89-4c61-9960-7405d2e1eab6"
+            - "b41ac3cd-daec-4e10-8f7f-6c8bafa2f283"
+
+responses:
+  200:
+    description: Recipes deleted successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00250"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Successfully delete list of recipes"
+            vn:
+              type: string
+              example: "Xoá thành công danh sách công thức nấu ăn"

@@ -1,0 +1,49 @@
+Delete Recipe by ID
+This API deletes a specific recipe from a group using its recipe ID.
+
+---
+tags:
+  - Recipe
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "61181178-890b-4162-b2c3-c9b7f10466a6"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        recipe_id:
+          type: string
+          description: Unique identifier of the recipe to be deleted
+          example: "eb7e469f-3d98-462f-a309-71fbe6469fe8"
+
+responses:
+  200:
+    description: Recipe deleted successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00250"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Successfully delete recipe"
+            vn:
+              type: string
+              example: "Xoá thành công công thức nấu ăn"

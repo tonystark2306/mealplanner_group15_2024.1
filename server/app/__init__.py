@@ -48,6 +48,26 @@ swagger_template = {
         {
             "name": "Food",
             "description": "Endpoints for managing food items, including creation, updates, and deletion."
+        },
+        {
+            "name": "Fridge",
+            "description": "Endpoints for managing fridge items, including creation, retrieval, updates, and deletion."
+        },
+        {
+            "name": "Shopping - List",
+            "description": "Endpoints for managing shopping lists, including creation, retrieval, updates, and deletion."
+        },
+        {
+            "name": "Shopping - Task",
+            "description": "Endpoints for managing tasks within shopping lists, including creation, retrieval, updates, and deletion."
+        },
+        {
+            "name": "Meal Plan",
+            "description": "Endpoints for managing meal plans, including creation, retrieval, updates, and deletion."
+        },
+        {
+            "name": "Recipe",
+            "description": "Endpoints for managing recipes, including creation, retrieval, updates, and deletion of recipes."
         }
     ]
 }

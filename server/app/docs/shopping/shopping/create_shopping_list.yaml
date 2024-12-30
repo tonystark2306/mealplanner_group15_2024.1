@@ -1,0 +1,104 @@
+Create Shopping List
+This API allows creating a new shopping list for a specific group.
+
+---
+tags:
+  - Shopping - List
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "aa67b8a7-2608-4125-9676-9ba340bd5deb"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the shopping list
+          example: "Phạm phga đẹp trai nhất huyện"
+        assigned_to:
+          type: string
+          description: Username of the person assigned to the shopping list
+          example: "hieutest"
+        notes:
+          type: string
+          description: Additional notes for the shopping list
+          example: "a"
+        due_time:
+          type: string
+          format: date-time
+          description: Due time for completing the shopping list
+          example: "2024-12-30 1:1:1"
+
+responses:
+  201:
+    description: Shopping list created successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00249"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Shopping list created successfully."
+            vn:
+              type: string
+              example: "Danh sách mua sắm được tạo thành công."
+        created_shopping_list:
+          type: object
+          description: Details of the created shopping list
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the shopping list
+              example: "595da8e6-81ee-4108-a8f0-592b5b6cfb6e"
+            name:
+              type: string
+              description: Name of the shopping list
+              example: "Phạm phga đẹp trai nhất huyện"
+            assigned_to:
+              type: string
+              description: Unique identifier of the user the shopping list is assigned to
+              example: "99a06e9b-716d-4878-8ce1-07b3dcb68a7f"
+            assigned_to_username:
+              type: string
+              description: Username of the assigned user
+              example: "hieutest"
+            notes:
+              type: string
+              description: Additional notes for the shopping list
+              example: "a"
+            due_time:
+              type: string
+              format: date-time
+              description: Due time for completing the shopping list
+              example: "Mon, 30 Dec 2024 01:01:01 GMT"
+            created_at:
+              type: string
+              format: date-time
+              description: When the shopping list was created
+              example: "Mon, 30 Dec 2024 11:47:22 GMT"
+            group_id:
+              type: string
+              description: Unique identifier of the group
+              example: "aa67b8a7-2608-4125-9676-9ba340bd5deb"
+            status:
+              type: string
+              description: Status of the shopping list
+              example: "Active"

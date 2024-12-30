@@ -1,0 +1,53 @@
+Mark Task in Shopping List
+This API changes the status of a specific task (food item) in a shopping list for a given group.
+
+---
+tags:
+  - Shopping - Task
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "aa67b8a7-2608-4125-9676-9ba340bd5deb"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        list_id:
+          type: string
+          description: Unique identifier of the shopping list
+          example: "a0d35cc9-04f7-433b-93fb-6fd17cde0579"
+        task_id:
+          type: number
+          description: Unique identifier of the task to mark
+          example: 28
+
+responses:
+  200:
+    description: Task marked successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00314"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Task marked successfully."
+            vn:
+              type: string
+              example: "Thay đổi trạng thái nhiệm vụ thành công."

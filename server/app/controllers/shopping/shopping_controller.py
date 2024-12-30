@@ -1,5 +1,5 @@
 from flask import request, jsonify
-
+from flasgger.utils import swag_from
 
 from . import shopping_api
 from ...services.shopping.shopping_list_service import ShoppingListService
@@ -14,6 +14,11 @@ from ...utils.middleware import check_list_ownership, validate_fields
 @JWT_required
 @group_admin_required
 @validate_fields(["name"])
+@swag_from(
+    "../../docs/shopping/shopping/create_shopping_list.yaml", 
+    endpoint="shopping_api.create_shopping_list", 
+    methods=["POST"]
+)
 def create_shopping_list(user_id, group_id):
     '''Create shopping list'''
 
@@ -56,6 +61,11 @@ def create_shopping_list(user_id, group_id):
 @group_admin_required
 @validate_fields(["list_id"])
 @check_list_ownership
+@swag_from(
+    "../../docs/shopping/shopping/update_shopping_list.yaml", 
+    endpoint="shopping_api.update_shopping_list", 
+    methods=["PUT"]
+)
 def update_shopping_list(user_id, group_id):
     '''Update shopping list''' 
     list_service = ShoppingListService()
@@ -97,6 +107,11 @@ def update_shopping_list(user_id, group_id):
 @JWT_required
 @group_admin_required
 @check_list_ownership
+@swag_from(
+    "../../docs/shopping/shopping/delete_shopping_list.yaml", 
+    endpoint="shopping_api.delete_shopping_list", 
+    methods=["DELETE"]
+)
 def delete_shopping_list(user_id, group_id):
     '''Delete shopping list'''
     list_id = request.json.get("list_id")
@@ -126,6 +141,11 @@ def delete_shopping_list(user_id, group_id):
 @shopping_api.route("/<group_id>", methods=["GET"])
 @JWT_required
 @group_member_required
+@swag_from(
+    "../../docs/shopping/shopping/get_shopping_lists.yaml", 
+    endpoint="shopping_api.get_shopping_lists", 
+    methods=["GET"]
+)
 def get_shopping_lists(user_id, group_id):
     '''Get shopping lists
     if user is admin, return all
@@ -147,6 +167,11 @@ def get_shopping_lists(user_id, group_id):
 @JWT_required
 @group_admin_required
 @check_list_ownership
+@swag_from(
+    "../../docs/shopping/shopping/mark_list.yaml", 
+    endpoint="shopping_api.mark_list", 
+    methods=["PUT"]
+)
 def mark_list(user_id, group_id):
     '''Mark shopping list as completed'''
     list_id = request.json.get("list_id")
@@ -169,6 +194,3 @@ def mark_list(user_id, group_id):
         },
         "resultCode": "00299"
     }), 200
-
-
-

@@ -1,0 +1,73 @@
+Get Recipe List
+This API retrieves a list of recipes for a specific group.
+
+---
+tags:
+  - Recipe
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: query
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "61181178-890b-4162-b2c3-c9b7f10466a6"
+
+responses:
+  200:
+    description: List of recipes retrieved successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00203"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "List of recipes."
+            vn:
+              type: string
+              example: "Danh sách các công thức."
+        recipes:
+          type: array
+          description: List of recipes for the specified group
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier of the recipe
+                example: "dbde54b5-ec37-429d-a714-59d662d0248c"
+              dish_name:
+                type: string
+                description: Name of the dish
+                example: "Cơm gà do Phong làm"
+              cooking_time:
+                type: string
+                description: Cooking time in minutes
+                example: "124.0"
+              description:
+                type: string
+                description: Short description of the recipe
+                example: "2121212"
+              group_id:
+                type: string
+                description: Unique identifier of the group
+                example: "61181178-890b-4162-b2c3-c9b7f10466a6"
+              image:
+                type: string
+                description: URL of the dish image
+                example: "https://storage.googleapis.com/meal-plan-app-acf97.firebasestorage.app/recipe/uploaded_image_2024-12-30T025533.782.png"
+              type:
+                type: string
+                description: Type of the recipe
+                example: "custom"

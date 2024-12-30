@@ -1,0 +1,59 @@
+Add Fridge Item
+This API allows adding a food item to the fridge for a specific group.
+
+---
+tags:
+  - Fridge
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "34761700-e6cb-426e-81c0-8803bf10e9de"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        foodName:
+          type: string
+          description: Name of the food to add
+          example: "Thịt bòa"
+        quantity:
+          type: number
+          description: Quantity of the food
+          example: 100
+        expiration_date:
+          type: string
+          format: date-time
+          description: Expiration date of the food item
+          example: "2024-12-31 11:12:13"
+
+responses:
+  201:
+    description: Food item added to fridge successfully
+    schema:
+      type: object
+      properties:
+        foodName:
+          type: string
+          description: Name of the added food
+          example: "Thịt bòa"
+        quantity:
+          type: number
+          description: Quantity of the added food
+          example: 100
+        expiration_date:
+          type: string
+          format: date-time
+          description: Expiration date of the added food
+          example: "2024-12-31 11:12:13"

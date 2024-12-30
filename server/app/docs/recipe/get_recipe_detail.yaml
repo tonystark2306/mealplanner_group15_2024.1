@@ -1,0 +1,157 @@
+Get Recipe Detail
+This API retrieves detailed information about a specific recipe in a group.
+
+---
+tags:
+  - Recipe
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "61181178-890b-4162-b2c3-c9b7f10466a6"
+  - name: recipe_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the recipe
+    example: "5b1b5b0b-383a-41a2-b71c-2a7bfede90f7"
+
+responses:
+  200:
+    description: Recipe detail retrieved successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00378"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Recipe detail."
+            vn:
+              type: string
+              example: "Chi tiết công thức."
+        detail_recipe:
+          type: object
+          description: Detailed information about the recipe
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the recipe
+              example: "5b1b5b0b-383a-41a2-b71c-2a7bfede90f7"
+            dish_name:
+              type: string
+              description: Name of the dish
+              example: "Tôi muốn ăn khoai luộc"
+            cooking_time:
+              type: string
+              description: Cooking time in minutes
+              example: "120.0"
+            description:
+              type: string
+              description: Description of the cooking process
+              example: "Rửa khoai, luộc"
+            content_html:
+              type: string
+              description: HTML content for the recipe
+              example: "Hehehe"
+            group_id:
+              type: string
+              description: Unique identifier of the group
+              example: "61181178-890b-4162-b2c3-c9b7f10466a6"
+            foods:
+              type: array
+              description: List of foods included in the recipe
+              items:
+                type: object
+                properties:
+                  food_id:
+                    type: string
+                    description: Unique identifier of the food
+                    example: "e3a4d7bc-3b6b-4f76-b7c9-9c8e59a8d220"
+                  food_name:
+                    type: string
+                    description: Name of the food
+                    example: "Banana"
+                  id:
+                    type: string
+                    description: Unique identifier of the food in the recipe
+                    example: "0ba33e03-51a7-415d-9151-11a7a6473f38"
+                  quantity:
+                    type: number
+                    description: Quantity of the food
+                    example: 1.5
+                  unit_id:
+                    type: string
+                    description: Unique identifier of the unit
+                    example: "unit2_id"
+                  unit_name:
+                    type: string
+                    description: Unit of the quantity
+                    example: "Gram"
+            images:
+              type: array
+              description: Images of the dish
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique identifier of the image
+                    example: "29"
+                  image_url:
+                    type: string
+                    description: URL of the image
+                    example: "https://storage.googleapis.com/meal-plan-app-acf97.firebasestorage.app/recipe/dragon.jpg"
+                  is_deleted:
+                    type: string
+                    description: Deletion status of the image
+                    example: "False"
+                  order:
+                    type: string
+                    description: Order of the image
+                    example: "0"
+                  recipe_id:
+                    type: string
+                    description: Unique identifier of the recipe the image belongs to
+                    example: "5b1b5b0b-383a-41a2-b71c-2a7bfede90f7"
+                  created_at:
+                    type: string
+                    format: date-time
+                    description: When the image was created
+                    example: "2024-12-30 03:17:41.076812"
+                  updated_at:
+                    type: string
+                    format: date-time
+                    description: When the image was last updated
+                    example: "2024-12-30 03:17:41.076812"
+            is_deleted:
+              type: string
+              description: Deletion status of the recipe
+              example: "False"
+            type:
+              type: string
+              description: Type of the recipe
+              example: "custom"
+            created_at:
+              type: string
+              format: date-time
+              description: When the recipe was created
+              example: "2024-12-30 03:17:41.062262"
+            updated_at:
+              type: string
+              format: date-time
+              description: When the recipe was last updated
+              example: "2024-12-30 03:17:41.062262"

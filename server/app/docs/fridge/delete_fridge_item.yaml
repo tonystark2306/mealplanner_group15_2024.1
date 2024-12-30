@@ -1,0 +1,45 @@
+Delete Fridge Item
+This API deletes a specific item from the fridge for a given group.
+
+---
+tags:
+  - Fridge
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "34761700-e6cb-426e-81c0-8803bf10e9de"
+  - name: item_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the fridge item
+    example: "f005a76b-9400-4032-8214-fc88122bbb67"
+
+responses:
+  200:
+    description: Fridge item deleted successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00224"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Fridge item deleted successfully."
+            vn:
+              type: string
+              example: "Xóa mục trong tủ lạnh thành công."

@@ -1,5 +1,5 @@
 from flask import request, jsonify
-
+from flasgger.utils import swag_from
 
 from . import shopping_api
 from ...services.shopping.shopping_list_service import ShoppingListService
@@ -15,6 +15,11 @@ from ...utils.middleware import validate_fields, check_task_ownership, check_lis
 @group_admin_required
 @validate_fields(["list_id", "tasks"])
 @check_list_ownership
+@swag_from(
+    "../../docs/shopping/task/create_tasks.yaml", 
+    endpoint="shopping_api.create_tasks", 
+    methods=["POST"]
+)
 def create_tasks(user_id, group_id):
     '''Create shopping task'''
     data = request.json
@@ -90,6 +95,11 @@ def create_tasks(user_id, group_id):
 @JWT_required
 @group_member_required
 @check_list_ownership
+@swag_from(
+    "../../docs/shopping/task/get_tasks.yaml", 
+    endpoint="shopping_api.get_tasks", 
+    methods=["GET"]
+)
 def get_tasks(user_id, group_id):
     '''Get tasks of a shopping list'''
     list_id = request.args.get("list_id")
@@ -137,6 +147,11 @@ def get_tasks(user_id, group_id):
 @group_admin_required
 @check_list_ownership
 @validate_fields(["list_id","task_id", "new_food_name", "new_quantity"])
+@swag_from(
+    "../../docs/shopping/task/update_task.yaml", 
+    endpoint="shopping_api.update_task", 
+    methods=["PUT"]
+)
 def update_task(user_id, group_id):
     '''Update shopping task'''
     data = request.json
@@ -230,6 +245,11 @@ def update_task(user_id, group_id):
 @JWT_required
 @group_admin_required
 @check_list_ownership
+@swag_from(
+    "../../docs/shopping/task/delete_task.yaml", 
+    endpoint="shopping_api.delete_task", 
+    methods=["DELETE"]
+)
 def delete_task(user_id, group_id):
     '''Delete shopping task'''
     list_id = request.json.get("list_id")
@@ -268,6 +288,11 @@ def delete_task(user_id, group_id):
 @JWT_required
 @group_member_required
 @check_list_ownership
+@swag_from(
+    "../../docs/shopping/task/mark_task.yaml", 
+    endpoint="shopping_api.mark_task", 
+    methods=["PUT"]
+)
 def mark_task(user_id, group_id):
     '''Mark shopping task as completed'''
     list_id = request.json.get("list_id")

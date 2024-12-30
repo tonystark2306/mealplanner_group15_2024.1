@@ -1,0 +1,108 @@
+Update Shopping List
+This API updates the details of an existing shopping list for a specific group.
+
+---
+tags:
+  - Shopping - List
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "aa67b8a7-2608-4125-9676-9ba340bd5deb"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        list_id:
+          type: string
+          description: Unique identifier of the shopping list to update
+          example: "153175de-a769-4863-bc73-ab4995b3d57b"
+        new_name:
+          type: string
+          description: Updated name for the shopping list
+          example: "hieutest"
+        new_assigned_to:
+          type: string
+          description: Updated username of the person assigned to the shopping list
+          example: "hieutest"
+        new_notes:
+          type: string
+          description: Updated notes for the shopping list
+          example: "mi khôngmua về bố vả vỡ mồm"
+        new_due_time:
+          type: string
+          format: date-time
+          description: Updated due time for the shopping list
+          example: "2024-12-30 00:00:00"
+
+responses:
+  200:
+    description: Shopping list updated successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00266"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Shopping list updated successfully."
+            vn:
+              type: string
+              example: "Danh sách mua sắm được cập nhật thành công."
+        updated_shopping_list:
+          type: object
+          description: Details of the updated shopping list
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the shopping list
+              example: "153175de-a769-4863-bc73-ab4995b3d57b"
+            name:
+              type: string
+              description: Updated name of the shopping list
+              example: "hieutest"
+            assigned_to:
+              type: string
+              description: Unique identifier of the user the shopping list is assigned to
+              example: "99a06e9b-716d-4878-8ce1-07b3dcb68a7f"
+            assigned_to_username:
+              type: string
+              description: Username of the assigned user
+              example: "hieutest"
+            notes:
+              type: string
+              description: Updated notes for the shopping list
+              example: "mi khôngmua về bố vả vỡ mồm"
+            due_time:
+              type: string
+              format: date-time
+              description: Updated due time for completing the shopping list
+              example: "Mon, 30 Dec 2024 00:00:00 GMT"
+            created_at:
+              type: string
+              format: date-time
+              description: When the shopping list was created
+              example: "Sun, 29 Dec 2024 09:13:44 GMT"
+            group_id:
+              type: string
+              description: Unique identifier of the group
+              example: "aa67b8a7-2608-4125-9676-9ba340bd5deb"
+            status:
+              type: string
+              description: Status of the shopping list
+              example: "Active"

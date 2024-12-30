@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from flasgger.utils import swag_from
 
 from . import meal_api
 from ...services.meal_plan.meal_plan_service import MealPlanService
@@ -6,10 +7,14 @@ from ...utils.decorator import JWT_required, group_member_required, group_admin_
 from ...utils.middleware import validate_fields, check_meal_plan_ownership
 
 
-
 @meal_api.route("/<group_id>", methods=["POST"])
 @JWT_required
 @group_admin_required
+@swag_from(
+    "../../docs/meal/create_meal_plan.yaml", 
+    endpoint="meal_api.create_meal_plan", 
+    methods=["POST"]
+)
 def create_meal_plan(user_id, group_id):
     meal_plan_service = MealPlanService()
     data = request.json
@@ -48,6 +53,11 @@ def create_meal_plan(user_id, group_id):
 @meal_api.route("/<group_id>", methods=["GET"])
 @JWT_required
 @group_member_required
+@swag_from(
+    "../../docs/meal/get_meal_day_plan.yaml", 
+    endpoint="meal_api.get_meal_day_plan", 
+    methods=["GET"]
+)
 def get_meal_day_plan(user_id, group_id):
     meal_plan_service = MealPlanService()
 
@@ -78,6 +88,11 @@ def get_meal_day_plan(user_id, group_id):
 @group_admin_required
 @validate_fields(["meal_id"])
 @check_meal_plan_ownership
+@swag_from(
+    "../../docs/meal/update_meal_plan.yaml", 
+    endpoint="meal_api.update_meal_plan", 
+    methods=["PUT"]
+)
 def update_meal_plan(user_id, group_id):
     meal_plan_service = MealPlanService()
     data = request.json
@@ -126,6 +141,11 @@ def update_meal_plan(user_id, group_id):
 @JWT_required
 @group_member_required
 @check_meal_plan_ownership
+@swag_from(
+    "../../docs/meal/get_detail_plan.yaml", 
+    endpoint="meal_api.get_detail_plan", 
+    methods=["GET"]
+)
 def get_detail_plan(user_id, group_id, meal_id):
     meal_plan_service = MealPlanService()
     result = meal_plan_service.get_detail_plan(meal_id)
@@ -154,6 +174,11 @@ def get_detail_plan(user_id, group_id, meal_id):
 @group_admin_required
 @validate_fields(["meal_id"])
 @check_meal_plan_ownership
+@swag_from(
+    "../../docs/meal/mark_meal_plan.yaml", 
+    endpoint="meal_api.mark_meal_plan", 
+    methods=["PATCH"]
+)
 def mark_meal_plan(user_id, group_id):
     meal_plan_service = MealPlanService()
     meal_id = request.json["meal_id"]
@@ -182,6 +207,11 @@ def mark_meal_plan(user_id, group_id):
 @group_admin_required
 @validate_fields(["meal_id"])
 @check_meal_plan_ownership
+@swag_from(
+    "../../docs/meal/delete_meal_plan.yaml", 
+    endpoint="meal_api.delete_meal_plan", 
+    methods=["DELETE"]
+)
 def delete_meal_plan(user_id, group_id):
     meal_plan_service = MealPlanService()
     meal_id = request.json["meal_id"]

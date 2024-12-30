@@ -1,0 +1,49 @@
+Delete Meal Plan
+This API deletes a specific meal plan from a given group.
+
+---
+tags:
+  - Meal Plan
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    description: Bearer token for authentication
+    schema:
+      type: string
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  - name: group_id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of the group
+    example: "34761700-e6cb-426e-81c0-8803bf10e9de"
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        meal_id:
+          type: string
+          description: Unique identifier of the meal plan to delete
+          example: "c428c290-ce4e-40cd-909a-8518b13b0691"
+
+responses:
+  200:
+    description: Meal plan deleted successfully
+    schema:
+      type: object
+      properties:
+        resultCode:
+          type: string
+          example: "00229"
+        resultMessage:
+          type: object
+          properties:
+            en:
+              type: string
+              example: "Meal plan deleted successfully"
+            vn:
+              type: string
+              example: "Xóa kế hoạch ăn thành công"
