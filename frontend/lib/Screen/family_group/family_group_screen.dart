@@ -196,7 +196,7 @@ Widget build(BuildContext context) {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Chưa có nhóm nào',
+                    'Chưa có nhóm nào. Nhấn + để tạo nhóm mới',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
@@ -323,7 +323,7 @@ Widget build(BuildContext context) {
 
           // Hiển thị thông báo cho người dùng
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Đã lưu Group ID: $savedGroupId, Tên nhóm: $savedGroupName')),
+            SnackBar(content: Text('Chuyển đến $savedGroupName')),
           );
 
           // Hiển thị hộp thoại thành công

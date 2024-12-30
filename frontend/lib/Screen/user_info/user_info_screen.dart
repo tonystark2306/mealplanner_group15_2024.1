@@ -181,7 +181,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green[700]),
-            child: const Text('Xác nhận'),
+            child: const Text(
+              'Xác nhận',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       );
@@ -200,7 +206,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
 
       const String apiUrl = 'http://127.0.0.1:5000/api/user/change-password'; // Thay URL thật
-      final response = await http.put(
+      final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
           'Authorization': 'Bearer $accessToken',
@@ -212,9 +218,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }),
       );
 
+      print('API Response: ${response.body}');
+
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        if (responseData['resultCode'] == '00090') {
+        if (responseData['resultCode'] == '00076') {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(responseData['resultMessage']['vn'])),
           );

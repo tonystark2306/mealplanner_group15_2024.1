@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:meal_planner_app/Services/verify_email_service.dart';
 
 class OTPVerificationScreen extends StatefulWidget {
   final String email;
@@ -49,7 +50,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
 
   void startTimer() {
     _canResend = false;
-    _remainingTime = 60;
+    _remainingTime = 120;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingTime == 0) {
         setState(() {
@@ -64,19 +65,44 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
     });
   }
 
-  void handleVerification() {
-    String otp = _controllers.map((controller) => controller.text).join();
-    if (otp.length == 6) {
-      // Thực hiện xác thực OTP ở đây
+void handleVerification() async {
+  String otp = _controllers.map((controller) => controller.text).join();
+  if (otp.length == 6) {
+    // Gọi API xác thực
+    final response = await VerifyEmailApi.verifyEmail(
+      confirmToken: widget.confirmToken,
+      verificationCode: otp,
+    );
+
+    //print('Response: $response');
+
+    if (response['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Xác thực thành công!"),
+        SnackBar(
+          content: Text(response['message']),
           backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      // Chuyển hướng sau khi xác thực thành công
+      Navigator.pushReplacementNamed(context, '/login');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response['message']),
+          backgroundColor: Colors.red,
         ),
       );
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Vui lòng nhập đầy đủ mã OTP!'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
 
   void resendOTP() {
     if (_canResend) {
@@ -212,24 +238,24 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                 const SizedBox(height: 40),
 
                 // Verify Button
-                ElevatedButton(
-                  onPressed: handleVerification,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
-                    backgroundColor: Colors.green[700],
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    "Xác thực",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                // ElevatedButton(
+                //   onPressed: handleVerification,
+                //   style: ElevatedButton.styleFrom(
+                //     padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                //     backgroundColor: Colors.green[700],
+                //     elevation: 2,
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(12),
+                //     ),
+                //   ),
+                //   child: const Text(
+                //     "Xác thực",
+                //     style: TextStyle(
+                //       fontSize: 18,
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //   ),
+                // ),
 
                 const SizedBox(height: 24),
 
