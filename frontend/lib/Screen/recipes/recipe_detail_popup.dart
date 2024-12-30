@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../Providers/token_storage.dart'; // Import TokenStorage
 import '../../../Providers/group_id_provider.dart'; // Import TokenStorage
+import 'package:cached_network_image/cached_network_image.dart';
 
 class RecipeDetailPopup extends StatelessWidget {
   final RecipeItem recipeItem;
@@ -62,6 +63,28 @@ class RecipeDetailPopup extends StatelessWidget {
     }
   }
 
+  Widget _buildImage(RecipeItem recipe) {
+    if (recipe.imageUrl != null) {
+      return CachedNetworkImage(
+        imageUrl: recipe.imageUrl!,
+        placeholder: (context, url) => const CircularProgressIndicator(),
+        errorWidget: (context, url, error) => const Icon(Icons.error),
+        width: double.infinity,
+        height: 250,
+        fit: BoxFit.cover,
+      );
+    } else if (recipe.image != null) {
+      return Image.memory(
+        recipe.image!,
+        width: double.infinity,
+        height: 250,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return const Icon(Icons.image, size: 100, color: Colors.grey);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<RecipeItem>(
@@ -110,18 +133,10 @@ class RecipeDetailPopup extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // Image Section
-                    recipe.image != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.memory(
-                              recipe.image!,
-                              width: double.infinity,
-                              height: 250,
-                              fit: BoxFit.contain,
-                            ),
-                          )
-                        : const Icon(Icons.image,
-                            size: 100, color: Colors.grey),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: _buildImage(recipe),
+                    ),
                     const SizedBox(height: 16),
 
                     // Time Cooking Section

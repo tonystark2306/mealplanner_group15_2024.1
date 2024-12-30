@@ -7,6 +7,7 @@ class RecipeItem {
   final List<Ingredient> ingredients;
   final String steps;
   final Uint8List? image;
+  final String? imageUrl; // Add Firebase URL support
 
   RecipeItem({
     required this.id,
@@ -15,6 +16,7 @@ class RecipeItem {
     required this.ingredients,
     required this.steps,
     this.image,
+    this.imageUrl, // Add Firebase URL parameter
   });
 
   Map<String, dynamic> toMap() {
@@ -25,6 +27,7 @@ class RecipeItem {
       'ingredients': ingredients.map((ingredient) => ingredient.toMap()).toList(),
       'steps': steps,
       'image': image,
+      'imageUrl': imageUrl, // Add Firebase URL to map
     };
   }
 
@@ -38,6 +41,7 @@ class RecipeItem {
           .toList(),
       steps: map['steps'],
       image: map['image'],
+      imageUrl: map['imageUrl'], // Add Firebase URL from map
     );
   }
 }

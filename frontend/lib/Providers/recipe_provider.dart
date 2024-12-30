@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'token_storage.dart'; // Đảm bảo bạn đã import đúng nơi chứa hàm getTokens
 import 'package:http_parser/http_parser.dart'; // Import the http_parser package
 import 'group_id_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class RecipeProvider with ChangeNotifier {
   // Danh sách công thức của người dùng
@@ -107,7 +108,7 @@ class RecipeProvider with ChangeNotifier {
         _recipes.clear();
 
         for (var recipeData in recipeJson) {
-          Uint8List imageBytes = response.bodyBytes;
+          String? imageUrl = recipeData['image_url']; // Get Firebase image URL
           RecipeItem recipe = RecipeItem(
             id: recipeData['id'] ?? '',
             name: recipeData['dish_name'] ?? '',
@@ -121,7 +122,7 @@ class RecipeProvider with ChangeNotifier {
                     .toList() ??
                 [],
             steps: recipeData['description'] ?? '',
-            image: imageBytes,
+            imageUrl: imageUrl, // Store Firebase URL instead of bytes
           );
           _recipes.add(recipe);
         }
