@@ -121,14 +121,20 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
                 Column(
                   children: [
                     Expanded(
-                      child: recipe.image != null
+                      child: recipe.imageLink != null
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(10),
-                              child: Image.memory(
-                                recipe.image!,
+                              child: Image.network(
+                                recipe.imageLink!,
                                 width: double.infinity,
                                 height: 100,
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(
+                                  Icons.image,
+                                  size: 60,
+                                  color: Colors.grey,
+                                ),
                               ),
                             )
                           : const Icon(Icons.image,
