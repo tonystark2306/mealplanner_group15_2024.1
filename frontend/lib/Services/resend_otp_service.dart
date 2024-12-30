@@ -22,6 +22,7 @@ class ResendOtpApi {
           return {
             'success': true,
             'message': responseData['resultMessage']['vn'],
+            'confirmToken': responseData['confirmToken'], // Lấy confirmToken mới
           };
         } else {
           return {

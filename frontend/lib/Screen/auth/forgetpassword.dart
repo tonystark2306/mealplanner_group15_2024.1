@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'OTPVerificationScreen.dart';
+import 'verify_resetpass_code_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -34,6 +34,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           }),
         );
 
+        print('API Response: ${response.body}');
+
         final responseData = json.decode(response.body);
 
         if (context.mounted) {
@@ -58,12 +60,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => OTPVerificationScreen(
+                builder: (context) => OTPInputScreen(
                   email: emailController.text,
                   // Ở màn hình OTP, bạn có thể đặt tên biến là "resetToken" 
                   // hoặc tận dụng "confirmToken" có sẵn, tuỳ ý.
                   // Ở đây mình vẫn dùng "confirmToken" để hạn chế sửa file khác.
-                  confirmToken: resetToken,
+                  resetToken: resetToken,
                 ),
               ),
             );

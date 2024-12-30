@@ -143,15 +143,15 @@ class _FamilyGroupScreenState extends State<FamilyGroupScreen> {
           ),
         ),
         automaticallyImplyLeading: false,
-        leading: _isFirstTime
-            ? null
-            : IconButton(
-                icon: const Icon(Icons.arrow_back),
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/bottomnav');
-                },
-              ),
+        // leading: _isFirstTime
+        //     ? null
+        //     : IconButton(
+        //         icon: const Icon(Icons.arrow_back),
+        //         color: Colors.white,
+        //         onPressed: () {
+        //           Navigator.pushReplacementNamed(context, '/bottomnav');
+        //         },
+        //       ),
         actions: [
           TextButton.icon(
             onPressed: () {
