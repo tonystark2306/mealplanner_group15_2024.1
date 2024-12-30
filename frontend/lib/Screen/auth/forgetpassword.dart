@@ -22,8 +22,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       });
 
       try {
+        // Gọi API với endpoint mới
         final response = await http.post(
-          Uri.parse('http://127.0.0.1:5000/api/user/send-verification-code'),
+          Uri.parse('http://127.0.0.1:5000/api/user/request-reset-password'),
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -41,6 +42,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           });
 
           if (response.statusCode == 200) {
+            // Lấy resetToken từ responseData
+            final resetToken = responseData['resetToken'];
+
+            // Thông báo thành công
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(responseData['resultMessage']['vn']),
@@ -49,17 +54,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
             );
 
-            // Navigate to OTP screen with confirm token
+            // Điều hướng sang màn hình OTP và truyền resetToken
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => OTPVerificationScreen(
                   email: emailController.text,
-                  confirmToken: responseData['confirmToken'],
+                  // Ở màn hình OTP, bạn có thể đặt tên biến là "resetToken" 
+                  // hoặc tận dụng "confirmToken" có sẵn, tuỳ ý.
+                  // Ở đây mình vẫn dùng "confirmToken" để hạn chế sửa file khác.
+                  confirmToken: resetToken,
                 ),
               ),
             );
           } else {
+            // Thông báo lỗi từ server
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(responseData['resultMessage']['vn']),
@@ -74,7 +83,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           setState(() {
             _isLoading = false;
           });
-          
+
+          // Thông báo lỗi kết nối
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Lỗi kết nối đến server, vui lòng thử lại sau.'),
@@ -109,10 +119,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Image.asset(
-                    //   'assets/forgot_password_icon.png',
-                    //   height: 120,
-                    // ),
+                    // Nếu có icon, image ở đây thì giữ nguyên
                     const SizedBox(height: 20),
                     Text(
                       "Quên mật khẩu",
@@ -171,12 +178,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               ),
                             )
                           : const Text(
-                            "Gửi yêu cầu",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white, // Chuyển màu chữ sang màu trắng
+                              "Gửi yêu cầu",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
                     ),
                   ],
                 ),
