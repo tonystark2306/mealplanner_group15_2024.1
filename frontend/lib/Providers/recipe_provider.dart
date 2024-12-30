@@ -40,8 +40,7 @@ class RecipeProvider with ChangeNotifier {
   5. Bày bánh phở ra bát, chan nước dùng và thịt lên trên.
   6. Thêm hành lá và thưởng thức.
           ''',
-        image: await loadImageAsUint8List(
-            '../../ImageRecipeSuggest/phobo.jpg'), // Thay bằng ảnh Uint8List nếu có
+        imageLink: 'https://i.ytimg.com/vi/9Z1Kb0vz9gY/maxresdefault.jpg',
       ),
       RecipeItem(
         id: '2',
@@ -60,9 +59,8 @@ class RecipeProvider with ChangeNotifier {
   3. Bổ đôi bánh mì, phết tương ớt vào hai mặt.
   4. Thêm thịt, rau và dưa leo vào trong bánh.
   5. Ép nhẹ bánh mì và thưởng thức.
-          ''',
-        image: await loadImageAsUint8List(
-            '../../ImageRecipeSuggest/banhmi.png'), // Thay bằng ảnh Uint8List nếu có
+          ''', // Thay bằng ảnh Uint8List nếu có
+        imageLink: 'https://i.ytimg.com/vi/9Z1Kb0vz9gY/maxresdefault.jpg',
       ),
     ];
     notifyListeners();
@@ -89,49 +87,59 @@ class RecipeProvider with ChangeNotifier {
   Future<void> getRecipes() async {
     final group_id = await _getGroupId();
     final url = Uri.parse('http://127.0.0.1:5000/api/recipe/$group_id');
-    try {
-      final accessToken =
-          await _getAccessToken(); // Lấy access token từ TokenStorage
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization':
-              'Bearer $accessToken', // Dùng access token trong header
-        },
-      );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        final List<dynamic> recipeJson = data['recipes'] ?? [];
+    final accessToken =
+        await _getAccessToken(); // Lấy access token từ TokenStorage
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization':
+            'Bearer $accessToken', // Dùng access token trong header
+      },
+    );
 
-        _recipes.clear();
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      final List<dynamic> recipeJson = data['recipes'] ?? [];
 
-        for (var recipeData in recipeJson) {
-          Uint8List imageBytes = response.bodyBytes;
+      _recipes.clear();
+
+      for (var recipeData in recipeJson) {
+        final id = recipeData['id'] ?? '';
+        final url =
+            'http://127.0.0.1:5000/api/recipe/$group_id/$id'; // Lấy token từ TokenStorage
+
+        final responseDetail = await http.get(
+          Uri.parse(url),
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+          },
+        );
+
+        print(responseDetail.body);
+        if (responseDetail.statusCode == 200) {
+          final recipeDataDetial = json.decode(responseDetail.body);
+          var field = recipeDataDetial['detail_recipe'];
           RecipeItem recipe = RecipeItem(
             id: recipeData['id'] ?? '',
             name: recipeData['dish_name'] ?? '',
             timeCooking: recipeData['cooking_time'] ?? '',
-            ingredients: (recipeData['ingredients'] as List?)
+            ingredients: (field['foods'] as List?)
                     ?.map((ingredient) => Ingredient(
                           name: ingredient['food_name'] ?? '',
-                          weight: ingredient['quantity'] ?? '',
+                          weight: ingredient['quantity'].toString() ?? '',
                           unitName: ingredient['unit_name'] ?? '',
                         ))
                     .toList() ??
                 [],
             steps: recipeData['description'] ?? '',
-            image: imageBytes,
+            imageLink: 'https://d1hjkbq40fs2x4.cloudfront.net/2017-08-21/files/landscape-photography_1645.jpg',
           );
+          print(recipe.ingredients);
           _recipes.add(recipe);
         }
         notifyListeners();
-      } else {
-        throw Exception('Failed to load recipes');
       }
-    } catch (error) {
-      print('Error: $error');
-      rethrow;
     }
   }
 
@@ -183,6 +191,8 @@ class RecipeProvider with ChangeNotifier {
             ['id']; // Get the new ID from the server's response
         // Update the recipe object with the new ID
         recipe.id = serverId;
+        recipe.imageLink =
+            'https://d1hjkbq40fs2x4.cloudfront.net/2017-08-21/files/landscape-photography_1645.jpg';
         _recipes.add(recipe); // Add new recipe with the updated ID to the list
         notifyListeners(); // Notify listeners to update UI
       } else {
@@ -194,7 +204,8 @@ class RecipeProvider with ChangeNotifier {
   }
 
   // Cập nhật công thức
-  Future<void> updateRecipe(String id, RecipeItem updatedRecipe) async {
+  Future<void> updateRecipe(
+      String id, RecipeItem updatedRecipe, var uploadedImage) async {
     final index = _recipes.indexWhere((recipe) => recipe.id == id);
     if (index != -1) {
       final group_id = await _getGroupId();
@@ -223,21 +234,23 @@ class RecipeProvider with ChangeNotifier {
       request.fields['list[new_quantity]'] = json.encode(quantities);
       request.fields['list[new_unit_name]'] = json.encode(unitNames);
 
-      if (updatedRecipe.image != null) {
+      if (uploadedImage != null) {
         request.files.add(http.MultipartFile.fromBytes(
           'new_images',
-          updatedRecipe.image!,
-          filename: 'recipe_image.jpg',
+          uploadedImage!,
+          filename: 'uploaded_image_${DateTime.now().toIso8601String()}.png',
         ));
       }
       try {
         var streamedResponse = await request.send();
         var response = await http.Response.fromStream(streamedResponse);
 
+        print(request.fields);
         if (response.statusCode == 200) {
           _recipes[index] = updatedRecipe;
           notifyListeners();
         } else {
+          print(response.body);
           print('Failed to update recipe: ${response.statusCode}');
         }
       } catch (e) {

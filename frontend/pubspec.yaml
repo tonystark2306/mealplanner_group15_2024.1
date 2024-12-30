@@ -43,6 +43,7 @@ dependencies:
   firebase_storage: ^12.3.7
   dio: ^5.0.0
   html: ^0.15.5 # Add this for web support
+  cached_network_image: ^3.3.0
 
 dev_dependencies:
   flutter_test:

@@ -233,7 +233,7 @@ Future<String> _getAccessToken() async {
       timeCooking: time,
       ingredients: ingredients,
       steps: steps,
-      image: uploadedImage,
+      imageLink: '',
     );
   
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);

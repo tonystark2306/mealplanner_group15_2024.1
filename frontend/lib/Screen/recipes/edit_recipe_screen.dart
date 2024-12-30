@@ -26,7 +26,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
   late TextEditingController stepsController;
   Uint8List? uploadedImage;
   List<String> unitOptions = [];
-
+  var imageLinkController;
   @override
   void initState() {
     super.initState();
@@ -42,7 +42,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
         .map((ingredient) => ingredient.unitName)
         .toList();
     stepsController = TextEditingController(text: widget.recipe.steps);
-    uploadedImage = widget.recipe.image;
+    imageLinkController = widget.recipe.imageLink;
     fetchUnits();
   }
 
@@ -51,11 +51,13 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     return tokens['accessToken'] ?? ''; // Trả về access token
   }
 
- Future<void> fetchUnits() async {
-   final token = await _getAccessToken();
+  Future<void> fetchUnits() async {
+    final token = await _getAccessToken();
     final response = await http.get(
       Uri.parse('http://127.0.0.1:5000/api/admin/unit'),
-      headers: {'Authorization': 'Bearer $token'}, // Thay <your-token> bằng token của bạn.
+      headers: {
+        'Authorization': 'Bearer $token'
+      }, // Thay <your-token> bằng token của bạn.
     );
 
     if (response.statusCode == 200) {
@@ -74,7 +76,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
         const SnackBar(content: Text('Không thể tải danh sách đơn vị')),
       );
     }
-}
+  }
 
   @override
   void dispose() {
@@ -226,11 +228,11 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
       timeCooking: time,
       ingredients: ingredients,
       steps: steps,
-      image: uploadedImage,
+      imageLink: widget.recipe.imageLink,
     );
 
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
-    recipeProvider.updateRecipe(updatedRecipe.id, updatedRecipe);
+    recipeProvider.updateRecipe(updatedRecipe.id, updatedRecipe, uploadedImage);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Đã chỉnh sửa công thức thành công!')),
@@ -304,22 +306,33 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 10),
-            if (uploadedImage != null)
-              Column(
-                children: [
-                  Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: Image.memory(
-                        uploadedImage!,
-                        height: 200,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+            Column(
+              children: [
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: uploadedImage != null
+                        ? Image.memory(
+                            uploadedImage!,
+                            height: 200,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.network(
+                            imageLinkController!,
+                            height: 200,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(
+                              Icons.broken_image,
+                              size: 60,
+                              color: Colors.grey,
+                            ),
+                          ),
                   ),
-                  const SizedBox(height: 10),
-                ],
-              ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
             ElevatedButton.icon(
               onPressed: pickImage,
               icon: const Icon(Icons.upload_file, color: Colors.white),
