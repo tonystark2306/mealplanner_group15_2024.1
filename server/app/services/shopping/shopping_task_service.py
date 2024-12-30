@@ -170,7 +170,7 @@ class ShoppingTaskService:
         
         STATUS_TRANSITIONS = {
             'Active': ['Completed', 'Cancelled', 'Deleted'],
-            'Completed': [],
+            'Completed': ['Active'],
             'Cancelled': ['Active','Deleted'],
             'Deleted': []
         }
