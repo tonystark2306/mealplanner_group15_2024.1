@@ -42,6 +42,62 @@ class FoodProvider extends ChangeNotifier {
     }
   }
 
+  //Hàm lấy danh sách unit name
+  Future<List<String>> fetchUnitNames() async {
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
+    try {
+      print('Fetching unit names...');
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/admin/unit'),
+        headers: {
+          'Authorization': 'Bearer ${tokenObject['accessToken']}',
+        },
+      );
+      print('response.statusCode: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body)['units'];
+        List<String> unitNames = [];
+        for (var unit in data) {
+          unitNames.add(unit['name']);
+        }
+        return unitNames;
+      } else {
+        throw Exception('Failed to fetch unit names');
+      }
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  //Hàm lấy danh sách category name
+  Future<List<String>> fetchCategoryNames() async {
+    Map<String, String> tokenObject = await TokenStorage.getTokens();
+    try {
+      print('Fetching category names...');
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/admin/category'),
+        headers: {
+          'Authorization': 'Bearer ${tokenObject['accessToken']}',
+        },
+      );
+      print('response.statusCode: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body)['categories'];
+        List<String> categoryNames = [];
+        for (var category in data) {
+          categoryNames.add(category['name']);
+        }
+        return categoryNames;
+      } else {
+        throw Exception('Failed to fetch category names');
+      }
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
   Future<void> addFood({
     required String groupId,
     required String name,

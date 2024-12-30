@@ -20,13 +20,23 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   final _formKey = GlobalKey<FormState>();
   String name = '';
   String type = '';
-  String categoryName = '';
-  String unitName = '';
+  String? selectedCategory;
+  String? selectedUnit;
   String note = '';
   File? image;
   var imageWeb;  // Biến cho ảnh web
 
   final _picker = ImagePicker();
+  late Future<List<String>> _categoriesFuture;
+  late Future<List<String>> _unitsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    final foodProvider = Provider.of<FoodProvider>(context, listen: false);
+    _categoriesFuture = foodProvider.fetchCategoryNames();
+    _unitsFuture = foodProvider.fetchUnitNames();
+  }
 
   Future<void> _pickImage() async {
     if (kIsWeb) {
@@ -87,15 +97,55 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                 ),
                 
                 // Danh mục
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Danh mục'),
-                  onSaved: (value) => categoryName = value!,
+                FutureBuilder<List<String>>(
+                  future: _categoriesFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text("Không thể tải danh mục");
+                    } else {
+                      final categories = snapshot.data!;
+                      return DropdownButtonFormField<String>(
+                        decoration: InputDecoration(labelText: 'Danh mục'),
+                        value: selectedCategory,
+                        onChanged: (value) => setState(() => selectedCategory = value),
+                        items: categories
+                            .map((category) => DropdownMenuItem(
+                                  value: category,
+                                  child: Text(category),
+                                ))
+                            .toList(),
+                        validator: (value) => value == null ? 'Vui lòng chọn danh mục' : null,
+                      );
+                    }
+                  },
                 ),
                 
                 // Đơn vị
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Đơn vị'),
-                  onSaved: (value) => unitName = value!,
+                FutureBuilder<List<String>>(
+                  future: _unitsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text("Không thể tải đơn vị");
+                    } else {
+                      final units = snapshot.data!;
+                      return DropdownButtonFormField<String>(
+                        decoration: InputDecoration(labelText: 'Đơn vị'),
+                        value: selectedUnit,
+                        onChanged: (value) => setState(() => selectedUnit = value),
+                        items: units
+                            .map((unit) => DropdownMenuItem(
+                                  value: unit,
+                                  child: Text(unit),
+                                ))
+                            .toList(),
+                        validator: (value) => value == null ? 'Vui lòng chọn đơn vị' : null,
+                      );
+                    }
+                  },
                 ),
                 
                 // Ghi chú
@@ -148,8 +198,8 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                           groupId: widget.groupId,
                           name: name,
                           type: type,
-                          categoryName: categoryName,
-                          unitName: unitName,
+                          categoryName: selectedCategory!,
+                          unitName: selectedUnit!,
                           note: note,
                           imageWeb: imageWeb,  // Pass imageWeb for web
                         );
@@ -158,8 +208,8 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                           groupId: widget.groupId,
                           name: name,
                           type: type,
-                          categoryName: categoryName,
-                          unitName: unitName,
+                          categoryName: selectedCategory!,
+                          unitName: selectedUnit!,
                           note: note,
                           image: image!,  // Pass image for mobile
                         );
