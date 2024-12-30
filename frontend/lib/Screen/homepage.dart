@@ -32,33 +32,33 @@ class HomeScreen extends StatelessWidget {
           key: _scaffoldKey,
           backgroundColor: Colors.white,
           appBar: AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: Colors.green[700],
             elevation: 0,
             centerTitle: true,
             title: Text(
               _selectedGroupName,
               style: TextStyle(
-                color: Colors.green[700],
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
             leading: IconButton(
-              icon: Icon(Icons.menu, color: Colors.green[700]),
+              icon: Icon(Icons.menu, color: Colors.white),
               onPressed: () {
                 _scaffoldKey.currentState?.openDrawer();
               },
             ),
             actions: [
               IconButton(
-                icon: Icon(Icons.notifications, color: Colors.green[700]),
+                icon: Icon(Icons.notifications, color: Colors.white),
                 onPressed: () {
                   // Handle notifications
                 },
               ),
               IconButton(
-                icon: Icon(Icons.analytics, color: Colors.green[700]),
+                icon: Icon(Icons.analytics, color: Colors.white),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/report');
+                  //Navigator.pushNamed(context, '/report');
                 },
               ),
             ],

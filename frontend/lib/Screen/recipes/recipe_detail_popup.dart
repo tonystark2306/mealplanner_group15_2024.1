@@ -50,8 +50,7 @@ class RecipeDetailPopup extends StatelessWidget {
                 .toList() ??
             [],
         steps: field['description'] ?? '',
-        imageLink:
-            field['images'], // Assuming RecipeItem has a fromJson factory constructor.
+        imageLink: null, // Assuming RecipeItem has a fromJson factory constructor.
       );
     } else {
       final responseBody = await response.body;

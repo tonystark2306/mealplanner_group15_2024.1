@@ -145,14 +145,16 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
                       child: Text(
                         recipe.name,
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                         textAlign: TextAlign.center,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
-                if (showMyRecipes) // Only show edit and delete buttons when "My Recipes"
+                if (showMyRecipes) // Chỉ hiển thị nút Edit/Delete khi ở "Công thức của tôi"
                   Positioned(
                     top: 8,
                     right: 8,
@@ -174,8 +176,9 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
                             final recipeProvider = Provider.of<RecipeProvider>(
-                                context,
-                                listen: false);
+                              context,
+                              listen: false,
+                            );
                             recipeProvider.deleteRecipe(recipe.id);
                           },
                         ),
@@ -194,29 +197,38 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.green[700],
+        centerTitle: true,
+        title: const Text(
           'Quản lý công thức',
-          style:
-              TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.green[700]),
+        actions: [
+          // Tăng kích thước icon add
+          if (showMyRecipes)
+            IconButton(
+              iconSize: 30,
+              icon: const Icon(Icons.add, color: Colors.white),
+              onPressed: () {
+                Navigator.pushNamed(context, '/create-recipe');
+              },
+            ),
+        ],
       ),
       body: Column(
         children: [
-          _buildSearchBar(),
-          _buildToggleButtons(),
-          // Adding some space between sections
-          SizedBox(height: 20),
+          _buildSearchBar(), // Thanh tìm kiếm
+          _buildToggleButtons(), // Nút toggle Công thức của tôi vs Gợi ý
+          const SizedBox(height: 20),
           Consumer<RecipeProvider>(
             builder: (context, recipeProvider, child) {
-              // Filter recipes based on showMyRecipes state
               final recipes = showMyRecipes
                   ? recipeProvider.recipes
                   : recipeProvider.suggestedRecipes;
-
-              // Filter by search query
               final filteredRecipes = recipes.where((recipe) {
                 return recipe.name
                     .toLowerCase()
@@ -224,24 +236,127 @@ class _RecipeManagementScreenState extends State<RecipeManagementScreen> {
               }).toList();
 
               return Expanded(
-                child: _buildRecipeGrid(filteredRecipes),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 8.0,
+                    mainAxisSpacing: 8.0,
+                    childAspectRatio: 1,
+                  ),
+                  itemCount: filteredRecipes.length,
+                  itemBuilder: (context, index) {
+                    final recipe = filteredRecipes[index];
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 3,
+                      shadowColor: Colors.black.withOpacity(0.2),
+                      child: InkWell(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) =>
+                                RecipeDetailPopup(recipeItem: recipe),
+                          );
+                        },
+                        child: Stack(
+                          children: [
+                            // Ảnh và tên recipe
+                            Column(
+                              children: [
+                                Expanded(
+                                  child: recipe.imageLink != null
+                                      ? ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          child: Image.network(
+                                            recipe.imageLink!,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    const Icon(
+                                              Icons.image,
+                                              size: 60,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        )
+                                      : const Icon(Icons.image,
+                                          size: 60, color: Colors.grey),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    recipe.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // Icon edit/delete
+                            if (showMyRecipes)
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 4, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white70, // Màu nền mờ
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit,
+                                            color: Colors.blue),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditRecipeScreen(
+                                                      recipe: recipe),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete,
+                                            color: Colors.red),
+                                        onPressed: () {
+                                          final recipeProvider =
+                                              Provider.of<RecipeProvider>(
+                                            context,
+                                            listen: false,
+                                          );
+                                          recipeProvider
+                                              .deleteRecipe(recipe.id);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
               );
             },
           ),
         ],
       ),
-      floatingActionButton: showMyRecipes // Show FAB only for "My Recipes"
-          ? FloatingActionButton(
-              backgroundColor: Colors.green[700],
-              onPressed: () {
-                Navigator.pushNamed(context, '/create-recipe');
-              },
-              child: const Icon(
-                Icons.add,
-                color: Colors.white,
-              ),
-            )
-          : null, // No FAB for "Suggested Recipes"
+      // Bỏ hoặc ẩn FloatingActionButton
     );
   }
 }

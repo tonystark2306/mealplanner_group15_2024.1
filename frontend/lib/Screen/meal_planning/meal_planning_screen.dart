@@ -99,9 +99,9 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
         ),
       );
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Không thể tải công thức: $error')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Không thể tải công thức: $error')),
+      // );
     }
   }
 
@@ -123,14 +123,14 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
         // Gọi API với ngày mới đã chọn
         await provider.fetchMealPlansByDate(_selectedDate, groupId!);
         // Sau khi tải thành công, thông báo thành công
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Tải dữ liệu thành công!')),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text('Tải dữ liệu thành công!')),
+        // );
       } catch (error) {
         // Hiển thị lỗi nếu có
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi khi tải dữ liệu!')),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text('Lỗi khi tải dữ liệu!')),
+        // );
       } finally {
         provider.setLoading(false); // Hủy trạng thái loading khi hoàn tất
       }
@@ -408,9 +408,9 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
       Provider.of<MealPlanProvider>(context, listen: false)
           // .deleteMealPlan(mealId, token);
           .deleteMealPlan(mealId, groupId!);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã xóa bữa ăn')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('Đã xóa bữa ăn')),
+      // );
     }
   }
 }

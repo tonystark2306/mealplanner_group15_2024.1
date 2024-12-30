@@ -26,23 +26,29 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
   late TextEditingController stepsController;
   Uint8List? uploadedImage;
   List<String> unitOptions = [];
-  var imageLinkController;
+  late String? imageLinkController;
+
   @override
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.recipe.name);
-    timeController = TextEditingController(text: widget.recipe.timeCooking);
+    timeController = TextEditingController(text: widget.recipe.timeCooking.split('.').first);
+
     ingredientNameControllers = widget.recipe.ingredients
         .map((ingredient) => TextEditingController(text: ingredient.name))
         .toList();
+
     ingredientWeightControllers = widget.recipe.ingredients
         .map((ingredient) => TextEditingController(text: ingredient.weight))
         .toList();
+
     selectedUnits = widget.recipe.ingredients
         .map((ingredient) => ingredient.unitName)
         .toList();
+
     stepsController = TextEditingController(text: widget.recipe.steps);
     imageLinkController = widget.recipe.imageLink;
+
     fetchUnits();
   }
 
@@ -56,8 +62,8 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     final response = await http.get(
       Uri.parse('http://127.0.0.1:5000/api/admin/unit'),
       headers: {
-        'Authorization': 'Bearer $token'
-      }, // Thay <your-token> bằng token của bạn.
+        'Authorization': 'Bearer $token',
+      },
     );
 
     if (response.statusCode == 200) {
@@ -138,7 +144,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                       .toList(),
                   onChanged: (value) {
                     setState(() {
-                      selectedUnits[index] = value!;
+                      selectedUnits[index] = value ?? '';
                     });
                   },
                   decoration: InputDecoration(
@@ -166,10 +172,13 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     );
   }
 
+  // Hàm buildTextField có thêm tham số minLines, maxLines
   Widget buildTextField({
     required TextEditingController controller,
     required String label,
     TextInputType? keyboardType,
+    int? minLines,
+    int? maxLines,
   }) {
     return TextField(
       controller: controller,
@@ -181,6 +190,8 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
         ),
       ),
       keyboardType: keyboardType,
+      minLines: minLines,
+      maxLines: maxLines,
     );
   }
 
@@ -209,6 +220,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
       ),
     );
 
+    // Kiểm tra dữ liệu
     if (name.isEmpty ||
         time.isEmpty ||
         steps.isEmpty ||
@@ -247,12 +259,11 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
       appBar: AppBar(
         title: Text(
           'Chỉnh sửa công thức',
-          style:
-              TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.green[700],
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.green[700]),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -264,7 +275,10 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 10),
-            buildTextField(controller: nameController, label: 'Tên món ăn'),
+            buildTextField(
+              controller: nameController,
+              label: 'Tên món ăn',
+            ),
             const SizedBox(height: 10),
             buildTextField(
               controller: timeController,
@@ -282,8 +296,10 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               child: ElevatedButton.icon(
                 onPressed: addIngredientField,
                 icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text('Thêm nguyên liệu',
-                    style: TextStyle(color: Colors.white)),
+                label: const Text(
+                  'Thêm nguyên liệu',
+                  style: TextStyle(color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[700],
                 ),
@@ -295,10 +311,13 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 10),
+            // Tăng chiều cao ô nhập bằng cách truyền minLines và maxLines
             buildTextField(
               controller: stepsController,
               label: 'Các bước thực hiện',
               keyboardType: TextInputType.multiline,
+              minLines: 5, // số dòng tối thiểu
+              maxLines: 10, // số dòng tối đa
             ),
             const SizedBox(height: 20),
             const Text(
@@ -318,7 +337,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                             fit: BoxFit.cover,
                           )
                         : Image.network(
-                            imageLinkController!,
+                            imageLinkController ?? '',
                             height: 200,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
@@ -336,8 +355,10 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
             ElevatedButton.icon(
               onPressed: pickImage,
               icon: const Icon(Icons.upload_file, color: Colors.white),
-              label:
-                  const Text('Chọn ảnh', style: TextStyle(color: Colors.white)),
+              label: const Text(
+                'Chọn ảnh',
+                style: TextStyle(color: Colors.white),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[700],
               ),
@@ -347,8 +368,10 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               child: ElevatedButton.icon(
                 onPressed: saveRecipe,
                 icon: const Icon(Icons.save_alt, color: Colors.white),
-                label: const Text('Lưu công thức',
-                    style: TextStyle(color: Colors.white)),
+                label: const Text(
+                  'Lưu công thức',
+                  style: TextStyle(color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[700],
                 ),

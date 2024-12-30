@@ -4,9 +4,11 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'dart:typed_data';
 import 'dart:html' as html;
+
 import '../../Models/recipe_model.dart';
 import '../../Providers/recipe_provider.dart';
 import '../../../Providers/token_storage.dart'; // Import TokenStorage
+
 class CreateRecipeScreen extends StatefulWidget {
   const CreateRecipeScreen({super.key});
 
@@ -21,6 +23,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
   final List<TextEditingController> ingredientWeightControllers = [];
   final List<String?> selectedUnits = [];
   final TextEditingController stepsController = TextEditingController();
+
   Uint8List? uploadedImage;
   List<String> availableUnits = []; // List of units fetched from API
 
@@ -30,14 +33,15 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     fetchUnits();
   }
 
-Future<String> _getAccessToken() async {
+  // Lấy accessToken từ TokenStorage
+  Future<String> _getAccessToken() async {
     final tokens = await TokenStorage.getTokens();
-    return tokens['accessToken'] ?? ''; // Trả về access token
+    return tokens['accessToken'] ?? '';
   }
 
-
+  // Fetch danh sách đơn vị (units) từ API
   Future<void> fetchUnits() async {
-    final token = await _getAccessToken(); // Use the dynamic token
+    final token = await _getAccessToken();
 
     try {
       final response = await http.get(
@@ -50,7 +54,7 @@ Future<String> _getAccessToken() async {
         final data = jsonDecode(response.body);
         if (data is Map<String, dynamic> && data['units'] is List) {
           setState(() {
-            // Extract the `name` field from each unit object
+            // Extract the `name` field từ mỗi object trong danh sách units
             availableUnits = (data['units'] as List)
                 .map((unit) => unit['name'] as String)
                 .toList();
@@ -62,9 +66,10 @@ Future<String> _getAccessToken() async {
         throw Exception('Failed to fetch units');
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching units: $error')),
-      );
+      // Xử lý lỗi nếu cần
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Error fetching units: $error')),
+      // );
     }
   }
 
@@ -82,6 +87,7 @@ Future<String> _getAccessToken() async {
     super.dispose();
   }
 
+  // Thêm 1 nguyên liệu
   void addIngredientField() {
     setState(() {
       ingredientNameControllers.add(TextEditingController());
@@ -90,6 +96,7 @@ Future<String> _getAccessToken() async {
     });
   }
 
+  // Xây dựng danh sách các TextField cho nguyên liệu
   Widget buildIngredientFields() {
     return Column(
       children: List.generate(ingredientNameControllers.length, (index) {
@@ -131,19 +138,15 @@ Future<String> _getAccessToken() async {
                   },
                   decoration: InputDecoration(
                     labelText: 'Đơn vị',
-                    labelStyle: TextStyle(
-                        color: Colors
-                            .green[700]), // Màu xanh giống các trường khác
+                    labelStyle: TextStyle(color: Colors.green[700]),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    // Xóa lớp nền xám
-                    filled: false, // Bỏ lớp nền màu xám
-                    isDense: true, // Tối ưu không gian
+                    filled: false,
+                    isDense: true,
                   ),
-                  dropdownColor: Colors.white, // Đặt màu nền cho dropdown
-                  focusColor:
-                      Colors.transparent, // Không hiển thị lớp màu khi focus
+                  dropdownColor: Colors.white,
+                  focusColor: Colors.transparent,
                 ),
               ),
               IconButton(
@@ -163,10 +166,13 @@ Future<String> _getAccessToken() async {
     );
   }
 
+  // Hàm buildTextField với khả năng tùy chỉnh minLines, maxLines
   Widget buildTextField({
     required TextEditingController controller,
     required String label,
     TextInputType? keyboardType,
+    int? minLines,
+    int? maxLines,
   }) {
     return TextField(
       controller: controller,
@@ -178,33 +184,39 @@ Future<String> _getAccessToken() async {
         ),
       ),
       keyboardType: keyboardType,
+      minLines: minLines,
+      maxLines: maxLines,
     );
   }
 
+  // Hàm chọn ảnh (cho Web)
   Future<void> pickImage() async {
     final html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
-      uploadInput.accept = 'image/*';
-      uploadInput.click();
-      
-      uploadInput.onChange.listen((e) async {
-        final files = uploadInput.files;
-        if (files!.isEmpty) return;
+    uploadInput.accept = 'image/*';
+    uploadInput.click();
 
-        final reader = html.FileReader();
-        reader.readAsArrayBuffer(files[0]);
-        reader.onLoadEnd.listen((e) {
-          setState(() {
-            uploadedImage = reader.result as Uint8List;  // Lưu trữ ảnh cho web dưới dạng Uint8List
-          });
+    uploadInput.onChange.listen((e) async {
+      final files = uploadInput.files;
+      if (files!.isEmpty) return;
+
+      final reader = html.FileReader();
+      reader.readAsArrayBuffer(files[0]);
+      reader.onLoadEnd.listen((e) {
+        setState(() {
+          // Lưu trữ ảnh cho web dưới dạng Uint8List
+          uploadedImage = reader.result as Uint8List;
         });
       });
+    });
   }
 
+  // Hàm lưu recipe
   void saveRecipe() {
     final name = nameController.text;
     final time = timeController.text;
     final steps = stepsController.text;
 
+    // Tạo danh sách ingredients
     final ingredients = List.generate(
       ingredientNameControllers.length,
       (index) {
@@ -220,10 +232,11 @@ Future<String> _getAccessToken() async {
       },
     );
 
+    // Kiểm tra dữ liệu trước khi lưu
     if (name.isEmpty || time.isEmpty || steps.isEmpty || ingredients.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng điền đầy đủ thông tin!')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('Vui lòng điền đầy đủ thông tin!')),
+      // );
       return;
     }
 
@@ -235,13 +248,13 @@ Future<String> _getAccessToken() async {
       steps: steps,
       imageLink: '',
     );
-  
+
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
     recipeProvider.addRecipe(newRecipe, uploadedImage);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã thêm công thức thành công!')),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(content: Text('Đã thêm công thức thành công!')),
+    // );
 
     Navigator.of(context).pop();
     recipeProvider.getRecipes();
@@ -253,12 +266,11 @@ Future<String> _getAccessToken() async {
       appBar: AppBar(
         title: Text(
           'Thêm công thức mới',
-          style:
-              TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.green[700],
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.green[700]),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: availableUnits.isEmpty
           ? const Center(child: CircularProgressIndicator())
@@ -273,7 +285,9 @@ Future<String> _getAccessToken() async {
                   ),
                   const SizedBox(height: 10),
                   buildTextField(
-                      controller: nameController, label: 'Tên món ăn'),
+                    controller: nameController,
+                    label: 'Tên món ăn',
+                  ),
                   const SizedBox(height: 10),
                   buildTextField(
                     controller: timeController,
@@ -307,10 +321,13 @@ Future<String> _getAccessToken() async {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   const SizedBox(height: 10),
+                  // Tăng chiều cao ô nhập bằng cách truyền minLines và maxLines
                   buildTextField(
                     controller: stepsController,
                     label: 'Các bước thực hiện',
                     keyboardType: TextInputType.multiline,
+                    minLines: 5, // số dòng tối thiểu
+                    maxLines: 10, // số dòng tối đa
                   ),
                   const SizedBox(height: 20),
                   const Text(
@@ -345,7 +362,7 @@ Future<String> _getAccessToken() async {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                  ),          
+                  ),
                   const SizedBox(height: 20),
                   Center(
                     child: ElevatedButton.icon(
