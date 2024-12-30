@@ -293,11 +293,11 @@ class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
         title: Text(
           'Tạo shopping',
           style:
-              TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
+              TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.green[700],
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.green[700]),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

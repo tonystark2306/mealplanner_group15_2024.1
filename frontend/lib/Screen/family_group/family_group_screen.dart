@@ -16,14 +16,32 @@ class FamilyGroupScreen extends StatefulWidget {
 class _FamilyGroupScreenState extends State<FamilyGroupScreen> {
   late Future<List<Map<String, dynamic>>> _groupsFuture;
   String? _selectedGroupId;
+  bool _isFirstTime = false;
 
   @override
   void initState() {
     super.initState();
+    _checkFirstTime();
+    _loadSelectedGroupId();
     _groupsFuture = _fetchGroups();
   }
 
-  // Giữ nguyên logic của các methods
+  Future<void> _checkFirstTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    _isFirstTime = prefs.getBool('isFirstTime') ?? true;
+    if (_isFirstTime) {
+      await prefs.setBool('isFirstTime', false);
+    }
+    setState(() {});
+  }
+
+  Future<void> _loadSelectedGroupId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedGroupId = prefs.getString('selectedGroupId');
+    });
+  }
+
   Future<List<Map<String, dynamic>>> _fetchGroups() async {
     try {
       final tokens = await TokenStorage.getTokens();
@@ -31,9 +49,11 @@ class _FamilyGroupScreenState extends State<FamilyGroupScreen> {
       final data = await ApiGetAllGroup.getFamilyGroups(accessToken ?? '');
 
       if (data.containsKey('groups')) {
-        final List<Map<String, dynamic>> groups = List<Map<String, dynamic>>.from(data['groups']);
+        final List<Map<String, dynamic>> groups =
+            List<Map<String, dynamic>>.from(data['groups']);
         final prefs = await SharedPreferences.getInstance();
-        final List<String> groupIds = groups.map((group) => group['id'] as String).toList();
+        final List<String> groupIds =
+            groups.map((group) => group['id'] as String).toList();
         await prefs.setStringList('groupIds', groupIds);
         return groups;
       } else {
@@ -108,255 +128,270 @@ class _FamilyGroupScreenState extends State<FamilyGroupScreen> {
     );
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0,
-      centerTitle: true,
-      title: Text(
-        'Quản lý nhóm',
-        style: TextStyle(
-          color: Colors.green[700],
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        color: Colors.green[700],
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-      actions: [
-        TextButton.icon(
-          onPressed: () {
-            showDialog<Map<String, dynamic>>(
-              context: context,
-              builder: (context) => const CreateGroupDialog(),
-            ).then((result) {
-              if (result != null) {
-                setState(() {
-                  _groupsFuture = _fetchGroups();
-                });
-              }
-            });
-          },
-          icon: Icon(Icons.add, color: Colors.green[700]),
-          label: Text(
-            'Tạo nhóm',
-            style: TextStyle(
-              color: Colors.green[700],
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-      ],
-    ),
-    body: Container(
-      color: Colors.grey[50],
-      child: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _groupsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.green[700]!),
-              ),
-            );
-          }
-
-          if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Không thể tải danh sách nhóm',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final groups = snapshot.data ?? [];
-
-          if (groups.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.group_off,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Chưa có nhóm nào',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: groups.length,
-                  itemBuilder: (context, index) {
-                    final group = groups[index];
-                    final groupId = group['id'];
-                    final isSelected = _selectedGroupId == groupId;
-
-                    return Card(
-                      elevation: isSelected ? 2 : 1,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: isSelected ? Colors.green[700]! : Colors.transparent,
-                          width: isSelected ? 2 : 0,
-                        ),
-                      ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: () {
-                          setState(() {
-                            _selectedGroupId = groupId;
-                          });
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.group,
-                                    color: Colors.green[700],
-                                    size: 24,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      group['groupName'] ?? 'Không có tên',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Radio<String>(
-                                    value: groupId,
-                                    groupValue: _selectedGroupId,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedGroupId = value;
-                                      });
-                                    },
-                                    activeColor: Colors.green[700],
-                                  ),
-                                ],
-                              ),
-                              const Divider(height: 24),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  TextButton.icon(
-                                    onPressed: () => _navigateToGroupDetails(group),
-                                    icon: const Icon(Icons.visibility_outlined),
-                                    label: const Text('Chi tiết'),
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: Colors.green[700],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              
-              if (_selectedGroupId != null)
-  Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.1),
-          blurRadius: 4,
-          offset: const Offset(0, -2),
-        ),
-      ],
-    ),
-    child: ElevatedButton(
-      onPressed: () async {
-        if (_selectedGroupId != null) {
-          // Lưu groupId đã chọn
-          await GroupIdProvider.saveSelectedGroupId(_selectedGroupId!);
-
-          // Kiểm tra và in ra groupId đã lưu
-          final savedGroupId = await GroupIdProvider.getSelectedGroupId();
-          print('Group ID đã lưu: $savedGroupId'); // Kiểm tra log
-
-          // Hiển thị thông báo cho người dùng
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Đã lưu Group ID: $savedGroupId')),
-          );
-
-          // Hiển thị hộp thoại thành công
-          _showSuccessDialog(_selectedGroupId!);
-
-          // Chuyển đến màn hình 'bottomnav'
-          Navigator.pushReplacementNamed(context, 'bottomnav');
-        }
-      },
-      style: ElevatedButton.styleFrom(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
         backgroundColor: Colors.green[700],
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'Quản lý nhóm',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.check, color: Colors.white),
-          SizedBox(width: 8),
-          Text(
-            'Xác nhận chọn nhóm',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+        automaticallyImplyLeading: false,
+        leading: _isFirstTime
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back),
+                color: Colors.white,
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/bottomnav');
+                },
+              ),
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              showDialog<Map<String, dynamic>>(
+                context: context,
+                builder: (context) => const CreateGroupDialog(),
+              ).then((result) {
+                if (result != null) {
+                  setState(() {
+                    _groupsFuture = _fetchGroups();
+                  });
+                }
+              });
+            },
+            icon: Icon(Icons.add, color: Colors.white),
+            label: Text(
+              'Tạo nhóm',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
+          const SizedBox(width: 8),
         ],
       ),
-    ),
-  ),
+      body: Container(
+        color: Colors.grey[50],
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _groupsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green[700]!),
+                ),
+              );
+            }
 
-            ],
-          );
-        },
+            if (snapshot.hasError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Không thể tải danh sách nhóm',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            final groups = snapshot.data ?? [];
+
+            if (groups.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.group_off,
+                      size: 64,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Chưa có nhóm nào. Nhấn + để tạo nhóm mới',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: groups.length,
+                    itemBuilder: (context, index) {
+                      final group = groups[index];
+                      final groupId = group['id'];
+                      final isSelected = _selectedGroupId == groupId;
+
+                      return Card(
+                        elevation: isSelected ? 2 : 1,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: isSelected
+                                ? Colors.green[700]!
+                                : Colors.transparent,
+                            width: isSelected ? 2 : 0,
+                          ),
+                        ),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () async {
+                            setState(() {
+                              _selectedGroupId = groupId;
+                            });
+                            await _saveSelectedGroupId(groupId);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.group,
+                                      color: Colors.green[700],
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        group['groupName'] ?? 'Không có tên',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Radio<String>(
+                                      value: groupId,
+                                      groupValue: _selectedGroupId,
+                                      onChanged: (value) async {
+                                        setState(() {
+                                          _selectedGroupId = value;
+                                        });
+                                        if (value != null) {
+                                          await _saveSelectedGroupId(value);
+                                        }
+                                      },
+                                      activeColor: Colors.green[700],
+                                    ),
+                                  ],
+                                ),
+                                const Divider(height: 24),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    TextButton.icon(
+                                      onPressed: () =>
+                                          _navigateToGroupDetails(group),
+                                      icon:
+                                          const Icon(Icons.visibility_outlined),
+                                      label: const Text('Chi tiết'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.green[700],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                if (_selectedGroupId != null)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, -2),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (_selectedGroupId != null) {
+                          final selectedGroupName = groups.firstWhere((group) =>
+                              group['id'] == _selectedGroupId)['groupName'];
+
+                          await GroupIdProvider.saveSelectedGroup(
+                              _selectedGroupId!, selectedGroupName);
+
+                          final savedGroupId =
+                              await GroupIdProvider.getSelectedGroupId();
+                          final savedGroupName =
+                              await GroupIdProvider.getSelectedGroupName();
+                          print('Group ID đã lưu: $savedGroupId');
+                          print('Tên nhóm đã lưu: $savedGroupName');
+
+                          // ScaffoldMessenger.of(context).showSnackBar(
+                          //   SnackBar(
+                          //       content: Text('Chuyển đến $savedGroupName')),
+                          // );
+
+                          _showSuccessDialog(_selectedGroupId!);
+
+                          Navigator.pushReplacementNamed(context, '/bottomnav');
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[700],
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            'Xác nhận chọn nhóm',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
       ),
-    ),
-  );
-  
-}}
+    );
+  }
+}

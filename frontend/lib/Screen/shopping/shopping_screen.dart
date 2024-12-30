@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import '../../Providers/shopping_provider.dart';
+import 'shopping_item_detail.dart';
 import 'add_shopping_screen.dart';
 import 'edit_shopping_screen.dart';
-import 'package:provider/provider.dart';
-import '../../Providers/shopping_provider.dart';
-import 'package:intl/intl.dart';
-
-import 'shopping_item_detail.dart'; // Để định dạng ngày tháng
 
 class ShoppingListScreen extends StatefulWidget {
   @override
@@ -23,197 +23,237 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
             .fetchShoppingList();
   }
 
-  String formatDateTime(DateTime? dateTime) {
-    if (dateTime == null) return 'No due date';
-    return DateFormat('yyyy-MM-dd – kk:mm')
-        .format(dateTime); // Định dạng ngày giờ
+  Color _getDueDateColor(String? dueTime) {
+    if (dueTime == null) return Colors.grey;
+    final dueDate = DateTime.tryParse(dueTime);
+    if (dueDate == null) return Colors.grey;
+
+    final now = DateTime.now();
+    final difference = dueDate.difference(now);
+
+    if (difference.isNegative) {
+      return Colors.red;
+    } else if (difference.inDays < 1) {
+      return Colors.orange;
+    } else if (difference.inDays < 3) {
+      return Colors.yellow;
+    }
+    return Colors.green;
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final shoppingProvider = Provider.of<ShoppingProvider>(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Shopping List',
-          style:
-              TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
+
+    return Theme(
+      data: theme.copyWith(
+        // Tuỳ chỉnh CardTheme để bo góc và có bóng nhẹ
+        cardTheme: CardTheme(
+          elevation: 4, // Tăng chút để có hiệu ứng bóng rõ hơn
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
-        backgroundColor: Colors.white,
-        elevation: 4,
-        iconTheme: IconThemeData(color: Colors.green[700]),
       ),
-      body: FutureBuilder(
-        future: _fetchShoppingListFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Failed to load shopping list: ${snapshot.error}'),
-            );
-          } else {
-            // Kiểm tra nếu shopping list trống
-            if (shoppingProvider.shoppingList.isEmpty) {
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.green[700],
+          centerTitle: true,
+          title: const Text(
+            'Danh sách shopping',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          elevation: 0,
+        ),
+        body: FutureBuilder(
+          future: _fetchShoppingListFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Failed to load shopping list: ${snapshot.error}'),
+              );
+            } else if (shoppingProvider.shoppingList.isEmpty) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.shopping_cart_outlined,
-                      size: 50,
-                      color: Colors.grey[400],
+                      size: 64,
+                      color: theme.disabledColor,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
                       'Hiện đang chưa có kế hoạch',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.bold,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: theme.disabledColor,
                       ),
                     ),
                   ],
                 ),
               );
-            } else {
-              return ListView.builder(
-                padding:
-                    EdgeInsets.all(8), // Thêm padding cho toàn bộ list view
-                itemCount: shoppingProvider.shoppingList.length,
-                itemBuilder: (context, index) {
-                  final shoppingItem = shoppingProvider.shoppingList[index];
-                  return Card(
-                    margin: EdgeInsets.symmetric(
-                        vertical: 8), // Thêm khoảng cách giữa các item
-                    elevation: 3,
-                    child: ListTile(
-                      contentPadding: EdgeInsets.all(16),
-                      title: Text(
-                        shoppingItem.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          decoration: shoppingItem.isDone
-                              ? TextDecoration.lineThrough
-                              : TextDecoration.none,
-                          fontSize: 18,
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: shoppingProvider.shoppingList.length,
+              itemBuilder: (context, index) {
+                final item = shoppingProvider.shoppingList[index];
+                final dueColor = _getDueDateColor(item.dueTime);
+
+                // Đổi màu nền item khi đã hoàn thành
+                final itemBackgroundColor = item.isDone
+                    ? Colors.green[100]
+                    : theme.cardColor;
+
+                return Hero(
+                  tag: 'shopping-item-${item.id}',
+                  child: Slidable(
+                    endActionPane: ActionPane(
+                      motion: const ScrollMotion(),
+                      children: [
+                        SlidableAction(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          icon: Icons.edit,
+                          label: 'Sửa',
+                          onPressed: (context) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => EditShoppingItemScreen(
+                                  shoppingItem: item,
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 4),
-                          Text(
-                            'Giao cho: ${shoppingItem.nameAssignedTo ?? 'N/A'}',
-                            style: TextStyle(color: Colors.grey[600]),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Hạn: ${shoppingItem.dueTime ?? 'No due date'}',
-                            style: TextStyle(color: Colors.grey[600]),
-                          ),
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize
-                            .min, // Giảm kích thước row để vừa với nút
-                        children: [
-                          // Nút Xoá
-                          IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
-                            onPressed: () async {
-                              // Hiển thị Dialog xác nhận trước khi xóa
-                              bool? confirmDelete = await showDialog<bool>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('Confirm Deletion'),
-                                    content: Text(
-                                        'Are you sure you want to delete this item?'),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context)
-                                              .pop(false); // Không xóa
-                                        },
-                                        child: Text('No'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context)
-                                              .pop(true); // Xóa
-                                        },
-                                        child: Text('Yes'),
-                                      ),
-                                    ],
+                        SlidableAction(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          icon: Icons.delete,
+                          label: 'Xoá',
+                          onPressed: (context) async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Xác nhận xoá'),
+                                content:
+                                    const Text('Bạn có chắc muốn xoá mục này?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text('Huỷ'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: const Text('Xoá'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm == true) {
+                              await shoppingProvider.deleteShoppingItem(item.id);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    child: Card(
+                      color: itemBackgroundColor,
+                      child: InkWell(
+                        onTap: () {
+                          // Mở dialog xem chi tiết với Hero animation
+                          showDialog(
+                            context: context,
+                            builder: (context) => ShoppingItemDetailsDialog(
+                              shoppingItemId: item.id,
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Checkbox(
+                                value: item.isDone,
+                                onChanged: (_) {
+                                  shoppingProvider.toggleShoppingItemDone(
+                                    item.id,
                                   );
                                 },
-                              );
-
-                              // Nếu người dùng chọn "Yes", thực hiện xóa
-                              if (confirmDelete == true) {
-                                try {
-                                  // Gọi hàm xóa từ provider
-                                  await shoppingProvider
-                                      .deleteShoppingItem(shoppingItem.id);
-                                } catch (error) {
-                                  // Xử lý lỗi nếu có
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'Failed to delete item: $error')),
-                                  );
-                                }
-                              }
-                            },
-                          ),
-                          // Nút Sửa
-                          IconButton(
-                            icon: Icon(Icons.edit, color: Colors.blue),
-                            onPressed: () {
-                              // Điều hướng đến màn hình chỉnh sửa shopping item
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => EditShoppingItemScreen(
-                                    shoppingItem:
-                                        shoppingItem, // Truyền shopping item để chỉnh sửa
-                                  ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
                                 ),
-                              );
-                            },
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.name,
+                                      style: theme.textTheme.titleLarge
+                                          ?.copyWith(
+                                        decoration: item.isDone
+                                            ? TextDecoration.lineThrough
+                                            : null,
+                                        color: item.isDone
+                                            ? theme.disabledColor
+                                            : null,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Giao cho: ${item.nameAssignedTo ?? 'N/A'}',
+                                      style: theme.textTheme.bodyMedium,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Chip(
+                                      label: Text(
+                                        'Hạn: ${item.dueTime ?? 'Không có'}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      backgroundColor: dueColor,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                      leading: Checkbox(
-                        value: shoppingItem.isDone,
-                        onChanged: (_) {
-                          shoppingProvider
-                              .toggleShoppingItemDone(shoppingItem.id);
-                        },
-                      ),
-                      onTap: () {
-                        // Gọi Dialog khi người dùng chọn shopping item
-                        showDialog(
-                          context: context,
-                          builder: (context) => ShoppingItemDetailsDialog(
-                              shoppingItemId: shoppingItem.id),
-                        );
-                      },
                     ),
-                  );
-                },
-              );
-            }
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => AddShoppingItemScreen()),
-          );
-        },
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.add),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => AddShoppingItemScreen(),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

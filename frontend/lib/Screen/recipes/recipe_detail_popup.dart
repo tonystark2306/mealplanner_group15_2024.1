@@ -36,9 +36,7 @@ class RecipeDetailPopup extends StatelessWidget {
 
     if (response.statusCode == 200) {
       final recipeData = json.decode(response.body);
-      Uint8List imageBytes = response.bodyBytes;
       var field = recipeData['detail_recipe'];
-      print(field);
       return RecipeItem(
         id: field['id'] ?? '',
         name: field['dish_name'] ?? '',
@@ -52,8 +50,7 @@ class RecipeDetailPopup extends StatelessWidget {
                 .toList() ??
             [],
         steps: field['description'] ?? '',
-        image:
-            imageBytes, // Assuming RecipeItem has a fromJson factory constructor.
+        imageLink: null, // Assuming RecipeItem has a fromJson factory constructor.
       );
     } else {
       final responseBody = await response.body;
@@ -110,18 +107,18 @@ class RecipeDetailPopup extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // Image Section
-                    recipe.image != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.memory(
-                              recipe.image!,
-                              width: double.infinity,
-                              height: 250,
-                              fit: BoxFit.contain,
-                            ),
-                          )
-                        : const Icon(Icons.image,
-                            size: 100, color: Colors.grey),
+                    // recipe.image != null
+                    //     ? ClipRRect(
+                    //         borderRadius: BorderRadius.circular(10),
+                    //         child: Image.memory(
+                    //           recipe.image!,
+                    //           width: double.infinity,
+                    //           height: 250,
+                    //           fit: BoxFit.contain,
+                    //         ),
+                    //       )
+                    //     : const Icon(Icons.image,
+                    //         size: 100, color: Colors.grey),
                     const SizedBox(height: 16),
 
                     // Time Cooking Section
