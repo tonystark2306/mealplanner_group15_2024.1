@@ -21,13 +21,15 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
   final _formKey = GlobalKey<FormState>();
   late String name;
   late String type;
-  late String categoryName;
-  late String unitName;
+  late String? categoryName;
+  late String? unitName;
   late String note;
   File? image;
   var imageWeb;
 
   final _picker = ImagePicker();
+  late Future<List<String>> _categoriesFuture;
+  late Future<List<String>> _unitsFuture;
 
   @override
   void initState() {
@@ -38,7 +40,9 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
     categoryName = widget.food['category_name'] ?? '';
     unitName = widget.food['unit_name'] ?? '';
     note = widget.food['note'] ?? '';
-    // Nếu có ảnh, bạn có thể tải ảnh từ URL hoặc xử lý theo cách khác
+    final foodProvider = Provider.of<FoodProvider>(context, listen: false);
+    _categoriesFuture = foodProvider.fetchCategoryNames();
+    _unitsFuture = foodProvider.fetchUnitNames();
   }
 
   Future<void> _pickImage() async {
@@ -102,17 +106,55 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
                 ),
                 
                 // Danh mục
-                TextFormField(
-                  initialValue: categoryName,
-                  decoration: InputDecoration(labelText: 'Danh mục'),
-                  onSaved: (value) => categoryName = value!,
+                FutureBuilder<List<String>>(
+                  future: _categoriesFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text("Không thể tải danh mục");
+                    } else {
+                      final categories = snapshot.data!;
+                      return DropdownButtonFormField<String>(
+                        decoration: InputDecoration(labelText: 'Danh mục'),
+                        value: categoryName,
+                        onChanged: (value) => setState(() => categoryName = value),
+                        items: categories
+                            .map((category) => DropdownMenuItem(
+                                  value: category,
+                                  child: Text(category),
+                                ))
+                            .toList(),
+                        validator: (value) => value == null ? 'Vui lòng chọn danh mục' : null,
+                      );
+                    }
+                  },
                 ),
-                
+
                 // Đơn vị
-                TextFormField(
-                  initialValue: unitName,
-                  decoration: InputDecoration(labelText: 'Đơn vị'),
-                  onSaved: (value) => unitName = value!,
+                FutureBuilder<List<String>>(
+                  future: _unitsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text("Không thể tải đơn vị");
+                    } else {
+                      final units = snapshot.data!;
+                      return DropdownButtonFormField<String>(
+                        decoration: InputDecoration(labelText: 'Đơn vị'),
+                        value: unitName,
+                        onChanged: (value) => setState(() => unitName = value),
+                        items: units
+                            .map((unit) => DropdownMenuItem(
+                                  value: unit,
+                                  child: Text(unit),
+                                ))
+                            .toList(),
+                        validator: (value) => value == null ? 'Vui lòng chọn đơn vị' : null,
+                      );
+                    }
+                  },
                 ),
                 
                 // Ghi chú
@@ -167,8 +209,8 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
                           foodId: widget.food['id'],
                           name: name,
                           type: type,
-                          categoryName: categoryName,
-                          unitName: unitName,
+                          categoryName: categoryName!,
+                          unitName: unitName!,
                           note: note,
                           imageWeb: imageWeb,  // Pass imageWeb for web
                         );
@@ -178,8 +220,8 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
                           foodId: widget.food['id'],
                           name: name,
                           type: type,
-                          categoryName: categoryName,
-                          unitName: unitName,
+                          categoryName: categoryName!,
+                          unitName: unitName!,
                           note: note,
                           image: image!,  // Pass image for mobile
                         );
