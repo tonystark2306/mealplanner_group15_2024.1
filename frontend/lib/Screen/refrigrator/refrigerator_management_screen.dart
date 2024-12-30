@@ -6,9 +6,9 @@ import './add_food_item_screen.dart';
 import './edit_food_item_screen.dart';
 import './fridge_item_screen.dart';
 import '../../Providers/group_id_provider.dart';
+import '../app_drawer.dart';
 
 class RefrigeratorManagementScreen extends StatefulWidget {
-
   const RefrigeratorManagementScreen({super.key});
 
   @override
@@ -52,6 +52,7 @@ class _RefrigeratorManagementScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.green[700], // Màu xanh cho AppBar
@@ -64,12 +65,17 @@ class _RefrigeratorManagementScreenState
             fontWeight: FontWeight.bold,
           ),
         ),
-        leading: IconButton(
-            icon: Icon(Icons.analytics, color: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, '/report');
-            },
-          ),
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () {
+                // Mở Drawer
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.notifications, color: Colors.white),
@@ -84,8 +90,8 @@ class _RefrigeratorManagementScreenState
           : Consumer<RefrigeratorProvider>(
               builder: (context, refrigeratorProvider, child) {
                 final fridgeItems = refrigeratorProvider.items;
-                fridgeItems.sort((a, b) => a.expirationDate
-                    .compareTo(b.expirationDate));
+                fridgeItems.sort(
+                    (a, b) => a.expirationDate.compareTo(b.expirationDate));
 
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
@@ -101,8 +107,7 @@ class _RefrigeratorManagementScreenState
                           itemCount: fridgeItems.length,
                           itemBuilder: (context, index) {
                             final fridgeItem = fridgeItems[index];
-                            return _buildFridgeItemTile(
-                                context, fridgeItem);
+                            return _buildFridgeItemTile(context, fridgeItem);
                           },
                         ),
                     ],
@@ -116,7 +121,9 @@ class _RefrigeratorManagementScreenState
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => AddFridgeItemScreen(groupId: groupId!,)),
+                builder: (context) => AddFridgeItemScreen(
+                      groupId: groupId!,
+                    )),
           );
         },
         child: const Icon(Icons.add, color: Colors.white),
@@ -180,7 +187,8 @@ class _RefrigeratorManagementScreenState
                 CircleAvatar(
                   radius: 24,
                   backgroundColor: Colors.green[50],
-                  child: Icon(Icons.food_bank, color: Colors.green[700], size: 28),
+                  child:
+                      Icon(Icons.food_bank, color: Colors.green[700], size: 28),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -230,8 +238,8 @@ class _RefrigeratorManagementScreenState
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              EditFridgeItemScreen(groupId: groupId!, fridgeItem: fridgeItem),
+                          builder: (context) => EditFridgeItemScreen(
+                              groupId: groupId!, fridgeItem: fridgeItem),
                         ),
                       );
                     } else if (value == 'delete') {

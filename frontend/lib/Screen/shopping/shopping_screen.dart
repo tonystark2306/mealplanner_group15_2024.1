@@ -5,6 +5,7 @@ import '../../Providers/shopping_provider.dart';
 import 'shopping_item_detail.dart';
 import 'add_shopping_screen.dart';
 import 'edit_shopping_screen.dart';
+import '../app_drawer.dart';
 
 class ShoppingListScreen extends StatefulWidget {
   @override
@@ -92,6 +93,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         ),
       ),
       child: Scaffold(
+        drawer: const AppDrawer(),
         appBar: AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: Colors.green[700],
@@ -103,6 +105,17 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
               fontWeight: FontWeight.bold,
               fontSize: 24,
             ),
+          ),
+          leading: Builder(
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  // Mở Drawer
+                  Scaffold.of(context).openDrawer();
+                },
+              );
+            },
           ),
           actions: [
             Container(
@@ -151,7 +164,68 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           child: FutureBuilder(
             future: _fetchShoppingListFuture,
             builder: (context, snapshot) {
-              // ... previous error and loading states remain the same ...
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.hasError) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 60,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Đã có lỗi xảy ra: ${snapshot.error}',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              if (shoppingProvider.shoppingList.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.green[50],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.shopping_cart,
+                          size: 50,
+                          color: Colors.green[700],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Chưa có kế hoạch nào',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Hãy thêm kế hoạch mới bằng cách nhấn vào nút + ở góc phải',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
 
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -349,7 +423,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                                   ],
                                 ),
                               ),
-                              
                             ],
                           ),
                         ),

@@ -80,9 +80,9 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
         throw Exception('Invalid response format: missing "units" key');
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể tải danh sách đơn vị')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('Không thể tải danh sách đơn vị')),
+      // );
     }
   }
 
@@ -248,9 +248,9 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
     recipeProvider.updateRecipe(updatedRecipe.id, updatedRecipe, uploadedImage);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã chỉnh sửa công thức thành công!')),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(content: Text('Đã chỉnh sửa công thức thành công!')),
+    // );
 
     Navigator.of(context).pop();
   }

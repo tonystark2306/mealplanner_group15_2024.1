@@ -6,6 +6,7 @@ import '../../Providers/meal_planning_provider.dart';
 import '../../Models/meal_plan/meal_plan_model.dart';
 import '../../Providers/group_id_provider.dart';
 import 'package:intl/intl.dart';
+import '../app_drawer.dart';
 
 class MealPlanManagementScreen extends StatefulWidget {
   const MealPlanManagementScreen({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class MealPlanManagementScreen extends StatefulWidget {
 
 class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
   DateTime _selectedDate = DateTime.now();
-  String? groupId ;
+  String? groupId;
 
   @override
   void initState() {
@@ -29,9 +30,11 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final provider = Provider.of<MealPlanProvider>(context);
-    
+
     // Chỉ gọi _fetchMealPlans khi mealPlans trống và không đang tải
-    if (provider.mealPlans.isEmpty && !provider.isLoading && !provider.hasFetched) {
+    if (provider.mealPlans.isEmpty &&
+        !provider.isLoading &&
+        !provider.hasFetched) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _fetchMealPlans();
       });
@@ -44,8 +47,9 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
     final url = '$apiBaseUrl/recipe/$groupId/$recipeId';
 
     try {
-      final response = await Provider.of<MealPlanProvider>(context, listen: false)
-          .fetchRecipeDetail(url);
+      final response =
+          await Provider.of<MealPlanProvider>(context, listen: false)
+              .fetchRecipeDetail(url);
 
       final detailRecipe = response['detail_recipe'];
 
@@ -65,7 +69,6 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
                   'Thời gian nấu: ${detailRecipe['cooking_time'] ?? 'Không có thông tin'}',
                   style: const TextStyle(fontSize: 14),
                 ),
-                
                 const SizedBox(height: 8),
                 const Text(
                   'Nguyên liệu:',
@@ -106,7 +109,6 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
   }
 
   Future<void> _fetchMealPlans() async {
-
     final id = await GroupIdProvider.getSelectedGroupId();
     setState(() {
       groupId = id;
@@ -143,6 +145,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
     final isLoading = Provider.of<MealPlanProvider>(context).isLoading;
 
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.green[700],
@@ -154,12 +157,17 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        leading: IconButton(
-            icon: Icon(Icons.analytics, color: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, '/report');
-            },
-          ),
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () {
+                // Mở Drawer
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.notifications, color: Colors.white),
@@ -170,35 +178,34 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
         ],
       ),
       body: isLoading
-        ? _buildLoadingIndicator()
-        : RefreshIndicator(
-            onRefresh: _fetchMealPlans,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildDatePicker(),
-                  const SizedBox(height: 16),
-                  mealPlans.isEmpty
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text(
-                              'Chưa có bữa ăn nào trong ngày',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[600],
+          ? _buildLoadingIndicator()
+          : RefreshIndicator(
+              onRefresh: _fetchMealPlans,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildDatePicker(),
+                    const SizedBox(height: 16),
+                    mealPlans.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                'Chưa có bữa ăn nào trong ngày',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                      : _buildMealList(mealPlans),
-                ],
+                          )
+                        : _buildMealList(mealPlans),
+                  ],
+                ),
               ),
             ),
-          ),
-
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green[700],
         onPressed: () {
@@ -257,19 +264,19 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
   }
 
   Widget _buildMealList(List<MealPlanModel> mealPlans) {
-  // Sắp xếp danh sách bữa ăn theo thời gian
-  mealPlans.sort((a, b) => a.scheduleTime.compareTo(b.scheduleTime));
+    // Sắp xếp danh sách bữa ăn theo thời gian
+    mealPlans.sort((a, b) => a.scheduleTime.compareTo(b.scheduleTime));
 
-  return ListView.builder(
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    itemCount: mealPlans.length,
-    itemBuilder: (context, index) {
-      final meal = mealPlans[index];
-      return _buildMealTile(meal);
-    },
-  );
-}
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: mealPlans.length,
+      itemBuilder: (context, index) {
+        final meal = mealPlans[index];
+        return _buildMealTile(meal);
+      },
+    );
+  }
 
   Widget _buildMealTile(MealPlanModel meal) {
     final timeFormat = DateFormat('HH:mm'); // Định dạng giờ và phút
@@ -289,7 +296,8 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
                 CircleAvatar(
                   radius: 24,
                   backgroundColor: Colors.green[100],
-                  child: Icon(Icons.restaurant_menu, color: Colors.green[700], size: 28),
+                  child: Icon(Icons.restaurant_menu,
+                      color: Colors.green[700], size: 28),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -329,8 +337,8 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              EditMealPlanScreen(groupId: groupId!, mealPlan: meal),
+                          builder: (context) => EditMealPlanScreen(
+                              groupId: groupId!, mealPlan: meal),
                         ),
                       );
                     } else if (value == 'delete') {
@@ -371,11 +379,10 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
                     dish.recipeName,
                     style: TextStyle(fontSize: 14, color: Colors.orange[700]),
                   ),
-                  subtitle: Text(
-                    '${dish.servings} phần', 
-                    style: TextStyle(fontSize: 13, color: Colors.grey[900])
-                    ),
-                  onTap: () => _showRecipeDetail(context, dish.recipeId, groupId!),
+                  subtitle: Text('${dish.servings} phần',
+                      style: TextStyle(fontSize: 13, color: Colors.grey[900])),
+                  onTap: () =>
+                      _showRecipeDetail(context, dish.recipeId, groupId!),
                 );
               }).toList(),
             )
@@ -384,7 +391,6 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
       ),
     );
   }
-
 
   Future<void> _deleteMeal(BuildContext context, String mealId) async {
     final confirmed = await showDialog(

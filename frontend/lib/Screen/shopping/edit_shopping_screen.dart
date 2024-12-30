@@ -342,140 +342,273 @@ class _EditShoppingItemScreenState extends State<EditShoppingItemScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: Text(
-          'Chỉnh sửa mục shopping',
-          style:
-              TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          'Chỉnh Sửa Đơn Mua Sắm',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
         backgroundColor: Colors.green[700],
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.help_outline),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Hướng dẫn'),
+                  content: Text('Chỉnh sửa thông tin chi tiết về đơn mua sắm của bạn. Đảm bảo cập nhật đầy đủ các mặt hàng cần mua.'),
+                  actions: [
+                    TextButton(
+                      child: Text('Đã hiểu'),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.green[700]!, Colors.grey[100]!],
+            stops: [0.0, 0.3],
+          ),
+        ),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tên mục',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Tên mục không được để trống';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _selectedUser,
-                  hint: const Text('Chọn người giao'),
-                  items: _userList.map((user) {
-                    return DropdownMenuItem<String>(
-                      value: user,
-                      child: Text(user),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedUser = value;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'Giao cho',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _notesController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Ghi chú',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ListTile(
-                  title: const Text('Thời hạn'),
-                  subtitle: Text(
-                    _dueTime != null
-                        ? DateFormat('yyyy-MM-dd').format(_dueTime!)
-                        : 'Chưa chọn',
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.calendar_today),
-                    onPressed: () => _pickDueDate(context),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Danh sách nhiệm vụ',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Column(
-                  children: _taskList.map((task) {
-                    return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      child: ListTile(
-                        title: Text(task.title),
-                        subtitle: Text(
-                            'Số lượng: ${task.quanity} | Đơn vị: ${task.unitName}'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () {
-                                _showEditTaskDialog(
-                                    task); // Gọi phương thức chỉnh sửa khi nhấn nút sửa
-                              },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Card(
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Thông tin cơ bản',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green[700],
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                setState(() {
-                                  _taskList.remove(task);
-                                });
-                              },
+                          ),
+                          SizedBox(height: 16),
+                          TextFormField(
+                            controller: _nameController,
+                            decoration: InputDecoration(
+                              labelText: 'Tiêu đề',
+                              prefixIcon: Icon(Icons.shopping_cart, color: Colors.green[700]),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(color: Colors.green[700]!, width: 2),
+                              ),
                             ),
-                          ],
+                            validator: (value) {
+                              if (value?.isEmpty ?? true) {
+                                return 'Vui lòng nhập tiêu đề';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 16),
+                          DropdownButtonFormField<String>(
+                            value: _selectedUser,
+                            decoration: InputDecoration(
+                              labelText: 'Người thực hiện',
+                              prefixIcon: Icon(Icons.person, color: Colors.green[700]),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            items: _userList.map((user) {
+                              return DropdownMenuItem(
+                                value: user,
+                                child: Text(user),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedUser = value;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Card(
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Chi tiết bổ sung',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green[700],
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          TextFormField(
+                            controller: _notesController,
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                              labelText: 'Ghi chú',
+                              prefixIcon: Icon(Icons.note, color: Colors.green[700]),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          InkWell(
+                            onTap: () => _pickDueDate(context),
+                            child: Container(
+                              padding: EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.calendar_today, color: Colors.green[700]),
+                                  SizedBox(width: 16),
+                                  Text(
+                                    _dueTime != null
+                                        ? DateFormat('dd/MM/yyyy').format(_dueTime!)
+                                        : 'Chọn ngày hết hạn',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Card(
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Danh sách mua sắm',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green[700],
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.add_circle, color: Colors.green[700]),
+                                onPressed: _showAddTaskDialog,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          ..._taskList.map((task) => Container(
+                                margin: EdgeInsets.only(bottom: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: ListTile(
+                                  leading: Icon(Icons.shopping_basket, color: Colors.green[700]),
+                                  title: Text(task.title),
+                                  subtitle: Text('${task.quanity} ${task.unitName}'),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.edit, color: Colors.blue),
+                                        onPressed: () => _showEditTaskDialog(task),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.delete, color: Colors.red),
+                                        onPressed: () {
+                                          setState(() {
+                                            _taskList.remove(task);
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Container(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _saveShoppingItem,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[700],
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: _showAddTaskDialog,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green[700],
-                  ),
-                  icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text('Thêm nhiệm vụ',
-                      style: TextStyle(color: Colors.white)),
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: ElevatedButton.icon(
-                    onPressed: _saveShoppingItem,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[700],
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.save, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            'Lưu thay đổi',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    icon: const Icon(Icons.save, color: Colors.white),
-                    label: const Text('Cập nhật',
-                        style: TextStyle(color: Colors.white)),
                   ),
-                )
-              ],
+                ],
+              ),
             ),
           ),
         ),
