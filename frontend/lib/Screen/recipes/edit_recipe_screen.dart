@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:typed_data';
@@ -32,7 +33,8 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.recipe.name);
-    timeController = TextEditingController(text: widget.recipe.timeCooking.split('.').first);
+    timeController =
+        TextEditingController(text: widget.recipe.timeCooking.split('.').first);
 
     ingredientNameControllers = widget.recipe.ingredients
         .map((ingredient) => TextEditingController(text: ingredient.name))
@@ -48,7 +50,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
 
     stepsController = TextEditingController(text: widget.recipe.steps);
     imageLinkController = widget.recipe.imageLink;
-
+    print('imageLinkController: $imageLinkController');
     fetchUnits();
   }
 
@@ -336,16 +338,12 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                             height: 200,
                             fit: BoxFit.cover,
                           )
-                        : Image.network(
-                            imageLinkController ?? '',
-                            height: 200,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(
-                              Icons.broken_image,
-                              size: 60,
-                              color: Colors.grey,
-                            ),
+                        : CachedNetworkImage(
+                            imageUrl: imageLinkController!,
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
                           ),
                   ),
                 ),

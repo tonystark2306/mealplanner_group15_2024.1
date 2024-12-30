@@ -192,7 +192,7 @@ class HomeScreen extends StatelessWidget {
           DrawerHeader(
             decoration: BoxDecoration(color: Colors.green[700]),
             child: const Text(
-              'Have a nice day, user!',
+              'Một ngày thật tốt lành!',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,

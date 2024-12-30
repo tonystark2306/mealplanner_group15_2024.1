@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../Models/recipe_model.dart';
 import 'package:http/http.dart' as http;
@@ -50,7 +51,7 @@ class RecipeDetailPopup extends StatelessWidget {
                 .toList() ??
             [],
         steps: field['description'] ?? '',
-        imageLink: null, // Assuming RecipeItem has a fromJson factory constructor.
+        imageLink: (field['images'] as List)[0]['image_url'] ?? null, // Assuming RecipeItem has a fromJson factory constructor.
       );
     } else {
       final responseBody = await response.body;
@@ -107,18 +108,20 @@ class RecipeDetailPopup extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // Image Section
-                    // recipe.image != null
-                    //     ? ClipRRect(
-                    //         borderRadius: BorderRadius.circular(10),
-                    //         child: Image.memory(
-                    //           recipe.image!,
-                    //           width: double.infinity,
-                    //           height: 250,
-                    //           fit: BoxFit.contain,
-                    //         ),
-                    //       )
-                    //     : const Icon(Icons.image,
-                    //         size: 100, color: Colors.grey),
+                    recipe.imageLink != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: CachedNetworkImage(
+                                imageUrl:
+                                recipe.imageLink!,
+                                placeholder: (context, url) =>
+                                    const CircularProgressIndicator(),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
+                              ),
+                          )
+                        : const Icon(Icons.image,
+                            size: 100, color: Colors.grey),
                     const SizedBox(height: 16),
 
                     // Time Cooking Section
