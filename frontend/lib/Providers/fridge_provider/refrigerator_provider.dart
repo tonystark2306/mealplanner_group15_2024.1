@@ -48,6 +48,33 @@ class RefrigeratorProvider with ChangeNotifier {
     }
   }
 
+  // Hàm đếm số thực phẩm theo trạng thái
+  Map<String, int> getFoodStatusCounts() {
+    final DateTime now = DateTime.now();
+    int freshCount = 0;
+    int expiringSoonCount = 0;
+    int expiredCount = 0;
+
+    for (var food in _items) {
+      if (food.expirationDate.isAfter(now)) {
+        final daysLeft = food.expirationDate.difference(now).inDays;
+        if (daysLeft < 3) {
+          expiringSoonCount++;
+        } else {
+          freshCount++;
+        }
+      } else {
+        expiredCount++;
+      }
+    }
+
+    return {
+      'fresh': freshCount,
+      'expiringSoon': expiringSoonCount,
+      'expired': expiredCount,
+    };
+  }
+
   //hàm lấy danh sách tên thực phẩm từ api
   Future<void> fetchFoodNames(String groupId) async {
     Map<String, String> tokenObject = await TokenStorage.getTokens();
