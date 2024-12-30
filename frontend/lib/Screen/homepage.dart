@@ -307,7 +307,7 @@ class HomeScreen extends StatelessWidget {
                           );
                         }
                       },
-                      child: const Text('Xóa'),
+                      child: const Text('Xóa', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 );

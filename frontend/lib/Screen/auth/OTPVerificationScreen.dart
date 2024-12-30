@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:meal_planner_app/Services/verify_email_service.dart';
-
+import 'package:meal_planner_app/Services/resend_otp_service.dart';
 class OTPVerificationScreen extends StatefulWidget {
   final String email;
   final String confirmToken;
@@ -104,19 +104,20 @@ void handleVerification() async {
   }
 }
 
-  void resendOTP() {
-    if (_canResend) {
-      // Gửi lại mã OTP ở đây
-      startTimer();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Đã gửi lại mã OTP!"),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+  void resendOTP() async {
+  final result = await ResendOtpApi.resendOtp(email: widget.email);
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(result['message']),
+      backgroundColor: result['success'] ? Colors.green : Colors.red,
+    ),
+  );
+
+  if (result['success']) {
+    startTimer(); // Khởi động lại bộ đếm thời gian nếu gửi OTP thành công
   }
+}
 
   @override
   Widget build(BuildContext context) {
