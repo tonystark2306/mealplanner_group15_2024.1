@@ -125,7 +125,7 @@ Widget build(BuildContext context) {
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
         color: Colors.green[700],
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () {Navigator.pushReplacementNamed(context, '/bottomnav');} 
       ),
       actions: [
         TextButton.icon(
@@ -196,7 +196,7 @@ Widget build(BuildContext context) {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Chưa có nhóm nào',
+                    'Chưa có nhóm nào. Nhấn + để tạo nhóm mới',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
@@ -308,23 +308,29 @@ Widget build(BuildContext context) {
     child: ElevatedButton(
       onPressed: () async {
         if (_selectedGroupId != null) {
-          // Lưu groupId đã chọn
-          await GroupIdProvider.saveSelectedGroupId(_selectedGroupId!);
+          // Lấy tên nhóm tương ứng với ID
+          final selectedGroupName = groups
+              .firstWhere((group) => group['id'] == _selectedGroupId)['groupName'];
 
-          // Kiểm tra và in ra groupId đã lưu
+          // Lưu groupId và groupName đã chọn
+          await GroupIdProvider.saveSelectedGroup(_selectedGroupId!, selectedGroupName);
+
+          // Kiểm tra và in ra groupId và groupName đã lưu
           final savedGroupId = await GroupIdProvider.getSelectedGroupId();
-          print('Group ID đã lưu: $savedGroupId'); // Kiểm tra log
+          final savedGroupName = await GroupIdProvider.getSelectedGroupName();
+          print('Group ID đã lưu: $savedGroupId');
+          print('Tên nhóm đã lưu: $savedGroupName');
 
           // Hiển thị thông báo cho người dùng
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Đã lưu Group ID: $savedGroupId')),
+            SnackBar(content: Text('Chuyển đến $savedGroupName')),
           );
 
           // Hiển thị hộp thoại thành công
           _showSuccessDialog(_selectedGroupId!);
 
           // Chuyển đến màn hình 'bottomnav'
-          Navigator.pushReplacementNamed(context, 'bottomnav');
+          Navigator.pushReplacementNamed(context, '/bottomnav');
         }
       },
       style: ElevatedButton.styleFrom(
@@ -351,6 +357,7 @@ Widget build(BuildContext context) {
       ),
     ),
   ),
+
 
             ],
           );
