@@ -19,9 +19,9 @@ class Token(Base):
     
     # Verification token fields
     verification_code: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
-    verification_code_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    verification_code_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     reset_code: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
-    reset_code_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    reset_code_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     user = relationship('User', foreign_keys=[user_id])
 
