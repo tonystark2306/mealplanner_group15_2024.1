@@ -22,7 +22,7 @@ class RecipeProvider with ChangeNotifier {
   Future<void> _initializeSuggestedRecipes() async {
     _suggestedRecipes = [
       RecipeItem(
-        id: '1',
+        id: 'system_recipe',
         name: 'Phở bò',
         timeCooking: '45 phút',
         ingredients: [
@@ -40,10 +40,10 @@ class RecipeProvider with ChangeNotifier {
   5. Bày bánh phở ra bát, chan nước dùng và thịt lên trên.
   6. Thêm hành lá và thưởng thức.
         ''',
-        imageLink: 'https://i.ytimg.com/vi/9Z1Kb0vz9gY/maxresdefault.jpg',
+        imageLink: 'https://tiki.vn/blog/wp-content/uploads/2023/07/thumb-12.jpg',
       ),
       RecipeItem(
-        id: '2',
+        id: 'system_recipe',
         name: 'Bánh mì thịt nướng',
         timeCooking: '30 phút',
         ingredients: [
@@ -60,7 +60,7 @@ class RecipeProvider with ChangeNotifier {
   4. Thêm thịt, rau và dưa leo vào trong bánh.
   5. Ép nhẹ bánh mì và thưởng thức.
         ''',
-        imageLink: 'https://i.ytimg.com/vi/9Z1Kb0vz9gY/maxresdefault.jpg',
+        imageLink: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/B%C3%A1nh_m%C3%AC_th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng.png/330px-B%C3%A1nh_m%C3%AC_th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng.png',
       ),
     ];
     notifyListeners();

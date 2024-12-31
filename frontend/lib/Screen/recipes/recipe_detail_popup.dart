@@ -24,6 +24,8 @@ class RecipeDetailPopup extends StatelessWidget {
 
   Future<RecipeItem> fetchRecipeDetail() async {
     final id = recipeItem.id;
+    if(id == "system_recipe") return recipeItem;
+    
     final groupId = await _getGroupId();
     final url = 'http://127.0.0.1:5000/api/recipe/$groupId/$id';
     final token = await _getAccessToken(); // Lấy token từ TokenStorage

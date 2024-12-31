@@ -78,9 +78,19 @@ class _RefrigeratorManagementScreenState
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications, color: Colors.white),
+            icon: Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 30,
+            ),
             onPressed: () {
-              // Handle notifications
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddFridgeItemScreen(
+                          groupId: groupId!,
+                        )),
+              );
             },
           ),
         ],
@@ -115,19 +125,6 @@ class _RefrigeratorManagementScreenState
                 );
               },
             ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.green[700],
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => AddFridgeItemScreen(
-                      groupId: groupId!,
-                    )),
-          );
-        },
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
     );
   }
 
@@ -141,15 +138,41 @@ class _RefrigeratorManagementScreenState
 
   Widget _buildEmptyState() {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(
-          'Chưa có thực phẩm nào trong tủ lạnh',
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 16,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: Colors.green[50],
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.shopping_bag,
+              size: 50,
+              color: Colors.green[700],
+            ),
           ),
-        ),
+          const SizedBox(height: 24),
+          Text(
+            'Chưa có thực phẩm trong tủ lạnh',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[800],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Hãy thêm thực phẩm mới bằng cách nhấn vào nút + ở góc phải',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
       ),
     );
   }

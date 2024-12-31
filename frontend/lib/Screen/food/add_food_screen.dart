@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/foundation.dart';  // Thêm import này để sử dụng kIsWeb
+import 'package:flutter/foundation.dart'; // Thêm import này để sử dụng kIsWeb
 import '../../Providers/food_provider.dart';
 import 'package:provider/provider.dart';
 import 'dart:html' as html;
@@ -24,7 +24,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   String? selectedUnit;
   String note = '';
   File? image;
-  var imageWeb;  // Biến cho ảnh web
+  var imageWeb; // Biến cho ảnh web
 
   final _picker = ImagePicker();
   late Future<List<String>> _categoriesFuture;
@@ -41,10 +41,11 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   Future<void> _pickImage() async {
     if (kIsWeb) {
       // Chọn ảnh từ gallery trên web
-      final html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+      final html.FileUploadInputElement uploadInput =
+          html.FileUploadInputElement();
       uploadInput.accept = 'image/*';
       uploadInput.click();
-      
+
       uploadInput.onChange.listen((e) async {
         final files = uploadInput.files;
         if (files!.isEmpty) return;
@@ -53,7 +54,8 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
         reader.readAsArrayBuffer(files[0]);
         reader.onLoadEnd.listen((e) {
           setState(() {
-            imageWeb = reader.result as Uint8List;  // Lưu trữ ảnh cho web dưới dạng Uint8List
+            imageWeb = reader.result
+                as Uint8List; // Lưu trữ ảnh cho web dưới dạng Uint8List
           });
         });
       });
@@ -69,126 +71,213 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   }
 
   @override
+  InputDecoration _buildInputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.green[700]),
+      prefixIcon: Icon(icon, color: Colors.green[700]),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide(color: Colors.green.shade200),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide(color: Colors.green.shade200),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide(color: Colors.green.shade500, width: 2),
+      ),
+      filled: true,
+      fillColor: Colors.green[50],
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final foodProvider = Provider.of<FoodProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text("Thêm thực phẩm")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          "Thêm thực phẩm",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.green[600]!,
+                Colors.green[800]!,
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.green[50]!,
+              Colors.white,
+            ],
+          ),
+        ),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Tên thực phẩm
+                // Image Picker Section
+                Container(
+                  height: 200,
+                  margin: const EdgeInsets.only(bottom: 24),
+                  decoration: BoxDecoration(
+                    color: Colors.green[100],
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.green.shade200, width: 2),
+                  ),
+                  child: image != null || imageWeb != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: kIsWeb
+                              ? Image.memory(imageWeb, fit: BoxFit.cover)
+                              : Image.file(image!, fit: BoxFit.cover),
+                        )
+                      : InkWell(
+                          onTap: _pickImage,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_photo_alternate_outlined,
+                                size: 64,
+                                color: Colors.green[700],
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                "Thêm ảnh thực phẩm",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.green[700],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
+
+                // Form Fields
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Tên thực phẩm'),
+                  decoration: _buildInputDecoration(
+                      'Tên thực phẩm', Icons.restaurant_menu),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Vui lòng nhập tên thực phẩm' : null,
                   onSaved: (value) => name = value!,
-                  validator: (value) => value!.isEmpty ? 'Không được để trống' : null,
                 ),
-                
-                // Loại thực phẩm
+                const SizedBox(height: 16),
+
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Loại thực phẩm'),
+                  decoration:
+                      _buildInputDecoration('Loại thực phẩm', Icons.category),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Vui lòng nhập loại thực phẩm' : null,
                   onSaved: (value) => type = value!,
-                  validator: (value) => value!.isEmpty ? 'Không được để trống' : null,
                 ),
-                
-                // Danh mục
+                const SizedBox(height: 16),
+
+                // Category Dropdown
                 FutureBuilder<List<String>>(
                   future: _categoriesFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text("Không thể tải danh mục");
-                    } else {
-                      final categories = snapshot.data!;
-                      return DropdownButtonFormField<String>(
-                        decoration: InputDecoration(labelText: 'Danh mục'),
-                        value: selectedCategory,
-                        onChanged: (value) => setState(() => selectedCategory = value),
-                        items: categories
-                            .map((category) => DropdownMenuItem(
-                                  value: category,
-                                  child: Text(category),
-                                ))
-                            .toList(),
-                        validator: (value) => value == null ? 'Vui lòng chọn danh mục' : null,
-                      );
+                      return const CircularProgressIndicator();
                     }
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.green[50],
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        decoration:
+                            _buildInputDecoration('Danh mục', Icons.list_alt),
+                        value: selectedCategory,
+                        items: snapshot.data?.map((category) {
+                          return DropdownMenuItem(
+                            value: category,
+                            child: Text(category),
+                          );
+                        }).toList(),
+                        onChanged: (value) =>
+                            setState(() => selectedCategory = value),
+                        validator: (value) =>
+                            value == null ? 'Vui lòng chọn danh mục' : null,
+                      ),
+                    );
                   },
                 ),
-                
-                // Đơn vị
+                const SizedBox(height: 16),
+
+                // Unit Dropdown
                 FutureBuilder<List<String>>(
                   future: _unitsFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text("Không thể tải đơn vị");
-                    } else {
-                      final units = snapshot.data!;
-                      return DropdownButtonFormField<String>(
-                        decoration: InputDecoration(labelText: 'Đơn vị'),
-                        value: selectedUnit,
-                        onChanged: (value) => setState(() => selectedUnit = value),
-                        items: units
-                            .map((unit) => DropdownMenuItem(
-                                  value: unit,
-                                  child: Text(unit),
-                                ))
-                            .toList(),
-                        validator: (value) => value == null ? 'Vui lòng chọn đơn vị' : null,
-                      );
+                      return const CircularProgressIndicator();
                     }
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.green[50],
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        decoration:
+                            _buildInputDecoration('Đơn vị', Icons.straighten),
+                        value: selectedUnit,
+                        items: snapshot.data?.map((unit) {
+                          return DropdownMenuItem(
+                            value: unit,
+                            child: Text(unit),
+                          );
+                        }).toList(),
+                        onChanged: (value) =>
+                            setState(() => selectedUnit = value),
+                        validator: (value) =>
+                            value == null ? 'Vui lòng chọn đơn vị' : null,
+                      ),
+                    );
                   },
                 ),
-                
-                // Ghi chú
+                const SizedBox(height: 16),
+
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Ghi chú'),
+                  decoration: _buildInputDecoration('Ghi chú', Icons.note),
+                  maxLines: 3,
                   onSaved: (value) => note = value!,
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 32),
 
-                // Chọn ảnh
-                ElevatedButton(
-                  onPressed: _pickImage,
-                  child: Text("Chọn ảnh"),
-                ),
-                
-                // Hiển thị ảnh đã chọn
-                if (image != null || imageWeb != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: kIsWeb
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(16.0),
-                            child: Image.memory(
-                              imageWeb,  // Hiển thị ảnh cho web (dùng Image.memory cho Uint8List)
-                              width: double.infinity,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(16.0),
-                            child: Image.file(
-                              image!,
-                              width: double.infinity,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                  ),
-
-                SizedBox(height: 20),
-
-                // Nút thêm thực phẩm
+                // Submit Button
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
@@ -201,7 +290,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                           categoryName: selectedCategory!,
                           unitName: selectedUnit!,
                           note: note,
-                          imageWeb: imageWeb,  // Pass imageWeb for web
+                          imageWeb: imageWeb,
                         );
                       } else {
                         foodProvider.addFood(
@@ -211,13 +300,28 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                           categoryName: selectedCategory!,
                           unitName: selectedUnit!,
                           note: note,
-                          image: image!,  // Pass image for mobile
+                          image: image!,
                         );
                       }
                       Navigator.pop(context);
                     }
                   },
-                  child: Text("Thêm"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[700],
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 4,
+                  ),
+                  child: const Text(
+                    "Thêm thực phẩm",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
             ),

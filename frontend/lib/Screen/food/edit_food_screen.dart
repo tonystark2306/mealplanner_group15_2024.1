@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/foundation.dart';  // Import this to use kIsWeb
+import 'package:flutter/foundation.dart';
 import '../../Providers/food_provider.dart';
 import 'package:provider/provider.dart';
 import 'dart:html' as html;
@@ -21,8 +21,8 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
   final _formKey = GlobalKey<FormState>();
   late String name;
   late String type;
-  late String? categoryName;
-  late String? unitName;
+  late String? selectedCategory;
+  late String? selectedUnit;
   late String note;
   File? image;
   var imageWeb;
@@ -34,11 +34,10 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
   @override
   void initState() {
     super.initState();
-    // Khởi tạo các giá trị ban đầu từ dữ liệu thực phẩm
     name = widget.food['name'] ?? '';
     type = widget.food['type'] ?? '';
-    categoryName = widget.food['category_name'] ?? '';
-    unitName = widget.food['unit_name'] ?? '';
+    selectedCategory = widget.food['category_name'] ?? '';
+    selectedUnit = widget.food['unit_name'] ?? '';
     note = widget.food['note'] ?? '';
     final foodProvider = Provider.of<FoodProvider>(context, listen: false);
     _categoriesFuture = foodProvider.fetchCategoryNames();
@@ -47,11 +46,10 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
 
   Future<void> _pickImage() async {
     if (kIsWeb) {
-      // Chọn ảnh từ gallery trên web
       final html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
       uploadInput.accept = 'image/*';
       uploadInput.click();
-      
+
       uploadInput.onChange.listen((e) async {
         final files = uploadInput.files;
         if (files!.isEmpty) return;
@@ -65,7 +63,6 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
         });
       });
     } else {
-      // Chọn ảnh cho mobile
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         setState(() {
@@ -75,130 +72,209 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
     }
   }
 
+  InputDecoration _buildInputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.green[700]),
+      prefixIcon: Icon(icon, color: Colors.green[700]),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide(color: Colors.green.shade200),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide(color: Colors.green.shade200),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide(color: Colors.green.shade500, width: 2),
+      ),
+      filled: true,
+      fillColor: Colors.green[50],
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final foodProvider = Provider.of<FoodProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text("Chỉnh sửa thực phẩm")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          "Chỉnh sửa thực phẩm",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.green[600]!,
+                Colors.green[800]!,
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.green[50]!,
+              Colors.white,
+            ],
+          ),
+        ),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Tên thực phẩm
+                // Image Section
+                Container(
+                  height: 200,
+                  margin: const EdgeInsets.only(bottom: 24),
+                  decoration: BoxDecoration(
+                    color: Colors.green[100],
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.green.shade200, width: 2),
+                  ),
+                  child: image != null || imageWeb != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: kIsWeb
+                              ? Image.memory(imageWeb, fit: BoxFit.cover)
+                              : Image.file(image!, fit: BoxFit.cover),
+                        )
+                      : InkWell(
+                          onTap: _pickImage,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_photo_alternate_outlined,
+                                size: 64,
+                                color: Colors.green[700],
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                "Cập nhật ảnh thực phẩm",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.green[700],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
+
+                // Tên thực phẩm (Readonly)
                 TextFormField(
                   initialValue: name,
-                  decoration: InputDecoration(labelText: 'Tên thực phẩm'),
-                  onSaved: (value) => name = value!,
-                  validator: (value) => value!.isEmpty ? 'Không được để trống' : null,
+                  decoration: _buildInputDecoration('Tên thực phẩm', Icons.restaurant_menu),
+                  readOnly: true,
+                  enabled: false,
+                  style: TextStyle(color: Colors.grey[700]),
                 ),
-                
+                const SizedBox(height: 16),
+
                 // Loại thực phẩm
                 TextFormField(
                   initialValue: type,
-                  decoration: InputDecoration(labelText: 'Loại thực phẩm'),
+                  decoration: _buildInputDecoration('Loại thực phẩm', Icons.category),
+                  validator: (value) => value!.isEmpty ? 'Vui lòng nhập loại thực phẩm' : null,
                   onSaved: (value) => type = value!,
-                  validator: (value) => value!.isEmpty ? 'Không được để trống' : null,
                 ),
-                
-                // Danh mục
+                const SizedBox(height: 16),
+
+                // Category Dropdown
                 FutureBuilder<List<String>>(
                   future: _categoriesFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text("Không thể tải danh mục");
-                    } else {
-                      final categories = snapshot.data!;
-                      return DropdownButtonFormField<String>(
-                        decoration: InputDecoration(labelText: 'Danh mục'),
-                        value: categoryName,
-                        onChanged: (value) => setState(() => categoryName = value),
-                        items: categories
-                            .map((category) => DropdownMenuItem(
-                                  value: category,
-                                  child: Text(category),
-                                ))
-                            .toList(),
-                        validator: (value) => value == null ? 'Vui lòng chọn danh mục' : null,
-                      );
+                      return const CircularProgressIndicator();
                     }
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.green[50],
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        decoration: _buildInputDecoration('Danh mục', Icons.list_alt),
+                        value: selectedCategory,
+                        items: snapshot.data?.map((category) {
+                          return DropdownMenuItem(
+                            value: category,
+                            child: Text(category),
+                          );
+                        }).toList(),
+                        onChanged: (value) => setState(() => selectedCategory = value),
+                        validator: (value) => value == null ? 'Vui lòng chọn danh mục' : null,
+                      ),
+                    );
                   },
                 ),
+                const SizedBox(height: 16),
 
-                // Đơn vị
+                // Unit Dropdown
                 FutureBuilder<List<String>>(
                   future: _unitsFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text("Không thể tải đơn vị");
-                    } else {
-                      final units = snapshot.data!;
-                      return DropdownButtonFormField<String>(
-                        decoration: InputDecoration(labelText: 'Đơn vị'),
-                        value: unitName,
-                        onChanged: (value) => setState(() => unitName = value),
-                        items: units
-                            .map((unit) => DropdownMenuItem(
-                                  value: unit,
-                                  child: Text(unit),
-                                ))
-                            .toList(),
-                        validator: (value) => value == null ? 'Vui lòng chọn đơn vị' : null,
-                      );
+                      return const CircularProgressIndicator();
                     }
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.green[50],
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        decoration: _buildInputDecoration('Đơn vị', Icons.straighten),
+                        value: selectedUnit,
+                        items: snapshot.data?.map((unit) {
+                          return DropdownMenuItem(
+                            value: unit,
+                            child: Text(unit),
+                          );
+                        }).toList(),
+                        onChanged: (value) => setState(() => selectedUnit = value),
+                        validator: (value) => value == null ? 'Vui lòng chọn đơn vị' : null,
+                      ),
+                    );
                   },
                 ),
-                
+                const SizedBox(height: 16),
+
                 // Ghi chú
                 TextFormField(
                   initialValue: note,
-                  decoration: InputDecoration(labelText: 'Ghi chú'),
+                  decoration: _buildInputDecoration('Ghi chú', Icons.note),
+                  maxLines: 3,
                   onSaved: (value) => note = value!,
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 32),
 
-                // Chọn ảnh
-                ElevatedButton(
-                  onPressed: _pickImage,
-                  child: Text("Chọn ảnh"),
-                ),
-                
-                // Hiển thị ảnh đã chọn
-                if (image != null || imageWeb != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: kIsWeb
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(16.0),
-                            child: Image.memory(
-                              imageWeb,
-                              width: double.infinity,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(16.0),
-                            child: Image.file(
-                              image!,
-                              width: double.infinity,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                  ),
-
-                SizedBox(height: 20),
-
-                // Nút lưu chỉnh sửa
+                // Submit Button
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
@@ -209,10 +285,10 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
                           foodId: widget.food['id'],
                           name: name,
                           type: type,
-                          categoryName: categoryName!,
-                          unitName: unitName!,
+                          categoryName: selectedCategory!,
+                          unitName: selectedUnit!,
                           note: note,
-                          imageWeb: imageWeb,  // Pass imageWeb for web
+                          imageWeb: imageWeb,
                         );
                       } else {
                         foodProvider.updateFood(
@@ -220,16 +296,31 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
                           foodId: widget.food['id'],
                           name: name,
                           type: type,
-                          categoryName: categoryName!,
-                          unitName: unitName!,
+                          categoryName: selectedCategory!,
+                          unitName: selectedUnit!,
                           note: note,
-                          image: image!,  // Pass image for mobile
+                          image: image,
                         );
                       }
                       Navigator.pop(context);
                     }
                   },
-                  child: Text("Lưu"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[700],
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 4,
+                  ),
+                  child: const Text(
+                    "Lưu thay đổi",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
             ),

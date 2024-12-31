@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:meal_planner_app/Services/logoutservice.dart';
 import 'package:meal_planner_app/Services/delete_account_service.dart';
+
+import '../Providers/shopping_provider.dart';
+import 'bottom_navigation_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -17,6 +21,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final shoppingProvider = Provider.of<ShoppingProvider>(context);
+
     return FutureBuilder(
       future: _loadSelectedGroupName(),
       builder: (context, snapshot) {
@@ -127,26 +133,13 @@ class HomeScreen extends StatelessWidget {
                   icon: Icons.shopping_cart,
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/shopping-list');
+                     // Navigator.pushNamed(context, '/shopping-list');
                     },
-                    child: const Column(
+                    child: Column(
                       children: [
-                        SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                '• Rau cải - 2 bó\n• Thịt gà - 1kg\n• Táo - 3 quả',
-                                style: TextStyle(color: Colors.black54),
-                              ),
-                            ),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              color: Colors.green,
-                              size: 16,
-                            ),
-                          ],
-                        ),
+                        const SizedBox(height: 10),
+                        Text(shoppingProvider.getUncompletedItemsInfo()['uncompleted'] != 0 ? 'Bạn còn ${shoppingProvider.getUncompletedItemsInfo()['uncompleted']} nhiệm vụ chưa hoàn thành' : 
+                        'Bạn đã hoàn thành hết nhiệm vụ!'),
                       ],
                     ),
                   ),
@@ -157,7 +150,7 @@ class HomeScreen extends StatelessWidget {
                   icon: Icons.menu_book,
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/recipe-management');
+                      //Navigator.pushNamed(context, '/recipe-management');
                     },
                     child: const Row(
                       children: [

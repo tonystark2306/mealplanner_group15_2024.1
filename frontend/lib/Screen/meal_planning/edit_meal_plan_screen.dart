@@ -37,38 +37,39 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Meal Plan'),
+        title: const Text('Chỉnh Sửa Kế Hoạch Bữa Ăn', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
         backgroundColor: Colors.green,
         centerTitle: true,
         elevation: 6.0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Meal Name
+            // Tên bữa ăn
             _buildTextField(
               controller: _nameController,
-              label: 'Meal Name',
-              hintText: 'Enter the name of the meal',
+              label: 'Tên Bữa Ăn',
+              hintText: 'Nhập tên của bữa ăn',
             ),
             const SizedBox(height: 16),
 
-            // Description
+            // Mô tả
             _buildTextField(
               controller: _descriptionController,
-              label: 'Description',
-              hintText: 'Describe the meal (optional)',
+              label: 'Mô Tả',
+              hintText: 'Mô tả bữa ăn (không bắt buộc)',
               maxLines: 3,
             ),
             const SizedBox(height: 16),
 
-            // Meal Time
+            // Thời gian bữa ăn
             Row(
               children: [
                 Text(
-                  'Time: ${_selectedTime.toLocal().toString().substring(11, 16)}',
+                  'Thời Gian: ${_selectedTime.toLocal().toString().substring(11, 16)}',
                   style: const TextStyle(fontSize: 16, color: Colors.green),
                 ),
                 const Spacer(),
@@ -81,13 +82,13 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
                     ),
                     elevation: 4,
                   ),
-                  child: const Text('Select Time', style: TextStyle(color: Colors.white)),
+                  child: const Text('Chọn Giờ', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
             const SizedBox(height: 16),
 
-            // Add Dish Button
+            // Nút thêm món ăn
             ElevatedButton(
               onPressed: _addDish,
               style: ElevatedButton.styleFrom(
@@ -97,13 +98,13 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
                 ),
                 elevation: 4,
               ),
-              child: const Text('Add Dish', style: TextStyle(color: Colors.white)),
+              child: const Text('Thêm Món Ăn', style: TextStyle(color: Colors.white)),
             ),
             const SizedBox(height: 16),
 
-            // Dish List
+            // Danh sách món ăn
             _selectedDishes.isEmpty
-                ? const Text('No dishes added yet.', style: TextStyle(color: Colors.grey))
+                ? const Text('Chưa có món ăn nào được thêm.', style: TextStyle(color: Colors.grey))
                 : ListView.builder(
                     shrinkWrap: true,
                     itemCount: _selectedDishes.length,
@@ -122,7 +123,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
                             dish.recipeName,
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          subtitle: Text('Servings: ${dish.servings}'),
+                          subtitle: Text('Phần ăn: ${dish.servings}'),
                           trailing: IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () => setState(() {
@@ -135,7 +136,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
                   ),
             const SizedBox(height: 16),
 
-            // Save Button
+            // Nút lưu
             ElevatedButton(
               onPressed: _submitMealPlan,
               style: ElevatedButton.styleFrom(
@@ -145,7 +146,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
                 ),
                 elevation: 4,
               ),
-              child: const Text('Save Changes', style: TextStyle(color: Colors.white)),
+              child: const Text('Lưu Thay Đổi', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -207,7 +208,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('Add Dish'),
+            title: const Text('Thêm Món Ăn'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -220,7 +221,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
                   }).toList(),
                   onChanged: (value) => selectedDish = value,
                   decoration: const InputDecoration(
-                    labelText: 'Select Dish',
+                    labelText: 'Chọn Món',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -228,7 +229,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
                 TextField(
                   controller: servingsController,
                   decoration: const InputDecoration(
-                    labelText: 'Servings',
+                    labelText: 'Số Phần Ăn',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
@@ -238,7 +239,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: const Text('Hủy'),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -253,7 +254,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
                     Navigator.pop(context);
                   }
                 },
-                child: const Text('Add'),
+                child: const Text('Thêm'),
               ),
             ],
           );
@@ -261,7 +262,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text('Lỗi: $e')),
       );
     }
   }
@@ -269,7 +270,7 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
   void _submitMealPlan() async {
     if (_nameController.text.isEmpty || _selectedDishes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please complete all fields.')),
+        const SnackBar(content: Text('Vui lòng điền đầy đủ thông tin.')),
       );
       return;
     }
@@ -285,13 +286,13 @@ class _EditMealPlanScreenState extends State<EditMealPlanScreen> {
     final provider = Provider.of<MealPlanProvider>(context, listen: false);
     try {
       await provider.updateMealPlan(mealPlan, widget.groupId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Meal Plan Updated Successfully')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('Cập Nhật Kế Hoạch Thành Công')),
+      // );
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text('Lỗi: $e')),
       );
     }
   }

@@ -452,4 +452,16 @@ class ShoppingProvider with ChangeNotifier {
       return {'completed': 0, 'total': 0};
     }
   }
+
+  Map<String, dynamic> getUncompletedItemsInfo() {
+    int total = _shoppingList.length;
+    int completed = _shoppingList.where((item) => item.isDone).length;
+    int uncompleted = total - completed;
+    
+    return {
+      'total': total,
+      'uncompleted': uncompleted,
+      'completed': completed
+    };
+  }
 }

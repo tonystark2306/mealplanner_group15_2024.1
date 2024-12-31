@@ -56,7 +56,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text(detailRecipe['dish_name']),
+          title: Text(detailRecipe['dish_name'], textAlign: TextAlign.center),
           content: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,7 +66,7 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
                   Image.network(detailRecipe['images'][0]['image_url']),
                 const SizedBox(height: 8),
                 Text(
-                  'Thời gian nấu: ${detailRecipe['cooking_time'] ?? 'Không có thông tin'}',
+                  'Thời gian nấu: ${detailRecipe['cooking_time'].toString().split('.').first ?? 'Không có thông tin'} phút',
                   style: const TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: 8),
@@ -94,9 +94,16 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Đóng'),
+            Row(
+              // Row can be used to control alignment
+              mainAxisAlignment:
+                  MainAxisAlignment.center, // This centers the button
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Đóng'),
+                ),
+              ],
             ),
           ],
         ),
@@ -170,9 +177,13 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications, color: Colors.white),
+            icon: Icon(Icons.add, color: Colors.white, size: 30),
             onPressed: () {
-              // Handle notifications
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddMealPlanScreen(groupId: groupId!)),
+              );
             },
           ),
         ],
@@ -190,15 +201,41 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
                     const SizedBox(height: 16),
                     mealPlans.isEmpty
                         ? Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                'Chưa có bữa ăn nào trong ngày',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green[50],
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.shopping_bag,
+                                    size: 50,
+                                    color: Colors.green[700],
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(height: 24),
+                                Text(
+                                  'Chưa có kế hoạch nào hôm nay',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Hãy thêm kế hoạch mới bằng cách nhấn vào nút + ở góc phải',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
                             ),
                           )
                         : _buildMealList(mealPlans),
@@ -206,17 +243,6 @@ class _MealPlanManagementScreenState extends State<MealPlanManagementScreen> {
                 ),
               ),
             ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.green[700],
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => AddMealPlanScreen(groupId: groupId!)),
-          );
-        },
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
     );
   }
 
