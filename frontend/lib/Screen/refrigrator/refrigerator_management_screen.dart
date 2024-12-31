@@ -298,7 +298,7 @@ class _RefrigeratorManagementScreenState
                       ),
                     );
                   },
-                  icon: const Icon(Icons.info),
+                  icon: const Icon(Icons.info, color: Colors.white),
                   label: const Text('Xem chi tiết'),
                 ),
               ],
