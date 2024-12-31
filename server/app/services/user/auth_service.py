@@ -193,7 +193,7 @@ class AuthService:
             if (
                 token is None or token.confirm_token != confirm_token or
                 token.verification_code != verification_code or
-                token.verification_code_expires_at < datetime.now(tz=timezone.utc).replace(tzinfo=None)
+                token.verification_code_expires_at < datetime.now(tz=timezone.utc)
             ):
                 return None
             

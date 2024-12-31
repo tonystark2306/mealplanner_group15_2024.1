@@ -4,9 +4,9 @@ import 'package:meal_planner_app/Services/verify_email_service.dart';
 import 'package:meal_planner_app/Services/resend_otp_service.dart';
 class OTPVerificationScreen extends StatefulWidget {
   final String email;
-  final String confirmToken;
+  String confirmToken;
 
-  const OTPVerificationScreen({
+  OTPVerificationScreen({
     super.key,
     required this.email,
     required this.confirmToken,
@@ -67,14 +67,16 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
 
 void handleVerification() async {
   String otp = _controllers.map((controller) => controller.text).join();
+
   if (otp.length == 6) {
     // Gọi API xác thực
     final response = await VerifyEmailApi.verifyEmail(
-      confirmToken: widget.confirmToken,
+      confirmToken: widget.confirmToken, // Sử dụng confirmToken mới nhất
       verificationCode: otp,
+
     );
 
-    //print('Response: $response');
+    print('API Response: $response');
 
     if (response['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -104,8 +106,15 @@ void handleVerification() async {
   }
 }
 
-  void resendOTP() async {
+void resendOTP() async {
   final result = await ResendOtpApi.resendOtp(email: widget.email);
+
+  if (result['success']) {
+    setState(() {
+      widget.confirmToken = result['confirmToken']; // Lưu confirmToken mới
+    });
+    startTimer(); // Khởi động lại bộ đếm thời gian nếu gửi OTP thành công
+  }
 
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
@@ -113,11 +122,9 @@ void handleVerification() async {
       backgroundColor: result['success'] ? Colors.green : Colors.red,
     ),
   );
-
-  if (result['success']) {
-    startTimer(); // Khởi động lại bộ đếm thời gian nếu gửi OTP thành công
-  }
 }
+
+
 
   @override
   Widget build(BuildContext context) {

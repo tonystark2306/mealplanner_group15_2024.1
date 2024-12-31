@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class ResetPasswordScreen extends StatefulWidget {
-  const ResetPasswordScreen({super.key});
+  final String tempAccessToken;
+
+  const ResetPasswordScreen({required this.tempAccessToken, super.key});
 
   @override
   _ResetPasswordScreenState createState() => _ResetPasswordScreenState();
@@ -14,13 +18,65 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   bool _isPasswordHidden = true;
   bool _isConfirmPasswordHidden = true;
 
+  Future<void> resetPassword(String newPassword) async {
+    const String apiUrl = 'http://127.0.0.1:5000/api/user/reset-password';
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          //'Authorization': 'Bearer ${widget.tempAccessToken}',
+        },
+        body: json.encode({
+          "newPassword": newPassword,
+          "tempAccessToken": widget.tempAccessToken,
+        }),
+      );
+
+
+      print('API Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        if (responseData['resultCode'] == '00058') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(responseData['resultMessage']['vn']),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pushNamed(context, '/login');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(responseData['resultMessage']['vn'] ?? 'Có lỗi xảy ra, vui lòng thử lại.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Lỗi server. Vui lòng thử lại sau.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Không thể kết nối đến server: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   void handleResetPassword() {
     if (_formKey.currentState!.validate()) {
-      // Ở đây bạn sẽ thêm logic đặt lại mật khẩu
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Đặt lại mật khẩu thành công!")),
-      );
-      Navigator.pushNamed(context, '/login');
+      final newPassword = passwordController.text;
+      resetPassword(newPassword);
     }
   }
 
@@ -44,10 +100,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Image.asset(
-                  'assets/reset_password_icon.png',
-                  height: 120,
-                ),
                 const SizedBox(height: 20),
                 Text(
                   "Đặt lại mật khẩu",
@@ -138,7 +190,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                   child: const Text(
                     "Đặt lại mật khẩu",
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
