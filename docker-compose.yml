@@ -1,4 +1,12 @@
 services:
+  frontend:
+    container_name: mealplanner_frontend
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
   backend:
     container_name: mealplanner_backend
     build: ./server
