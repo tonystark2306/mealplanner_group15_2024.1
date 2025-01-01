@@ -1,0 +1,28 @@
+# Build artifacts
+build/
+
+# Temporary Dart files and package cache
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+
+# IDE/editor configurations
+.idea/
+.vscode/
+*.iml
+
+# Git-related files
+.git/
+.gitignore
+*.md
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+
+# Environment configuration files
+.env
+.env.local
