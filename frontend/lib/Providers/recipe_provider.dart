@@ -24,7 +24,7 @@ class RecipeProvider with ChangeNotifier {
       RecipeItem(
         id: 'system_recipe',
         name: 'Phở bò',
-        timeCooking: '45 phút',
+        timeCooking: '45 ',
         ingredients: [
           Ingredient(name: 'Bánh phở', unitName: 'g', weight: '200'),
           Ingredient(name: 'Thịt bò', unitName: 'g', weight: '300'),
@@ -45,7 +45,7 @@ class RecipeProvider with ChangeNotifier {
       RecipeItem(
         id: 'system_recipe',
         name: 'Bánh mì thịt nướng',
-        timeCooking: '30 phút',
+        timeCooking: '30 ',
         ingredients: [
           Ingredient(name: 'Bánh mì', unitName: 'cái', weight: '1'),
           Ingredient(name: 'Thịt heo nướng', unitName: 'g', weight: '150'),
@@ -61,6 +61,46 @@ class RecipeProvider with ChangeNotifier {
   5. Ép nhẹ bánh mì và thưởng thức.
         ''',
         imageLink: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/B%C3%A1nh_m%C3%AC_th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng.png/330px-B%C3%A1nh_m%C3%AC_th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng.png',
+      ),
+      RecipeItem(
+        id: 'system_recipe',
+        name: 'Thịt bò xào sả ớt',
+        timeCooking: '30 ',
+        ingredients: [
+          Ingredient(name: 'Bánh mì', unitName: 'cái', weight: '1'),
+          Ingredient(name: 'Thịt heo nướng', unitName: 'g', weight: '150'),
+          Ingredient(name: 'Dưa leo', unitName: 'g', weight: '50'),
+          Ingredient(name: 'Rau thơm', unitName: 'g', weight: '10'),
+          Ingredient(name: 'Tương ớt', unitName: 'ml', weight: '20ml'),
+        ],
+        steps: '''
+  1. Chuẩn bị nguyên liệu: rửa rau và thái dưa leo.
+  2. Nướng thịt heo đến khi chín đều.
+  3. Bổ đôi bánh mì, phết tương ớt vào hai mặt.
+  4. Thêm thịt, rau và dưa leo vào trong bánh.
+  5. Ép nhẹ bánh mì và thưởng thức.
+        ''',
+        imageLink: 'https://cdn.tgdd.vn/2021/05/CookProduct/BoXaoSaOt1200-1200x675-1200x675.jpg'
+        ),
+      RecipeItem(
+        id: 'system_recipe',
+        name: 'Tôm hùm alaska nướng',
+        timeCooking: '30 ',
+        ingredients: [
+          Ingredient(name: 'Bánh mì', unitName: 'cái', weight: '1'),
+          Ingredient(name: 'Thịt heo nướng', unitName: 'g', weight: '150'),
+          Ingredient(name: 'Dưa leo', unitName: 'g', weight: '50'),
+          Ingredient(name: 'Rau thơm', unitName: 'g', weight: '10'),
+          Ingredient(name: 'Tương ớt', unitName: 'ml', weight: '20ml'),
+        ],
+        steps: '''
+  1. Chuẩn bị nguyên liệu: rửa rau và thái dưa leo.
+  2. Nướng thịt heo đến khi chín đều.
+  3. Bổ đôi bánh mì, phết tương ớt vào hai mặt.
+  4. Thêm thịt, rau và dưa leo vào trong bánh.
+  5. Ép nhẹ bánh mì và thưởng thức.
+        ''',
+        imageLink: 'https://tepbac.com/upload/species/ge_image/Tep-bac-nghe_Metapenaeus%20brevicornis.jpg',
       ),
     ];
     notifyListeners();
