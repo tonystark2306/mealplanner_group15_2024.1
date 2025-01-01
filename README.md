@@ -32,7 +32,7 @@ You can run this application using either Docker Compose or by setting up a loca
    ```
 
 4. Access the application:
-   - Open your browser and navigate to `http://localhost:3000`
+   - The application will be activated automatically on selected browser.
    - The API will be available at `http://localhost:8080`
 
 ### Option 2: Local Development Setup
@@ -74,14 +74,14 @@ You can run this application using either Docker Compose or by setting up a loca
    ```
 
 4. Access the application:
-   - Frontend: `http://localhost:3000`
+   - Frontend: The application will be activated automatically on selected browser.
    - API: `http://localhost:5000`
 
 ## Support
 
 For any issues or questions, please:
 - Create an issue in our GitHub repository
-- Contact our support team at support@mealplanner-group15.example.com
+- Contact our support team at dat.ntt210177@sis.hust.edu.vn
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
