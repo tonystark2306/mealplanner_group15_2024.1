@@ -134,6 +134,7 @@ If using Docker compose, just only run the command below:
 ```bash
 docker-compose up -d
 ```
+---
 
 ## 🔄 Usage
 - Launch the application and register as a new user.
