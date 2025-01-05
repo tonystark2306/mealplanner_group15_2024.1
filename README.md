@@ -83,33 +83,7 @@ The ERD provides a detailed view of the database schema, including relationships
 ### Backend Setup
 1. Clone the repository:
    ```bash
-<<<<<<< HEAD
    git clone https://github.com/tonystark2306/mealplanner_group15_2024.1.git
-=======
-   git clone https://github.com/yourusername/mealplanner_group15_2024.1.git
-   cd mealplanner_group15_2024.1
-   ```
-
-3. Start the application:
-   ```bash
-   docker-compose up -d
-   ```
-
-4. Access the application:
-   - The application will be activated automatically on selected browser.
-   - The API will be available at `http://localhost:8080`
-
-### Option 2: Local Development Setup
-
-1. Prerequisites:
-   - Python 3.8 or higher
-   - Node.js 16 or higher
-   - PostgreSQL 13 or higher
-
-2. Backend Setup:
-   ```bash
-   # Create and activate virtual environment
->>>>>>> 613015cdf51f7907829545aea8b8264407b986b1
    cd server
    ```
 
@@ -119,30 +93,18 @@ The ERD provides a detailed view of the database schema, including relationships
    source venv/bin/activate
    ```
 
-<<<<<<< HEAD
 3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-=======
-4. Access the application:
-   - Frontend: The application will be activated automatically on selected browser.
-   - API: `http://localhost:5000`
->>>>>>> 613015cdf51f7907829545aea8b8264407b986b1
 
 4. Configure environment variables:
    - Add `.env` file with the necessary configurations (e.g., database URL, RabbitMQ URL, Firebase credentials) following `.env.example`.
 
-<<<<<<< HEAD
 5. Run database migrations:
    ```bash
    flask db upgrade
    ```
-=======
-For any issues or questions, please:
-- Create an issue in our GitHub repository
-- Contact our support team at dat.ntt210177@sis.hust.edu.vn
->>>>>>> 613015cdf51f7907829545aea8b8264407b986b1
 
 6. Start the Flask server:
    ```bash
